@@ -1,6 +1,6 @@
 package com.example.auctrade.chat.dto;
 
-import com.example.auctrade.chat.document.ChatMessage;
+import com.example.auctrade.chat.document.AuctionChatMessage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -15,11 +15,11 @@ public class MessageDTO {
     private String message;
     private String createdAt;
 
-    public MessageDTO(ChatMessage chatMessage){
-        this.id = chatMessage.getId();
-        this.auctionId = Long.valueOf(chatMessage.getAuctionId());
-        this.username = chatMessage.getUsername();
-        this.message = chatMessage.getMessage();
-        this.createdAt = chatMessage.getCreatedAt();
+    public MessageDTO(AuctionChatMessage auctionChatMessage){
+        this.id = auctionChatMessage.getId();
+        this.auctionId = Long.valueOf(auctionChatMessage.getAuctionId());
+        this.username = auctionChatMessage.getUsername();
+        this.message = auctionChatMessage.getMessage();
+        this.createdAt = auctionChatMessage.getCreatedAt();
     }
 }
