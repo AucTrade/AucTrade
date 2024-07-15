@@ -16,7 +16,6 @@ public class AuctionChatMessage extends ChatMessage {
     private String id;
     private String auctionId;
 
-    @Builder
     public AuctionChatMessage(String username, String message, Long auctionId){
         super(username, message);
         this.auctionId = auctionId.toString();
