@@ -19,7 +19,7 @@ public class ChatController {
     @MessageMapping(value = "/chat/enter")
     public void enter(MessageDTO message){
         message.setMessage(message.getUsername() + "님이 채팅방에 참여하였습니다.");
-        if(chatMessageService.saveMsg(message) != null)
+        if(chatMessageService.saveChatMessage(message) != null)
             sendingOperations.convertAndSend("/sub/chat/room/" + message.getAuctionId(), message);
     }
 
@@ -29,7 +29,7 @@ public class ChatController {
             long price = Long.parseLong(message.getMessage().substring(1));
             // postgreSQL 경매 플로우 로직 할당 시작(1차)
         }
-        if(chatMessageService.saveMsg(message) != null)
+        if(chatMessageService.saveChatMessage(message) != null)
             sendingOperations.convertAndSend("/sub/chat/room/" + message.getAuctionId(), message);
     }
 }
