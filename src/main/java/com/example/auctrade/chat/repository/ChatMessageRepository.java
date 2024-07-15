@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ChatMessageRepository extends MongoRepository<AuctionChatMessage, String> {
-    List<AuctionChatMessage> findByRoomId(int roomId);
-    AuctionChatMessage findTopByRoomIdOrderByCreatedAtDesc(int roomId);
-    List<AuctionChatMessage> findAllByRoomId(String roomId);
+    List<AuctionChatMessage> findByAuctionId(String auctionId);
+    AuctionChatMessage findTopByAuctionIdOrderByCreatedAtDesc(String auctionId);
+    List<AuctionChatMessage> findAllByAuctionId(String roomId);
 }

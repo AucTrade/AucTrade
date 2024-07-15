@@ -1,6 +1,5 @@
 package com.example.auctrade.chat.controller;
 
-
 import com.example.auctrade.chat.dto.ChatRoomDTO;
 import com.example.auctrade.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;

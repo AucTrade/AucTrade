@@ -29,7 +29,9 @@ public class ChatMessageService {
         return new MessageDTO(chatMessageRepository.save(auctionChatMessage));
     }
 
-    public List<MessageDTO> findMsgByRoomId(String roomId) {
-        return this.chatMessageRepository.findAllByRoomId(roomId).stream().map(MessageDTO::new).toList();
+    @Transactional(readOnly = true)
+    public List<MessageDTO> findMessageByAuctionId(String AuctionId) {
+        return this.chatMessageRepository.
+                findAllByAuctionId(AuctionId).stream().map(MessageDTO::new).toList();
     }
 }
