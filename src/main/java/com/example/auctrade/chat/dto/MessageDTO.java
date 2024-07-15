@@ -10,14 +10,14 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class MessageDTO {
     private String id;
-    private String roomId;
+    private Long auctionId;
     private String username;
     private String message;
     private String createdAt;
 
     public MessageDTO(ChatMessage chatMessage){
         this.id = chatMessage.getId();
-        this.roomId = chatMessage.getAuctionId();
+        this.auctionId = Long.valueOf(chatMessage.getAuctionId());
         this.username = chatMessage.getUsername();
         this.message = chatMessage.getMessage();
         this.createdAt = chatMessage.getCreatedAt();

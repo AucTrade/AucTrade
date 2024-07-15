@@ -20,12 +20,13 @@ public class ChatMessageService {
     @Transactional
     public MessageDTO saveMsg(final MessageDTO request) {
         ChatMessage chatMessage = ChatMessage.builder()
-                .roomId(request.getRoomId())
+                .auctionId(request.getAuctionId())
                 .username(request.getUsername())
                 .message(request.getMessage())
                 .build();
         return new MessageDTO(chatMessageRepository.save(chatMessage));
     }
+
     public List<MessageDTO> findMsgByRoomId(String roomId) {
         return this.chatMessageRepository.findAllByRoomId(roomId).stream().map(MessageDTO::new).toList();
     }

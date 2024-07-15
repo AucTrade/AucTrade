@@ -22,10 +22,10 @@ public class ChatMessage {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Builder
-    public ChatMessage(String username, String message, String auctionId){
+    public ChatMessage(String username, String message, Long auctionId){
         this.username = username;
         this.message = message;
-        this.auctionId = auctionId;
+        this.auctionId = auctionId.toString();
         this.createdAt = LocalDateTime.now().format(FORMATTER);
     }
 }
