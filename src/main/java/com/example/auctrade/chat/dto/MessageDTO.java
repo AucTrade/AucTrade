@@ -17,7 +17,7 @@ public class MessageDTO {
 
     public MessageDTO(ChatMessage chatMessage){
         this.id = chatMessage.getId();
-        this.roomId = chatMessage.getRoomId();
+        this.roomId = chatMessage.getAuctionId();
         this.username = chatMessage.getUsername();
         this.message = chatMessage.getMessage();
         this.createdAt = chatMessage.getCreatedAt();
