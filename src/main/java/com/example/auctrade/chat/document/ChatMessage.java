@@ -1,4 +1,4 @@
-package com.example.auctrade.document;
+package com.example.auctrade.chat.document;
 
 import jakarta.persistence.*;
 import lombok.*;

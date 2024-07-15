@@ -1,6 +1,6 @@
-package com.example.auctrade.dto;
+package com.example.auctrade.chat.dto;
 
-import com.example.auctrade.document.ChatMessage;
+import com.example.auctrade.chat.document.ChatMessage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

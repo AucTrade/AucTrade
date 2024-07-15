@@ -1,8 +1,8 @@
-package com.example.auctrade.service;
+package com.example.auctrade.chat.service;
 
-import com.example.auctrade.document.ChatMessage;
-import com.example.auctrade.dto.MessageDTO;
-import com.example.auctrade.repository.ChatMessageRepository;
+import com.example.auctrade.chat.document.ChatMessage;
+import com.example.auctrade.chat.dto.MessageDTO;
+import com.example.auctrade.chat.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

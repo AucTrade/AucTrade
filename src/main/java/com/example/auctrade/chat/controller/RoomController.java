@@ -1,8 +1,8 @@
-package com.example.auctrade.controller.api;
+package com.example.auctrade.chat.controller;
 
 
-import com.example.auctrade.dto.ChatRoomDTO;
-import com.example.auctrade.service.ChatRoomService;
+import com.example.auctrade.chat.dto.ChatRoomDTO;
+import com.example.auctrade.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;

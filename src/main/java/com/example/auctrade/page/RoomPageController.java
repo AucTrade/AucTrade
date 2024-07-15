@@ -1,4 +1,4 @@
-package com.example.auctrade.controller;
+package com.example.auctrade.page;
 
 
 import lombok.RequiredArgsConstructor;

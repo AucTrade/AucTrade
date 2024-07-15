@@ -1,8 +1,8 @@
-package com.example.auctrade.controller.api;
+package com.example.auctrade.chat.controller;
 
 
-import com.example.auctrade.dto.MessageDTO;
-import com.example.auctrade.service.ChatMessageService;
+import com.example.auctrade.chat.dto.MessageDTO;
+import com.example.auctrade.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -27,6 +27,7 @@ public class ChatController {
     public void message(MessageDTO message){
         if(message.getMessage().charAt(0) == '@'){
             long price = Long.parseLong(message.getMessage().substring(1));
+            // postgreSQL 경매 플로우 로직 할당 시작(1차)
         }
         if(chatMessageService.saveMsg(message) != null)
             sendingOperations.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
