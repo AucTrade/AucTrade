@@ -1,5 +1,6 @@
 package com.example.auctrade.domain.auction.entity;
 
+import com.example.auctrade.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +37,9 @@ public class Auction {
     @Column(name = "products", nullable = false)
     private String products; // Product 엔티티 생성시 수정 필요
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // User 엔티티 생성시 수정 필요
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // User 객체 (경매 생성자)
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate; // 경매 시작예고시간, 시간 포맷팅 고려 필요
