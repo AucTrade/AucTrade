@@ -43,7 +43,7 @@ public class Auction {
 
     @ElementCollection
     @CollectionTable(name = "auction_products", joinColumns = @JoinColumn(name = "auction_id"))
-    @Column(name = "product_id")
+    @Column(name = "product_ids")
     private List<Long> productIds; // Product ID 리스트
 
     /**
