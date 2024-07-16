@@ -1,6 +1,6 @@
-package com.example.auctrade.chat.dto;
+package com.example.auctrade.domain.chat.dto;
 
-import com.example.auctrade.chat.document.AuctionChatMessage;
+import com.example.auctrade.domain.chat.document.AuctionChatMessage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

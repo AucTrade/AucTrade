@@ -1,6 +1,6 @@
-package com.example.auctrade.chat.repository;
+package com.example.auctrade.domain.chat.repository;
 
-import com.example.auctrade.chat.document.AuctionChatMessage;
+import com.example.auctrade.domain.chat.document.AuctionChatMessage;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
-package com.example.auctrade.chat.factory;
+package com.example.auctrade.domain.chat.factory;
 
-import com.example.auctrade.chat.document.AuctionChatMessage;
+import com.example.auctrade.domain.chat.document.AuctionChatMessage;
 import org.springframework.stereotype.Component;
 
 // 팩토리 메소드 컴포넌트 등록

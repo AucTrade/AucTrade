@@ -1,6 +1,6 @@
-package com.example.auctrade.chat.service;
+package com.example.auctrade.domain.chat.service;
 
-import com.example.auctrade.chat.dto.ChatRoomDTO;
+import com.example.auctrade.domain.chat.dto.ChatRoomDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

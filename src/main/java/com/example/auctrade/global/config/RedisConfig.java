@@ -1,4 +1,4 @@
-package com.example.auctrade.config;
+package com.example.auctrade.global.config;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.SocketOptions;

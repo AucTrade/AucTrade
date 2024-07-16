@@ -1,17 +1,15 @@
-package com.example.auctrade.auction.entity;
+package com.example.auctrade.domain.auction.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "auctions")
 public class Auction {
@@ -30,12 +28,27 @@ public class Auction {
     @Column(name = "user_id", nullable = false)
     private Long userId; // User 엔티티 생성시 수정 필요
 
+    @CreatedDate
+    @Column(name = "created", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt; // 경매 게시일자
+
     @Column(name = "auction_date", nullable = false)
-    private LocalDateTime auctionDate; // 시간 포맷팅 고려 필요
+    private LocalDateTime auctionDate; // 경매 시작예고시간, 시간 포맷팅 고려 필요
 
     @Column(name = "minimum_price", nullable = false)
     private int minimumPrice;
 
     @Column(name = "end", nullable = false)
     private boolean end; // price 가 진행 가격인지 최종 낙찰 가격인지
+
+    @Builder
+    public Auction(int price, String products, Long userId, LocalDateTime auctionDate, int minimumPrice) {
+        this.price = price;
+        this.products = products;
+        this.userId = userId;
+        this.auctionDate = auctionDate;
+        this.minimumPrice = minimumPrice;
+        this.end = false;
+    }
 }

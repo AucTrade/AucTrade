@@ -1,4 +1,4 @@
-package com.example.auctrade.config;
+package com.example.auctrade.global.config;
 
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.example.auctrade.chat.dto;
+package com.example.auctrade.domain.chat.dto;
 
 import lombok.Builder;
 import lombok.Getter;

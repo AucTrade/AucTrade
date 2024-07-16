@@ -1,4 +1,4 @@
-package com.example.auctrade.auction.repository;
+package com.example.auctrade.domain.auction.repository;
 
 import org.springframework.stereotype.Repository;
 
