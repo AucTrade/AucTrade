@@ -1,6 +1,5 @@
 package com.example.auctrade.domain.auction.entity;
 
-import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
