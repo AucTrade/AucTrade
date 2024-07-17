@@ -1,5 +1,6 @@
 package com.example.auctrade.domain.auction.entity;
 
+import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,10 +42,15 @@ public class Auction {
 //    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Product> products = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(name = "auction_products", joinColumns = @JoinColumn(name = "auction_id"))
-    @Column(name = "product_ids")
-    private List<Long> productIds; // Product ID 리스트
+//    @ElementCollection
+//    @CollectionTable(name = "auction_products", joinColumns = @JoinColumn(name = "auction_id"))
+//    @Column(name = "product_ids")
+//    private List<Long> productIds; // Product ID 리스트
+//
+//    @ElementCollection
+//    @CollectionTable(name = "auction_users", joinColumns = @JoinColumn(name = "auction_id"))
+//    @Column(name = "user_ids")
+//    private List<Long> userIds; // 경매 참여자들 아이디
 
     /**
      * postgreSQL에서 배열 컬럼을 JPA에서 직접 다루는 건 방법이 드물 뿐더러 권장되지 않는다고 함
@@ -61,10 +67,17 @@ public class Auction {
      * - auction_products 테이블에서 product_id에 고유 제약 조건을 추가하여
      * - 각 Product가 하나의 Auction에만 속할 수 있도록
      */
+    @OneToOne
+    @JoinColumn(name = "product")
+    private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // User 객체 (경매 생성자)
+//    @ManyToOne
+//    @JoinColumn(name = "sale_user", nullable = false)
+//    private User saleUser; // User 객체 (경매 생성자 및 판매자)
+//
+//    @ManyToOne
+//    @JoinColumn(name = "award_user", nullable = false)
+//    private User awardUser; // User 객체 (낙찰자)
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate; // 경매 시작예고시간, 시간 포맷팅 고려 필요
@@ -85,4 +98,14 @@ public class Auction {
 
     @Column(name = "finish_date", nullable = false)
     private LocalDateTime finishDate; // 경매 종료예고시간, 시간 포맷팅 고려 필요
+
+    // 경매 과정에서 입찰가 업데이트 메소드
+    public void updatePrice(int price) {
+        if (this.price >= price) {
+            // 유효성 검증 로직 추가 필요
+            throw new IllegalArgumentException();
+        }
+
+        this.price = price;
+    }
 }
