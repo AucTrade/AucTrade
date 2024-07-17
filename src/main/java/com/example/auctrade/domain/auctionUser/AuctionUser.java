@@ -1,4 +1,4 @@
-package com.example.auctrade.domain.userauction;
+package com.example.auctrade.domain.auctionUser;
 
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.user.entity.User;
@@ -6,11 +6,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
-@NoArgsConstructor
+@MappedSuperclass
 @Getter
-@Table(name = "participant")
-public class Participant {
+@NoArgsConstructor
+public abstract class AuctionUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -23,4 +22,9 @@ public class Participant {
     @ManyToOne
     @JoinColumn(name = "auction_id")
     private Auction auction;
+
+    public AuctionUser(User user, Auction auction) {
+        this.user = user;
+        this.auction = auction;
+    }
 }
