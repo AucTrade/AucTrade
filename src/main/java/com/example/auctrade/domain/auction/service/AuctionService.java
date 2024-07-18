@@ -1,7 +1,13 @@
 package com.example.auctrade.domain.auction.service;
 
+import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
+import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
+import com.example.auctrade.domain.product.entity.Product;
+import com.example.auctrade.domain.product.repository.ProductRepository;
+import com.example.auctrade.domain.user.entity.User;
+import com.example.auctrade.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,26 +20,36 @@ import java.util.List;
 public class AuctionService {
 
     private final AuctionRepository auctionRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     // 경매 생성
-    public Auction save(Auction auction) {
-        return auctionRepository.save(auction);
+    public AuctionDTO save(AuctionDTO dto) {
+        User user = userRepository.findById(dto.getSaleUserId()).orElseThrow();
+        Product product = productRepository.findById(dto.getProductId()).orElseThrow();
+
+        Auction auction = AuctionMapper.toEntity(dto, product, user);
+        auctionRepository.save(auction);
+
+        return AuctionMapper.toDto(auction);
     }
 
-    // 경매 전원 조회
+    // 경매 전원 조회(정확히는 경매 아직 시작 안 돼서 노출되는 경매들 조회)
     @Transactional(readOnly = true)
-    public List<Auction> findAll() {
-        return auctionRepository.findAll();
+    public List<AuctionDTO> findAll() {
+        List<Auction> auctions = auctionRepository.findByStartedFalse();
+        return AuctionMapper.toDtoList(auctions);
     }
 
     // 경매 ID 기반 조회
     @Transactional(readOnly = true)
-    public Auction findById(Long id) {
-        return auctionRepository.findById(id).orElse(null);
+    public AuctionDTO findById(Long id) {
+        Auction auction = auctionRepository.findById(id).orElseThrow();
+        return AuctionMapper.toDto(auction);
     }
 
     // 경매 상품 등록 유효성 검증
-    public boolean existsById(Long id) {
-        return auctionRepository.existsById(id);
+    public boolean existsById(Long productId) {
+        return auctionRepository.existsByProductContaining(productId);
     }
 }
