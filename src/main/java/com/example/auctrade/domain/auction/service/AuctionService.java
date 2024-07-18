@@ -52,4 +52,16 @@ public class AuctionService {
     public boolean existsById(Long productId) {
         return auctionRepository.existsByProductContaining(productId);
     }
+
+    // 경매 시작 설정(시간이 지나지 않아도 유저가 조금 일찍 시작하는 로직 고려)
+    public void startAuction(Long id) {
+        Auction auction = auctionRepository.findById(id).orElseThrow();
+        auction.start();
+    }
+
+    // 경매 종료 설정
+    public void endAuction(Long id) {
+        Auction auction = auctionRepository.findById(id).orElseThrow();
+        auction.end();
+    }
 }

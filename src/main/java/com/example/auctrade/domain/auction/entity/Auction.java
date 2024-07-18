@@ -93,4 +93,12 @@ public class Auction {
         auction.finishDate = finishDate;
         return auction;
     }
+
+    public void start() {
+        this.started = true;
+    }
+
+    public void end() {
+        this.ended = true;
+    }
 }
