@@ -43,6 +43,9 @@ public class Auction {
     @JoinColumn(name = "sale_user", nullable = false)
     private User saleUser; // User 객체 (경매 생성자 및 판매자)
 
+    @Column(name = "started", nullable = false)
+    private boolean started; // 경매 시작여부
+
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate; // 경매 시작예고시간, 시간 포맷팅 고려 필요
 
@@ -55,11 +58,39 @@ public class Auction {
     private int minimumPrice; // 최소입찰금액
 
     @Column(name = "price", nullable = false)
-    private int price; // 계속 업데이트하다가 경매 종료됐을 때의 price 를 최종낙찰가로
+    private int price; // 최종낙찰가
+    // 계속 업데이트는 NoSQL 을 기반으로 한 로그 남기는 방향으로
 
     @Column(name = "ended", nullable = false)
     private boolean ended; // price 가 진행 가격인지 최종 낙찰 가격인지
 
     @Column(name = "finish_date", nullable = false)
     private LocalDateTime finishDate; // 경매 종료예고시간, 시간 포맷팅 고려 필요
+
+    @Builder
+    public static Auction createAuction(
+            String title,
+            String introduce,
+            int personnel,
+            Product product,
+            User saleUser,
+            LocalDateTime startDate,
+            int minimumPrice,
+            int price,
+            LocalDateTime finishDate
+    ) {
+        Auction auction = new Auction();
+        auction.title = title;
+        auction.introduce = introduce;
+        auction.personnel = personnel;
+        auction.product = product;
+        auction.saleUser = saleUser;
+        auction.started = false;
+        auction.startDate = startDate;
+        auction.minimumPrice = minimumPrice;
+        auction.price = price;
+        auction.ended = false;
+        auction.finishDate = finishDate;
+        return auction;
+    }
 }
