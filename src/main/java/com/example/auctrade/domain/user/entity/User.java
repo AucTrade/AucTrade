@@ -1,9 +1,11 @@
 package com.example.auctrade.domain.user.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
+@Getter
 @Entity
 @Table(name = "user")
 public class User {

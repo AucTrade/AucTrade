@@ -2,7 +2,9 @@ package com.example.auctrade.domain.product.entity;
 
 import com.example.auctrade.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "product")
 public class Product {
