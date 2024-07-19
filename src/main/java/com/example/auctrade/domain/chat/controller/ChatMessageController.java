@@ -28,6 +28,11 @@ public class ChatMessageController {
 
     @MessageMapping(value = "/chat/message")
     public void message(MessageDTO message){
+        //TODO: 메세지가 텅비었다면 리턴(유효성 검증 추가 가능)
+        if (chatMessageService.saveChatMessage(message) == null) {
+            return;
+        }
+
 
 //        if (message.getMessage().charAt(0) == '@'){
 //            long price = Long.parseLong(message.getMessage().substring(1));
@@ -37,8 +42,8 @@ public class ChatMessageController {
 //            // 결국 인터셉터 등을 활용하는 것 역시 서버단의 코드 로직 겹침이 일어나기 때문
 //        }
 
-        if (chatMessageService.saveChatMessage(message) != null)
-            sendingOperations.convertAndSend(
-                    "/sub/chat/room/" + message.getAuctionId(), message);
+
+        sendingOperations.convertAndSend(
+                "/sub/chat/room/" + message.getAuctionId(), message);
     }
 }
