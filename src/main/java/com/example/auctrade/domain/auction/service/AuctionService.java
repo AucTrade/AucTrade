@@ -48,11 +48,6 @@ public class AuctionService {
         return AuctionMapper.toDto(auction);
     }
 
-    // 경매 상품 등록 유효성 검증
-    public boolean existsById(Long productId) {
-        return auctionRepository.existsByProductContaining(productId);
-    }
-
     // 경매 시작 설정(시간이 지나지 않아도 유저가 조금 일찍 시작하는 로직 고려)
     public void startAuction(Long id) {
         Auction auction = auctionRepository.findById(id).orElseThrow();
