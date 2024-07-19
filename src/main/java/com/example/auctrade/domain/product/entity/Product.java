@@ -26,4 +26,11 @@ public class Product {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // 상품 등록자
+
+    public Product(String name, String detail, ProductCategory category, User user) {
+        this.name = name;
+        this.detail = detail;
+        this.category = category;
+        this.user = user;
+    }
 }
