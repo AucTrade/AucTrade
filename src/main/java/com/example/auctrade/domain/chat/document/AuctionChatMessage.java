@@ -14,11 +14,11 @@ public class AuctionChatMessage extends ChatMessage {
     private String id; // 도큐먼트의 아이디
     private String auctionId; // 경매 아이디
     @Indexed
-    private boolean isBid; // 입찰 메세지인지? 단순 의사표현 메세지인지?
+    private boolean bid; // 입찰 메세지인지? 단순 의사표현 메세지인지?
 
-    public AuctionChatMessage(String username, String message, Long auctionId, boolean isBid) {
+    public AuctionChatMessage(String username, String message, Long auctionId, boolean bid) {
         super(username, message);
         this.auctionId = auctionId.toString();
-        this.isBid = isBid;
+        this.bid = bid;
     }
 }
