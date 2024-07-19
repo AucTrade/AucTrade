@@ -5,8 +5,11 @@ import com.example.auctrade.domain.chat.dto.MessageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +47,15 @@ public class BidLogService {
     private boolean isCorrectBidPrice(String key, String hash, Integer value) {
         Integer previousBidPrice = bidLogRepository.getHashValue(key, hash);
         return value > previousBidPrice;
+    }
+
+    // 특정 경매방의 경매내역 로그 조회
+    public List<Map.Entry<String, Integer>> getBidLogs(String auctionId) {
+        Map<Object, Object> hash = bidLogRepository.getHash(auctionId);
+
+        return hash.entrySet().stream()
+                .filter(entry -> entry.getKey() instanceof String && entry.getValue() instanceof Integer)
+                .map(entry -> new AbstractMap.SimpleEntry<>((String) entry.getKey(), (Integer) entry.getValue()))
+                .collect(Collectors.toList());
     }
 }
