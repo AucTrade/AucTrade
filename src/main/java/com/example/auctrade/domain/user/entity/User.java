@@ -38,4 +38,15 @@ public class User {
 
     @Column(name = "point")
     private int point;
+
+    public User(String email, String password, String phone, String address, LocalDate birth, UserRoleEnum role, String postcode) {
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.birth = birth;
+        this.role = role;
+        this.postcode = postcode;
+        this.point = 1000; // 기본값 설정
+    }
 }
