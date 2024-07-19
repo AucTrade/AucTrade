@@ -29,9 +29,17 @@ public class ChatMessageService {
         return new MessageDTO(chatMessageRepository.save(auctionChatMessage));
     }
 
+    // 채팅 로그 조회
     @Transactional(readOnly = true)
-    public List<MessageDTO> findMessageByAuctionId(String AuctionId) {
-        return this.chatMessageRepository.
-                findAllByAuctionId(AuctionId).stream().map(MessageDTO::new).toList();
+    public List<MessageDTO> findLog(String auctionId) {
+        return chatMessageRepository.
+                findAllByAuctionId(auctionId).stream().map(MessageDTO::new).toList();
+    }
+
+    // 채팅 로그 중 경매 내역 로그만 조회
+    @Transactional(readOnly = true)
+    public List<MessageDTO> findAuctionLog(String auctionId) {
+        return chatMessageRepository.
+                findAllByAuctionIdAndBidTrue(auctionId).stream().map(MessageDTO::new).toList();
     }
 }

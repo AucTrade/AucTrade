@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class ChatController {
+public class ChatMessageController {
 
     private final SimpMessageSendingOperations sendingOperations;
     private final ChatMessageService chatMessageService;
