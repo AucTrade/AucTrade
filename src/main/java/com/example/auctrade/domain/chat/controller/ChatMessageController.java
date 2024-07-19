@@ -1,6 +1,7 @@
 package com.example.auctrade.domain.chat.controller;
 
 
+import com.example.auctrade.domain.auction.service.BidLogService;
 import com.example.auctrade.domain.chat.dto.MessageDTO;
 import com.example.auctrade.domain.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class ChatMessageController {
 
     private final SimpMessageSendingOperations sendingOperations;
     private final ChatMessageService chatMessageService;
+    private final BidLogService bidLogService;
 
     @MessageMapping(value = "/chat/enter")
     public void enter(MessageDTO message){
@@ -33,15 +35,10 @@ public class ChatMessageController {
             return;
         }
 
-
-//        if (message.getMessage().charAt(0) == '@'){
-//            long price = Long.parseLong(message.getMessage().substring(1));
-//            // postgreSQL 경매 플로우 로직 할당 시작(1차)
-//            // 원칙적으로는 디스패처 서블릿을 지나기 전에 처리하는 것이 옳기 때문에
-//            // 카프카나 토끼 같은 외부 메세지 브로커를 활용하는 것이 바람직하다고 생각함
-//            // 결국 인터셉터 등을 활용하는 것 역시 서버단의 코드 로직 겹침이 일어나기 때문
-//        }
-
+        // 입찰 메세지일 경우, 입찰 로그 기록과 관련된 서비스 로직으로 넘어간다
+        if (message.getMessage().charAt(0) == '@'){
+            bidLogService.updateBidPrice(message);
+        }
 
         sendingOperations.convertAndSend(
                 "/sub/chat/room/" + message.getAuctionId(), message);
