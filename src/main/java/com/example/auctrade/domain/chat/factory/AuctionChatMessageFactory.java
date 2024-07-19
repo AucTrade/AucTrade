@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 public class AuctionChatMessageFactory implements ChatMessageFactory<AuctionChatMessage> {
     @Override
     public AuctionChatMessage createChatMessage(String username, String message, Long auctionId) {
-        return new AuctionChatMessage(username, message, auctionId);
+        // 입찰 메세지라면
+        if (message.charAt(0) == '@'){
+            return new AuctionChatMessage(username, message, auctionId, true);
+        }
+
+        return new AuctionChatMessage(username, message, auctionId, false);
     }
 }
