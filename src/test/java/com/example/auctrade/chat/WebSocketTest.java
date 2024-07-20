@@ -1,11 +1,13 @@
 package com.example.auctrade.chat;
 
 import com.example.auctrade.domain.chat.dto.MessageDTO;
+import com.example.auctrade.domain.chat.service.ChatMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -16,10 +18,16 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 // 서버 포트번호 랜덤 설정, @LocalServerPort 기반 할당
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -32,8 +40,15 @@ class WebSocketTest {
     private int port;
 
     private String url;
-    private StompHeaders stompHeaders;
 
+    // 채팅 메세지 서비스 모킹 처리
+    @MockBean
+    private ChatMessageService chatMessageService;
+
+    // 향후 인증을 구현할 때를 대비한 코드
+//    private StompHeaders stompHeaders;
+
+    // StompClient 인스턴스 생성 메소드
     private WebSocketStompClient getStompClient() {
         // WebSocketStompClient 인스턴스 설정
         // SockJS 사용 고려
@@ -45,6 +60,19 @@ class WebSocketTest {
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         return stompClient;
+    }
+
+    // 메세지 임의 설정 메소드
+    private MessageDTO getMessageDTO() {
+        MessageDTO message = new MessageDTO();
+
+        message.setId("1L");
+        message.setAuctionId(1L);
+        message.setUsername("Kim Dong Jun");
+        message.setMessage("테스트 성공");
+        message.setCreatedAt(LocalDateTime.now().toString());
+
+        return message;
     }
 
     // 랜덤 포트 할당
@@ -61,8 +89,58 @@ class WebSocketTest {
         StompSession session = stompClient.connectAsync(
                 url, new StompSessionHandlerAdapter() {}).get(5, TimeUnit.SECONDS);
 
-        log.info("세션 연결: {}", session.isConnected());
+//        log.info("세션 연결: {}", session.isConnected());
 
         assertTrue(session.isConnected(), "WebSocket 연결 성공");
+    }
+
+    // 웹소켓 연결 후 메세지 송수신 처리
+    @Test
+    void testChatMessage() throws Exception {
+        // given
+        WebSocketStompClient stompClient = getStompClient();
+        StompSession session = stompClient.connectAsync(
+                url, new StompSessionHandlerAdapter() {}).get(5, TimeUnit.SECONDS);
+
+        log.info("세션 연결: {}", session.isConnected());
+        assertTrue(session.isConnected(), "WebSocket 연결 성공");
+
+        // when: 메세지 서비스 모킹 처리
+        MessageDTO mockMessage = getMessageDTO();
+        when(chatMessageService.saveChatMessage(any(MessageDTO.class))).thenReturn(mockMessage);
+
+        log.info("모킹 메세지: {}", mockMessage.getMessage());
+
+        CompletableFuture<MessageDTO> future = new CompletableFuture<>();
+
+        // 구독 헤더 설정
+        StompHeaders subscribeHeaders = new StompHeaders();
+        subscribeHeaders.setDestination("/sub/chat/room/" + mockMessage.getAuctionId());
+
+        session.subscribe(subscribeHeaders, new StompSessionHandlerAdapter() {
+            // 페이로드 역직렬화
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return MessageDTO.class;
+            }
+
+            // 메세지 get
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                future.complete((MessageDTO) payload);
+            }
+        });
+
+        log.info("일단 여기까진 오나?");
+
+        StompHeaders sendHeaders = new StompHeaders();
+        sendHeaders.setDestination("/chat/message");
+        session.send(sendHeaders, mockMessage);
+
+        log.info("설마 여기까지도 오나?");
+
+        // 메시지 수신 확인
+        MessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
+        assertEquals(mockMessage.getMessage(), receivedMessage.getMessage(), "테스트 성공");
     }
 }
