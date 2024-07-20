@@ -138,6 +138,7 @@ class WebSocketTest {
         sendHeaders.setDestination("/send/chat/message");
         session.send(sendHeaders, mockMessage);
 
+        // then
         // 메시지 수신 확인(내용이 같은지)
         MessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
         assertEquals(mockMessage.getMessage(), receivedMessage.getMessage(), "테스트 성공");
