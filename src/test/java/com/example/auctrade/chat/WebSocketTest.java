@@ -89,8 +89,6 @@ class WebSocketTest {
         StompSession session = stompClient.connectAsync(
                 url, new StompSessionHandlerAdapter() {}).get(5, TimeUnit.SECONDS);
 
-//        log.info("세션 연결: {}", session.isConnected());
-
         assertTrue(session.isConnected(), "WebSocket 연결 성공");
     }
 
@@ -103,20 +101,22 @@ class WebSocketTest {
                 url, new StompSessionHandlerAdapter() {}).get(5, TimeUnit.SECONDS);
 
         log.info("세션 연결: {}", session.isConnected());
-        assertTrue(session.isConnected(), "WebSocket 연결 성공");
 
-        // when: 메세지 서비스 모킹 처리
+        // when
+        // 메세지 저장 서비스 모킹 처리
         MessageDTO mockMessage = getMessageDTO();
         when(chatMessageService.saveChatMessage(any(MessageDTO.class))).thenReturn(mockMessage);
-
         log.info("모킹 메세지: {}", mockMessage.getMessage());
 
+        // 메세지 수신 비동기 작업 처용 CompletableFuture 인스턴스
+        // 메세지 수신되면 완료
         CompletableFuture<MessageDTO> future = new CompletableFuture<>();
 
         // 구독 헤더 설정
         StompHeaders subscribeHeaders = new StompHeaders();
         subscribeHeaders.setDestination("/sub/chat/room/" + mockMessage.getAuctionId());
 
+        // stomp 구독 설정 및 메세지 수신 설정
         session.subscribe(subscribeHeaders, new StompSessionHandlerAdapter() {
             // 페이로드 역직렬화
             @Override
@@ -125,21 +125,20 @@ class WebSocketTest {
             }
 
             // 메세지 get
+            // CompletableFuture 인스턴스 메세지 수신 완료 처리
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
                 future.complete((MessageDTO) payload);
             }
         });
 
-        log.info("일단 여기까진 오나?");
-
+        // 전송 헤더 설정
+        // 구독과 전송에는 각기 다른 목적의 StompHeaders 인스턴스'들'이 쓰임
         StompHeaders sendHeaders = new StompHeaders();
-        sendHeaders.setDestination("/chat/message");
+        sendHeaders.setDestination("/send/chat/message");
         session.send(sendHeaders, mockMessage);
 
-        log.info("설마 여기까지도 오나?");
-
-        // 메시지 수신 확인
+        // 메시지 수신 확인(내용이 같은지)
         MessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
         assertEquals(mockMessage.getMessage(), receivedMessage.getMessage(), "테스트 성공");
     }
