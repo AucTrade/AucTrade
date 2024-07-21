@@ -1,73 +1,105 @@
 package com.example.auctrade.domain.auction.mapper;
 
+import com.example.auctrade.domain.auction.document.BidLog;
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
 
 public class AuctionMapper {
 
-    // Entity -> DTO
-    public static AuctionDTO toDto(Auction auction) {
-        if (auction == null) {
-            return null;
-        }
-
-        return AuctionDTO.builder()
+    public static AuctionDTO.Get toDto(Auction auction) {
+        return (auction == null) ? null : AuctionDTO.Get.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
-                .personnel(auction.getPersonnel())
-                .productId(auction.getProduct() != null ? auction.getProduct().getId() : null)
-                .saleUserId(auction.getSaleUser() != null ? auction.getSaleUser().getId() : null)
+                .maxPersonnel(auction.getPersonnel())
+                .productName(auction.getProduct().getName())
+                .saleUserEmail(auction.getSaleUser().getEmail())
                 .startDate(auction.getStartDate())
                 .minimumPrice(auction.getMinimumPrice())
-                .price(auction.getPrice())
+                .minimumPrice(auction.getPrice())
+                .finishDate(auction.getFinishDate())
+                .build();
+    }
+
+    public static AuctionDTO.Enter toEnterDTO(Auction auction) {
+        return (auction == null) ? null : AuctionDTO.Enter.builder()
+                .title(auction.getTitle())
+                .introduce(auction.getIntroduce())
+                .productName(auction.getProduct().getName())
+                .saleUserEmail(auction.getSaleUser().getEmail())
+                .startDate(auction.getStartDate())
+                .minimumPrice((long) auction.getMinimumPrice())
+                .finishDate(auction.getFinishDate())
+                .build();
+    }
+
+    public static AuctionDTO.Enter toEnterDTO(Auction auction, Long price) {
+        return (auction == null) ? null : AuctionDTO.Enter.builder()
+                .title(auction.getTitle())
+                .introduce(auction.getIntroduce())
+                .productName(auction.getProduct().getName())
+                .saleUserEmail(auction.getSaleUser().getEmail())
+                .startDate(auction.getStartDate())
+                .minimumPrice(price)
                 .finishDate(auction.getFinishDate())
                 .build();
     }
 
     // DTO -> Entity
-    public static Auction toEntity(AuctionDTO auctionDTO, Product product, User saleUser) {
-        if (auctionDTO == null) {
-            return null;
-        }
-
-        return Auction.builder()
+    public static Auction toEntity(AuctionDTO.Create auctionDTO, Product product, User saleUser) {
+        return (auctionDTO == null) ? null :Auction.builder()
                 .title(auctionDTO.getTitle())
                 .introduce(auctionDTO.getIntroduce())
-                .personnel(auctionDTO.getPersonnel())
+                .personnel(auctionDTO.getMaxPersonnel())
                 .product(product)
                 .saleUser(saleUser)
                 .startDate(auctionDTO.getStartDate())
                 .minimumPrice(auctionDTO.getMinimumPrice())
-                .price(auctionDTO.getPrice())
+                .price(auctionDTO.getMinimumPrice())
                 .finishDate(auctionDTO.getFinishDate())
                 .build();
     }
 
-    // List of entities -> list of DTOs
-    public static List<AuctionDTO> toDtoList(List<Auction> auctions) {
-        if (auctions == null) {
-            return null;
-        }
-
-        return auctions.stream()
-                .map(AuctionMapper::toDto)
-                .collect(Collectors.toList());
+    public static AuctionDTO.GetList toDtoList(Auction auction) {
+        return (auction == null) ? null : AuctionDTO.GetList.builder()
+                .id(auction.getId())
+                .title(auction.getTitle())
+                .introduce(auction.getIntroduce())
+                .startDate(auction.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .maxPersonnel(auction.getPersonnel())
+                .price((long) auction.getMinimumPrice())
+                .minimumPrice(auction.getMinimumPrice())
+                .productCategory(auction.getProduct().getCategory().getCategoryName())
+                .build();
     }
 
-    // List of DTOs -> list of entities (경매상품과 판매 유저가 제공됐을 때)
-    public static List<Auction> toEntityList(List<AuctionDTO> auctionDTOs, Product product, User saleUser) {
-        if (auctionDTOs == null) {
-            return null;
-        }
+    public static AuctionDTO.GetList toDtoList(Auction auction, Long price) {
+        return (auction == null) ? null : AuctionDTO.GetList.builder()
+                .id(auction.getId())
+                .title(auction.getTitle())
+                .introduce(auction.getIntroduce())
+                .startDate(auction.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .maxPersonnel(auction.getPersonnel())
+                .price(price)
+                .minimumPrice(auction.getMinimumPrice())
+                .productCategory(auction.getProduct().getCategory().getCategoryName())
+                .build();
+    }
 
-        return auctionDTOs.stream()
-                .map(dto -> toEntity(dto, product, saleUser))
-                .collect(Collectors.toList());
+    public static AuctionDTO.BidResult toBidResultDTO(BidLog bidLog, boolean isSuccess) {
+        return (bidLog == null) ? null : AuctionDTO.BidResult.builder()
+                .auctionId(bidLog.getAuctionId())
+                .username(bidLog.getUsername())
+                .price(bidLog.getPrice())
+                .isSuccess(isSuccess)
+                .build();
+    }
+
+    public static BidLog toEntity(AuctionDTO.Bid bidDto) {
+        return (bidDto == null) ? null : new BidLog(bidDto);
     }
 }
 

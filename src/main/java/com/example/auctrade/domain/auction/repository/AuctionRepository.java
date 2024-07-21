@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
-    // 시작되지 않은 경매들 반환(이걸 기점으로 검색 등등...)
     List<Auction> findByStartedFalse();
 }

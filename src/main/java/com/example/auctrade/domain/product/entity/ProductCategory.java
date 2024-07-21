@@ -1,10 +1,13 @@
 package com.example.auctrade.domain.product.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_category")
 public class ProductCategory {
     @Id

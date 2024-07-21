@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/sockjs.min.js"></script>
+    <script src="/js/stomp.min.js"></script>
+</head>
+<body>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<div id="header"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-8" >
+            <div class="row" id="title"></div>
+            <hr>
+            <div class="row"><h2>현재 낙찰가</h2></div>
+            <div class="row" id="price"></div>
+        </div>
+        <div class="col-4">
+            <div class="row"><h3>채팅창</h3></div>
+            <div class="overflow-auto overflow-x-hidden" id="msgArea" style="height: 500px; padding: 10px; background-color:#F5F5F5;"></div>
+            <div>
+                <div class="input-group mb-3">
+                    <input type="text" id="msg" class="form-control">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="button" id="button-send">전송</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer"></div>
+</body>
+<script>
+    $("#header").load("/header #header");
+    $("#footer").load("/footer #footer");
+    var username = 'java@test.com';
+
+    $(document).ready(function(){
+     const auctionId = getUrlParams()["auctionId"];
+
+     fetch(`/api/auctions/enter/${auctionId}`, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json; charset=UTF-8'}
+     }).then(response => {
+        if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+        return response.json();
+     }).then(result => {
+        document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
+        document.querySelector('#price').innerHTML = `<h1>${result.minimumPrice}</h1>`;
+        socket(auctionId, username);
+     }).catch(error => {
+        console.log('There has been a problem with your fetch operation:', error);
+     });
+    });
+
+    function getUrlParams() {
+       var params = {};
+       window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+           function(str, key, value) {
+               params[key] = value;
+           }
+       );
+       return params;
+    }
+
+    function createMsg(content){
+         var message = content.message;
+
+         if(/^@[0-9]+/.test(message)){
+           document.querySelector('#price').innerHTML = `<h3>${message.substring(1)}</h3>`;
+
+           document.querySelector('#msgArea').innerHTML +=
+           `<div class='row h-auto'><div class='alert alert-warning h-auto'><b>${content.username} : ${message}</b></div></div>`;
+         }else{
+           var color = (username == content.username) ? "text-primary fs-5" : "text-body dongle-regular fs-3";
+           document.querySelector('#msgArea').innerHTML +=
+           `<div class='h-auto text-break'><p class="${color} text-wrap">${content.username} : ${message}</p></div>`;
+         }
+         $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
+    }
+
+    function socket(auctionId, username){
+     var sockJs = new SockJS("/stomp/chat");
+     var stomp = Stomp.over(sockJs);
+
+     stomp.connect({}, function (){
+       stomp.subscribe("/sub/chat/auctions/" + auctionId, (chat) => createMsg(JSON.parse(chat.body)));
+
+       stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
+     });
+
+     $("#button-send").on("click", function(e){
+       var message = document.getElementById("msg");
+
+       if(message.value.match(/^@\d+$/)){
+       const auctionId = getUrlParams()["auctionId"];
+            $.ajax({
+                url : `/api/auctions/${auctionId}/bid`,
+                type : 'post',
+                data: JSON.stringify({
+                        auctionId: auctionId, price: parseInt(message.value.substr(1)), username: username}),
+                contentType: "application/json; charset=UTF-8",
+                success : function (result) {
+                    if(!result.isSuccess) {
+                    document.querySelector('#msgArea').innerHTML +=
+                        `<div class='row h-auto'><div class='alert alert-warning h-auto'><b>System: 현재 입찰가 보다 낮습니다.</b></div></div>`
+                           $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
+                    }else{
+                        stomp.send('/send/chat/message', {}, JSON.stringify({
+                        auctionId: auctionId, message: "@"+ result.price, username: username}));
+                    }
+                },
+                error : function (request, status, error) {
+                    console.log(error);
+                }
+            });
+       }else{
+            stomp.send('/send/chat/message', {}, JSON.stringify({auctionId: auctionId,
+             message: message.value, username: username}));
+       }
+       message.value = '';
+     });
+    }
+</script>
+</html>
