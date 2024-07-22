@@ -1,4 +1,4 @@
-package com.example.auctrade.chat;
+package com.example.auctrade.global.config;
 
 import com.example.auctrade.domain.chat.dto.MessageDTO;
 import com.example.auctrade.domain.chat.service.ChatMessageService;
@@ -24,14 +24,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 // 서버 포트번호 랜덤 설정, @LocalServerPort 기반 할당
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class WebSocketTest {
+class WebSocketConfigTest {
 
     // 로그 기록
     private final Logger log = LoggerFactory.getLogger(getClass());
