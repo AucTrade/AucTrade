@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auctrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
+    <script src="/js/bootstrap-datepicker.ko.min.js"></script>
+    <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
+</head>
+<body>
+    <script src="/js/jquery-timepicker.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+
+    <div id="header"></div>
+    <div class="container">
+        <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark" data-bs-theme="dark">
+                        <h5 class="modal-title text-white">예치금 등록</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="/api/auctions">
+                        <div class="modal-body">
+                            <input type="hidden" class="form-control dongle-regular fs-4" id="auctionId" name="auctionId">
+                            <input type="hidden" class="form-control dongle-regular fs-4" id="minPrice" name="auctionId">
+                            <div class="mb-3">
+                                <label for="deposit" class="col-form-label">예치금</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="deposit" name="deposit" value="0" step="100"><span class="input-group-text">￦</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-primary" id = "btn-create">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <br><div class="row text-center"><h2>경매 리스트</h2></div>
+        </div>
+        <div class="container px-4 py-5" id="custom-cards">
+            <div class="container mt-2 mb-4 d-flex justify-content-center">
+                <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
+                       style="width: 500px; display: inline-block;">
+                <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
+            </div>
+            <div class="container" style="height: 10px"></div>
+            <div class="row justify-content-between">
+                <div class="col-4" style="height: 50px">
+                    <button class="btn btn-outline-primary" onclick="prevPage()"> < </button>
+                    <button class="btn btn-outline-primary" onclick="nextPage()"> > </button>
+                </div>
+            </div>
+            <div id="auctionList"></div>
+            <div class="container" style="height: 10px"></div>
+            <nav aria-label="...">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div id="footer"></div>
+</body>
+</html>
+<script>
+    $("#header").load("/header #header");
+    $("#footer").load("/footer #footer");
+
+    $(document).ready(function(){
+        fetch('/api/auctions', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+        }).then(response => {
+            if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+            return response.json();
+        }).then(result => {
+            makeList(result);
+        }).catch(error => {
+            console.log(error);
+        });
+    });
+
+    function makeList(result) {
+        var inner = '';
+        result.forEach((element,index) => {
+          inner += `
+          <div class="card m-2">
+            <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
+                <div class="row g-0">
+                    <div style="height: 240px;" class="col-md-3">
+                        <img style="height: 100%; width:100%; object-fit:cover;" src="/img/default.jpg" class="img-fluid rounded-start">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card-body px-3" style="background-color:#F5F5F5; height: 240px;">
+                            <div style="height: 40px; border-bottom:1px solid #bbbbbb;">
+                            <p class="card-title fs-3 bold">${element.title}</p></div>
+                            <div class="ellipsis dongle-regular fs-4 px-3 py-1 mb-1" style="height: 115px; border-bottom:1px solid #bbbbbb;">${element.introduce}</div>
+                            <div class="row" style="height: 30px;">
+                                <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                <div class="col-6">
+                                <div class="row">
+                                <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
+                                <div class="col-6 text-primary"><b>최저 예치금 : ${element.minimumPrice}</b></div>
+                                <div class="col-6 text-primary"><b>인원 : 3 / ${element.maxPersonnel}</b></div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="row" style="height: 30px;">
+                                <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                 <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            </div>
+           `;
+        });
+        document.querySelector('#auctionList').innerHTML = inner;
+    }
+
+    $("#btn-create").on("click", function (e){
+        e.preventDefault();
+
+        const minPrice = document.querySelector("#minPrice").value;
+        var obj = new Object();
+
+        obj.id = document.querySelector('#auctionId').value;
+        obj.deposit = document.querySelector('#deposit').value;
+
+        if(obj.title == "")
+            alert("Please write the title.");
+        else if(obj.deposit < minPrice)
+            alert("The maximum number of participants must be more than ${minPrice}.");
+        else
+            createRoom(obj);
+    });
+
+    function registDeposit(obj){
+        $.ajax({
+            url : `/api/auctions`,
+            type : 'post',
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=UTF-8",
+            success : function (result) {
+                $('#depositModal').modal('hide')
+                location.reload(true);
+            },
+            error : function (request, status, error) {
+                console.log(JSON.stringify(request));
+            }
+        });
+    }
+
+    function depositAuction(id, target){
+        const val = document.querySelector(`#${target}`).value;
+        document.querySelector("#auctionId").value = id;
+        document.querySelector("#minPrice").value = val;
+        document.querySelector("#deposit").value = val;
+        $('#depositModal').modal('show')
+    }
+
+</script>

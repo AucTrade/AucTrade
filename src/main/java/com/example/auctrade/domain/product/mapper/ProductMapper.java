@@ -19,9 +19,6 @@ public class ProductMapper {
     }
 
     public static Product toEntity(ProductDTO productDTO, ProductCategory category, User user) {
-        if (productDTO == null) {
-            return null;
-        }
-        return new Product(productDTO.getName(), productDTO.getDetail(), category, user);
+        return (productDTO == null) ? null : new Product(productDTO.getName(), productDTO.getDetail(), category, user);
     }
 }

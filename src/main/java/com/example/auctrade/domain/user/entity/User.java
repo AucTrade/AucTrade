@@ -1,12 +1,15 @@
 package com.example.auctrade.domain.user.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
 

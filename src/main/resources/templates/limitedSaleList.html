@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auctrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
+    <script src="/js/bootstrap-datepicker.ko.min.js"></script>
+    <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
+</head>
+<style>
+    /* modal 케러셀 조정 */
+    .pics {
+            width: 600px;
+            float: left;
+            position: relative;
+            left: 50%;
+            object-fit: cover;
+        }
+
+    .carousel-inner {
+                width: auto;
+                height: 200px; /* 이미지 높이 변경 */
+            }
+
+    .carousel-item {
+                width: auto;
+                height: 100%;
+            }
+
+    .d-block {
+                display: block;
+                width: auto;
+                height: 100%;
+            }
+</style>
+<body>
+    <script src="/js/jquery-timepicker.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+
+    <div id="header"></div>
+    <div class="container">
+        <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark" data-bs-theme="dark">
+                        <h5 class="modal-title text-white">상품등록</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="/api/chat/room">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="productName" class="col-form-label">상품명</label>
+                                <input type="text" class="form-control dongle-regular fs-4" id="productName" name="name" placeholder="상품명">
+                            </div>
+                            <div class="mb-4">
+                                <label for="content" class="col-form-label">상세정보</label>
+                                <textarea type="text" class="form-control dongle-regular fs-4" id="content" name="content"rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="mb-3"><label class="form-label">상품 이미지</label></div>
+                                <div class="row justify-content-center">
+                                <div class="col-8 ">
+                                        <div id="img-preview">
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="file" class="form-control" id="imgFiles" multiple>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="price" class="col-form-label">가격</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="price" name="price" value="1000" min="0"><span class="input-group-text">￦</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="amount" class="col-form-label">수량</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control dongle-regular fs-4" id="amount" name="amount" min="1" value="1"><span class="input-group-text">EA</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="price" class="col-form-label pb-1">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="isLimited">
+                                                <label class="form-check-label" for="isLimited" > 인당 제한 수량</label>
+                                            </div>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control dongle-regular fs-4" id="limit" name="limit" value="1" min="1" disabled>
+                                            <span class="input-group-text">EA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="col-form-label">시작일</div>
+                                <div class="input-group">
+                                    <span class="input-group-text">📅</span>
+                                    <input type="text" class="form-control date-picker dongle-regular fs-4" name="startDate" id="startDate" placeholder="시작 날짜 입력">
+                                    <span class="input-group-text">⏰</span>
+                                    <input type="text" class="form-control time-picker dongle-regular fs-4" name="startTime" id="startTime" placeholder="시작 시간 입력">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-primary" id = "btn-create">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <br><div class="row text-center"><h2> 한 정 판 매 </h2></div>
+        </div>
+        <div class="container px-4 py-5" id="custom-cards">
+            <div class="container mt-2 mb-4 d-flex justify-content-center">
+                <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
+                       style="width: 500px; display: inline-block;">
+                <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
+            </div>
+            <div class="container" style="height: 10px"></div>
+            <div class="row justify-content-between">
+                <div class="col-4" style="height: 50px">
+                    <button class="btn btn-outline-primary" onclick="prevPage()"> < </button>
+                    <button class="btn btn-outline-primary" onclick="nextPage()"> > </button>
+                </div>
+                <div class="col-2" style="height: 50px">
+                    <button class="btn btn-primary" data-bs-target="#roomModal" data-bs-toggle="modal" type="button">판매 등록</button>
+                    <button class="btn btn-primary" type="button" id="updateRoom2">↺</button>
+                </div>
+            </div>
+            <div class="container" style="height: 10px"></div>
+            <div class="row row-cols-1 row-cols-md-5 g-5 mx-auto w-85 pb-5" id="productList"></div>
+            <div class="container" style="height: 10px"></div>
+            <nav aria-label="...">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div id="footer"></div>
+</body>
+</html>
+<script>
+    $("#header").load("/header #header");
+    $("#footer").load("/footer #footer");
+
+    $(document).ready(function(){
+        fetch('/api/auctions', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+        }).then(response => {
+            if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+            return response.json();
+        }).then(result => {
+            makeList(result);
+        }).catch(error => {
+            console.log(error);
+        });
+
+        $(".date-picker").datepicker({
+            startDt: new Date(),
+            startDate: "0d",
+            format: "yyyy-mm-dd",
+            todayHighlight: true,
+            language: "ko",
+            autoclose: true
+        });
+
+        $(".time-picker").timepicker({
+            timeFormat: 'HH:mm',
+            interval: 30,
+            minTime: '0',
+            maxTime: '23:30',
+            defaultTime: '10',
+            startTime: '00:00',
+            dynamic: false,
+            dropdown: true,
+            scrollbar: true
+        });
+
+    });
+
+    function makeList(result) {
+        var inner = '';
+        result.forEach((element,index) => {
+          inner += `<div class="col">
+                        <div class="card" style="width: 14rem; height: 330px; background-color:#F5F5F5;">
+                            <a href='#' class="card-link room-card">
+                                <img class="card-img-top" src="/img/default.jpg" alt="..."/>
+                                <div class="card-body px-3" height: 205px;">
+                                    <div style="height: 30px; border-bottom:1px solid #bbbbbb;">
+                                    <p class="fs-5">${(element.title.length < 10) ? element.title : element.title.substr(0,12)}</p></div>
+                                    <div class="ellipsis dongle-regular fs-5 px-3 py-1 mb-1" style="height: 100px; border-bottom:1px solid #bbbbbb;">경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.경매품 관련 상세정보 입력란입니다.</div>
+                                    <div class="row dongle-regular fs-5" style="height: 20px;"><p class="text-primary text-end">가격 : 50000</p></div>
+                                </div>
+                            </a>
+                        </div>
+                     </div>`;
+        });
+        document.querySelector('#productList').innerHTML = inner;
+    }
+
+    $("#btn-create").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.title = document.querySelector('#title').value;
+        obj.productName = document.querySelector('#productName').value;
+        obj.productContent = document.querySelector('#productContent').value;
+        obj.maxNum = parseInt(document.querySelector('#maxNum').value);
+        obj.startDateTime = document.querySelector('#startDate').value + " "
+         + document.querySelector('#startTime').value;
+        obj.endDateTime = document.querySelector('#endDate').value + " "
+         + document.querySelector('#endTime').value;
+
+        var start = new Date(obj.startDateTime)
+        var end = new Date(obj.endDateTime)
+        const pattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+
+        if(obj.title == "")
+            alert("Please write the title.");
+        else if(obj.maxNum < 2)
+            alert("The maximum number of participants must be at least 2.");
+        else if(obj.productName == "")
+            alert("Please write the productName.");
+        else if(obj.productContent== "")
+            alert("Please write the productContent.");
+        else if(!pattern.test(obj.startDateTime))
+            alert("Please check the start date or time.");
+        else if(!pattern.test(obj.endDateTime))
+            alert("Please check the end date or time.");
+        else if(start >= end)
+            alert("The start time cannot be later than the end time.");
+        else
+            createRoom(obj);
+    });
+
+    $("#isLimited").on("change", function() {
+        if(!this.checked)
+            document.querySelector('#limit').value = document.querySelector('#amount').value;
+        document.querySelector('#limit').disabled = !this.checked;
+    });
+
+    $("#limit").on("change", function() {
+        var amount = document.querySelector('#amount').value;
+        this.value = (this.value > amount) ? amount : this.value;
+    });
+
+    $("#amount").on("change", function() {
+        if(document.querySelector('#limit').disabled){
+            document.querySelector('#limit').value = this.value;
+        }
+        else{
+            var limited = document.querySelector('#limit').value;
+            document.querySelector('#limit').value = (limited > this.value) ? this.value : limited;
+        }
+    });
+
+    $("#imgFiles").on("change", function() {
+      var files = Array.from(this.files);
+      var filesArr = Array.prototype.slice.call(files);
+      var htm = '<div class="carousel-inner"><div class="carousel-item active">';
+      var htm2 = '';
+      if(files.length == 0){
+          htm += '<img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="..."></div></div>';
+
+      }else if(files.length == 1){
+          htm += `<img id="img-one" src="${URL.createObjectURL(filesArr[0])}" class="d-block w-100" alt="..."></div></div>`;
+
+      }else{
+          htm = '<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">';
+          filesArr.forEach(function(f, i) {
+                var str = '';
+                var str2 = '';
+
+                if(i == 0){
+                    str = 'class="active" aria-current="true"';
+                    str2 = 'active';
+                }
+
+                htm += `<button type="button" ${str} data-bs-target="#carouselExampleIndicators" data-bs-slide-to="${i}" aria-label="Slide ${i+1}"></button>`;
+                htm2 += `<div class="carousel-item ${str2}"><img src="${URL.createObjectURL(f)}" class="d-block w-100" alt="..."></div>`;
+          });
+
+         htm += '</div><div class="carousel-inner">' + htm2 + '</div>';
+         htm += '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button><button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>';
+     }
+       document.querySelector('#img-preview').innerHTML = htm;
+    });
+</script>
