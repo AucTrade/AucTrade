@@ -14,6 +14,11 @@ public class AuctionPageController {
         return "auctionList";
     }
 
+    @GetMapping("/deposits")
+    public String depositList() {
+        return "auctionBeforeStartList";
+    }
+
     @GetMapping("/enter")
     public String getRoom(){
         return "auctionRoomDetail";

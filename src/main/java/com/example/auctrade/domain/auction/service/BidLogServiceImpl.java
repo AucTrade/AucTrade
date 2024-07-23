@@ -19,7 +19,7 @@ import static com.example.auctrade.global.constant.Constants.REDIS_AUCTION_KEY;
 @Slf4j
 public class BidLogServiceImpl implements BidLogService {
     private final BidLogRepository bidLogRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     
     /**
      * 입찰가격 업데이트 로직 만약 입찰가가 이전보다 낮은 경우에는 업데이트를 하지 않는다.
@@ -31,7 +31,7 @@ public class BidLogServiceImpl implements BidLogService {
         BidLog bidLog = bidLogRepository.save(AuctionMapper.toEntity(requestDto));
 
         Object obj = redisTemplate.opsForHash().get(key, "bid");
-        long beforePrice = (obj == null) ? -1 : Long.parseLong(obj.toString());
+        long beforePrice = (obj == null) ? -1 : (long) obj;
         if(beforePrice >= requestDto.getPrice())
             return AuctionMapper.toBidResultDTO(bidLog, false);
 

@@ -15,6 +15,7 @@ import com.example.auctrade.domain.user.repository.UserRepository;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class AuctionServiceImpl implements AuctionService {
     private final UserRepository userRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductRepository productRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 회원이 입력한 여행후기 게시글 저장
@@ -53,6 +54,7 @@ public class AuctionServiceImpl implements AuctionService {
      */
     @Transactional(readOnly = true)
     public List<AuctionDTO.GetList> findAll() {
+
         return auctionRepository.findByStartedFalse().stream().map(res ->{
             Object obj = redisTemplate.opsForHash().get(REDIS_AUCTION_KEY + res.getId(), "bid");
             if (obj == null) return AuctionMapper.toDtoList(res);
