@@ -26,7 +26,7 @@ public class Product {
     @JoinColumn(name = "category", nullable = false)
     private ProductCategory category;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // 상품 등록자
 

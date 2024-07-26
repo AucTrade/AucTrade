@@ -86,7 +86,7 @@
     $("#footer").load("/footer #footer");
 
     $(document).ready(function(){
-        fetch('/api/auctions', {
+        fetch('/api/auctions/deposits', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
@@ -122,13 +122,13 @@
                                 <div class="row">
                                 <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
                                 <div class="col-6 text-primary"><b>최저 예치금 : ${element.minimumPrice}</b></div>
-                                <div class="col-6 text-primary"><b>인원 : 3 / ${element.maxPersonnel}</b></div>
+                                <div class="col-6 text-primary"><b>인원 : ${element.currentPersonnel} / ${element.maxPersonnel}</b></div>
                                 </div>
                                 </div>
                             </div>
                             <div class="row" style="height: 30px;">
                                 <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
-                                 <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                                 <div class="col-6"><p>현재 최저 예치금 : ${element.minDeposit}</p></div>
                             </div>
                         </div>
                     </div>
@@ -148,18 +148,19 @@
 
         obj.id = document.querySelector('#auctionId').value;
         obj.deposit = document.querySelector('#deposit').value;
+        obj.username = "java@test.com";
 
         if(obj.title == "")
             alert("Please write the title.");
         else if(obj.deposit < minPrice)
             alert("The maximum number of participants must be more than ${minPrice}.");
         else
-            createRoom(obj);
+            registDeposit(obj);
     });
 
     function registDeposit(obj){
         $.ajax({
-            url : `/api/auctions`,
+            url : `/api/auctions/deposits`,
             type : 'post',
             data: JSON.stringify(obj),
             contentType: "application/json; charset=UTF-8",

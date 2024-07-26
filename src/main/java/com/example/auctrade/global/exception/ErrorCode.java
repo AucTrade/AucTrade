@@ -17,6 +17,7 @@ public enum ErrorCode {
     WRONG_USERINFO(BAD_REQUEST,"유저 정보를 다시 확인해주세요"),
     WRONG_TIME_FORMAT(BAD_REQUEST, "잘못된 시간형식입니다"),
     WRONG_PLAN_DATE(BAD_REQUEST, "과거날짜로 플랜을 작성할 수는 없습니다"),
+    WRONG_DEPOSIT(BAD_REQUEST, "최소 예치금 보다 낮을 수 없습니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),

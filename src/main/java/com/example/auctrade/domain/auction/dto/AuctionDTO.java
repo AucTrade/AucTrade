@@ -1,6 +1,5 @@
 package com.example.auctrade.domain.auction.dto;
 
-import com.example.auctrade.domain.auction.document.BidLog;
 import com.example.auctrade.global.vaild.AuctionValidationGroups;
 import com.example.auctrade.global.vaild.MessageValidationGroups;
 import com.example.auctrade.global.vaild.ProductValidationGroups;
@@ -81,7 +80,7 @@ public class AuctionDTO {
 
     @Getter
     @Builder
-    public static class GetList {
+    public static class List {
         private Long id;
         private String title;
         private String introduce;
@@ -91,6 +90,12 @@ public class AuctionDTO {
         private Integer minimumPrice;
         private Long price;
         private String productCategory;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Result{
+        private Boolean isSuccess;
     }
 
     @Getter
@@ -107,32 +112,32 @@ public class AuctionDTO {
     }
 
     @Getter
-    public static class BidResult{
-        private final Long auctionId;
-        private final String username;
-        private final Long price;
-        private final Boolean isSuccess;
-        @Builder
-        public BidResult(Long auctionId, String username, Boolean isSuccess, Long price){
-            this.auctionId = auctionId;
-            this.username = username;
-            this.price = price;
-            this.isSuccess = isSuccess;
-        }
+    @AllArgsConstructor
+    public static class Deposit{
+        @NotBlank(message = "경매 ID가 없습니다.", groups = MessageValidationGroups.AuctionIdBlankGroup.class)
+        private Long id;
+
+        @NotBlank(message = "user ID 가 없습니다.", groups = MessageValidationGroups.UsernameBlankGroup.class)
+        private String username;
+
+        @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
+        private Long deposit;
     }
 
     @Getter
-    public static class BidList{
-        private final String id;
-        private final Long auctionId;
-        private final String username;
-        private final Long price;
-
-        public BidList(BidLog bidLog){
-            this.id = bidLog.getId();
-            this.auctionId = bidLog.getAuctionId();
-            this.username = bidLog.getUsername();
-            this.price = bidLog.getPrice();
-        }
+    @Builder
+    @AllArgsConstructor
+    public static class DepositList{
+        private Long id;
+        private String title;
+        private String introduce;
+        private String startDate;
+        private String finishDate;
+        private Long minDeposit;
+        private Integer currentPersonnel;
+        private Integer maxPersonnel;
+        private Integer minimumPrice;
+        private Long price;
+        private String productCategory;
     }
 }

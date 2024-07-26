@@ -1,7 +1,8 @@
 package com.example.auctrade.domain.auction.mapper;
 
-import com.example.auctrade.domain.auction.document.BidLog;
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
+import com.example.auctrade.domain.auction.dto.BidDTO;
+import com.example.auctrade.domain.auction.dto.DepositDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
@@ -24,7 +25,7 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDTO(Auction auction) {
+    public static AuctionDTO.Enter toEnterDto(Auction auction) {
         return (auction == null) ? null : AuctionDTO.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
@@ -36,7 +37,7 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDTO(Auction auction, Long price) {
+    public static AuctionDTO.Enter toEnterDto(Auction auction, Long price) {
         return (auction == null) ? null : AuctionDTO.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
@@ -63,8 +64,25 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.GetList toDtoList(Auction auction) {
-        return (auction == null) ? null : AuctionDTO.GetList.builder()
+    public static BidDTO.Create toBidLogDto(AuctionDTO.Bid bidDTO) {
+        return (bidDTO == null) ? null : BidDTO.Create.builder()
+                .auctionId(bidDTO.getAuctionId())
+                .username(bidDTO.getUsername())
+                .price(bidDTO.getPrice())
+                .build();
+    }
+
+    public static DepositDTO.Create toDepositDto(AuctionDTO.Deposit depositDTO, int maxPersonnel) {
+        return (depositDTO == null) ? null : DepositDTO.Create.builder()
+                .auctionId(depositDTO.getId())
+                .username(depositDTO.getUsername())
+                .price(depositDTO.getDeposit())
+                .maxPersonnel(maxPersonnel)
+                .build();
+    }
+
+    public static AuctionDTO.List toDtoList(Auction auction) {
+        return (auction == null) ? null : AuctionDTO.List.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
@@ -76,8 +94,8 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.GetList toDtoList(Auction auction, Long price) {
-        return (auction == null) ? null : AuctionDTO.GetList.builder()
+    public static AuctionDTO.List toDtoList(Auction auction, Long price) {
+        return (auction == null) ? null : AuctionDTO.List.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
@@ -89,17 +107,19 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.BidResult toBidResultDTO(BidLog bidLog, boolean isSuccess) {
-        return (bidLog == null) ? null : AuctionDTO.BidResult.builder()
-                .auctionId(bidLog.getAuctionId())
-                .username(bidLog.getUsername())
-                .price(bidLog.getPrice())
-                .isSuccess(isSuccess)
+    public static AuctionDTO.DepositList toDepositList(Auction auction, long deposit, int personnel) {
+        return (auction == null) ? null : AuctionDTO.DepositList.builder()
+                .id(auction.getId())
+                .title(auction.getTitle())
+                .introduce(auction.getIntroduce())
+                .startDate(auction.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .minDeposit(deposit)
+                .currentPersonnel(personnel)
+                .maxPersonnel(auction.getPersonnel())
+                .price((long) auction.getMinimumPrice())
+                .minimumPrice(auction.getMinimumPrice())
+                .productCategory(auction.getProduct().getCategory().getCategoryName())
                 .build();
-    }
-
-    public static BidLog toEntity(AuctionDTO.Bid bidDto) {
-        return (bidDto == null) ? null : new BidLog(bidDto);
     }
 }
 

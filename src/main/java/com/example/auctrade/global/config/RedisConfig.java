@@ -54,10 +54,10 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
+        redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Long.class));
 
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Integer.class));
+        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Long.class));
 
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 

@@ -6,6 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface BidLogRepository  extends MongoRepository<BidLog, String> {
-
-    List<BidLog> findAllByAuctionId(String auctionId);
+    List<BidLog> findAllByAuctionId(Long auctionId);
 }

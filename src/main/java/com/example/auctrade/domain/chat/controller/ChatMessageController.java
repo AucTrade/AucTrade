@@ -1,7 +1,5 @@
 package com.example.auctrade.domain.chat.controller;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.auction.service.BidLogServiceImpl;
 import com.example.auctrade.domain.chat.dto.MessageDTO;
 import com.example.auctrade.domain.chat.service.ChatMessageServiceImpl;
 import lombok.RequiredArgsConstructor;

@@ -99,7 +99,7 @@
        if(message.value.match(/^@\d+$/)){
        const auctionId = getUrlParams()["auctionId"];
             $.ajax({
-                url : `/api/auctions/${auctionId}/bid`,
+                url : `/api/auctions/bids`,
                 type : 'post',
                 data: JSON.stringify({
                         auctionId: auctionId, price: parseInt(message.value.substr(1)), username: username}),

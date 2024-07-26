@@ -6,11 +6,17 @@ import java.util.List;
 
 public interface AuctionService {
 
-    AuctionDTO.Get save(AuctionDTO.Create requestDto);
+    AuctionDTO.Get save(AuctionDTO.Create request);
 
-    List<AuctionDTO.GetList> findAll();
+    List<AuctionDTO.List> findAll();
 
     AuctionDTO.Enter enter(Long id);
+
+    AuctionDTO.Result bid(AuctionDTO.Bid request);
+
+    AuctionDTO.Result deposit(AuctionDTO.Deposit request);
+
+    List<AuctionDTO.DepositList> getDepositList();
 
     void startAuction(Long id);
 
