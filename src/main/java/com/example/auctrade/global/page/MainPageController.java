@@ -15,4 +15,9 @@ public class MainPageController {
     public String footer(Model model) {
         return "footer";
     }
+
+    @GetMapping
+    public String auth() {
+        return "auth";
+    }
 }
