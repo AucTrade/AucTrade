@@ -1,9 +1,8 @@
 package com.example.auctrade.global.auth.util;
 
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -196,6 +195,21 @@ public class JwtUtil {
         } catch (ExpiredJwtException e) {
             // 토큰이 만료되었을 경우 ExpiredJwtException 에서 클레임을 추출
             return e.getClaims().getIssuedAt();
+        }
+    }
+
+    // 토큰 유효여부 검증(웹소켓 전용)
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return true;
+        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException | SecurityException ex) {
+            return false;
         }
     }
 }
