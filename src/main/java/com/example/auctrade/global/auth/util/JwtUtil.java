@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -169,5 +170,31 @@ public class JwtUtil {
         }
 
         return null;
+    }
+
+    // jwt 토큰 substring
+    public String substringToken(String tokenValue) {
+        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
+            return tokenValue.substring(7);
+        }
+
+        logger.error("Not Found Token");
+        throw new NullPointerException("Not Found Token");
+    }
+
+    // 토큰 만료일자 파싱
+    public Date getTokenIat(String token) {
+        try {
+            // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getIssuedAt(); // username 이나 email 을 subject 로 저장했다고 가정
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료되었을 경우 ExpiredJwtException 에서 클레임을 추출
+            return e.getClaims().getIssuedAt();
+        }
     }
 }
