@@ -66,7 +66,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, String> refreshToken(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, String> redisRefreshToken(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 

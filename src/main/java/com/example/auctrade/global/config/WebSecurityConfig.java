@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// 2024.7.29 pm 6:29 - 포스트맨으로 로그인 테스트 성공
 @Configuration
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
 @EnableMethodSecurity(securedEnabled = true)
