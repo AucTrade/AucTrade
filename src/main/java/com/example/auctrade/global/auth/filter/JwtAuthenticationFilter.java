@@ -74,6 +74,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String accessToken = jwtUtil.createAccessToken(tokenPayloads.get(0));
         String refreshToken = jwtUtil.createRefreshToken(tokenPayloads.get(1));
+        String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + username;
 
         userRepository.findByEmail(username).orElseThrow(
                 () ->  new CustomException(ErrorCode.USER_ID_MISMATCH)
@@ -89,7 +90,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // username(email) - refreshToken 덮어씌우기 저장
         // 7일 + 1시간을 시한으로 설정
         long expirationTime = 24 * 7 + 1;
-        redisRefreshToken.opsForValue().set(username, refreshTokenValue, expirationTime, TimeUnit.HOURS);
+        redisRefreshToken.opsForValue().set(refreshTokenKey, refreshTokenValue, expirationTime, TimeUnit.HOURS);
 
         jwtUtil.addJwtToCookie(accessToken, response);
         response.setStatus(HttpStatus.OK.value());
