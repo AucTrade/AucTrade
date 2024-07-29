@@ -96,8 +96,9 @@
      $("#button-send").on("click", function(e){
        var message = document.getElementById("msg");
 
-       if(message.value.match(/^@\d+$/)){
-       const auctionId = getUrlParams()["auctionId"];
+       // 입찰 메세지
+       if (message.value.match(/^@\d+$/)){
+           const auctionId = getUrlParams()["auctionId"];
             $.ajax({
                 url : `/api/auctions/${auctionId}/bid`,
                 type : 'post',
@@ -118,9 +119,10 @@
                     console.log(error);
                 }
             });
-       }else{
+       } else {
+           // 그냥 메세지
             stomp.send('/send/chat/message', {}, JSON.stringify({auctionId: auctionId,
-             message: message.value, username: username}));
+            message: message.value, username: username}));
        }
        message.value = '';
      });
