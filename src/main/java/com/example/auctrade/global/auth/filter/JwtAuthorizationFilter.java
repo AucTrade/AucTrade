@@ -53,9 +53,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
          */
 
         String accessTokenValue = jwtUtil.getAccessTokenFromRequestCookie(request); // -> 요 놈을 써야 해
+        log.info("쿠키로부터 갖고 온 엑세스토큰: " + accessTokenValue);
 
         if (StringUtils.hasText(accessTokenValue)) {
-            log.info("쿠키로부터 갖고 온 엑세스토큰: " + accessTokenValue);
             String accessToken = jwtUtil.substringToken(accessTokenValue);
 
             /**
@@ -79,6 +79,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
              *
              * */
             String email = jwtUtil.getUsernameFromAnyToken(accessToken);
+            log.info("해당 토큰으로부터 얻어낸 회원 이메일: {}", email);
+            String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + email;
 
             // 이메일로부터 회원 객체 조회
             User user = userRepository.findByEmail(email).orElseThrow(
@@ -87,7 +89,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             // 이메일로 기존의 리프레쉬토큰 조회
             // redis에 저장된 리프레쉬토큰 갖고오기
-            String refreshToken = redisRefreshToken.opsForValue().get(email);
+            String refreshToken = redisRefreshToken.opsForValue().get(refreshTokenKey);
+
+            log.info("가지고 온 리프레쉬 토큰: {}", refreshToken);
 
             // 리프레쉬 토큰 만료 확인
             if (jwtUtil.isTokenExpired(refreshToken)) {
@@ -123,7 +127,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 String newAccessToken = jwtUtil.createAccessToken(tokenPayloads.get(0));
                 String newRefreshToken = jwtUtil.createRefreshToken(tokenPayloads.get(1));
-                String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + email;
 
                 log.info("새로운 엑세스토큰: " + newAccessToken);
                 log.info("새로운 리프레쉬토큰: " + newRefreshToken);

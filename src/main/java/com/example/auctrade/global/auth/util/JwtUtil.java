@@ -129,7 +129,7 @@ public class JwtUtil {
     public String getUsernameFromAnyToken(String token) {
         try {
             // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
-            logger.info("기한이 아직 남은 토큰으로부터 발급시간 추출");
+            logger.info("기한이 아직 남은 토큰으로부터 이메일 추출");
             Claims claims = Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
@@ -139,7 +139,7 @@ public class JwtUtil {
             return claims.getSubject(); // username이나 email을 subject로 저장했다고 가정
         } catch (ExpiredJwtException e) {
             // 토큰이 만료되었을 경우 ExpiredJwtException에서 클레임을 추출
-            logger.info("기한이 만료된 토큰으로부터 발급시간 추출");
+            logger.info("기한이 만료된 토큰으로부터 이메일 추출");
             return e.getClaims().getSubject();
         }
     }
@@ -169,6 +169,7 @@ public class JwtUtil {
             }
         }
 
+        logger.error("쿠키가 확인되지 않음");
         return null;
     }
 
