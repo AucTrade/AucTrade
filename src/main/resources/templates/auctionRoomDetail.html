@@ -94,35 +94,22 @@
         var sockJs = new SockJS("/stomp/chat");
         var stomp = Stomp.over(sockJs);
 
-        stomp.connect(
-            {},
-            function () {
-                stomp.subscribe(
-                    "/sub/chat/auctions/" + auctionId,
-                    (chat) => createMsg(JSON.parse(chat.body)),
-                    { 'Authorization': 'Bearer ' + accessToken }
-                );
+        stomp.connect({}, function (){
+            stomp.subscribe(
+                "/sub/chat/auctions/" + auctionId,
+                (chat) => createMsg(JSON.parse(chat.body)),
+                { 'Authorization': 'Bearer ' + accessToken }
+            );
 
-                stomp.send(
-                    '/send/chat/enter',
-                    {},
-                    JSON.stringify(
-                        {
-                            auctionId: auctionId,
-                            username: username,
-                            message: username + " 님이 채팅방에 입장하였습니다."
-                        }
-                    )
-                );
-            });
+            stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
+     });
 
      $("#button-send").on("click", function(e){
        var message = document.getElementById("msg");
 
        // 입찰 메세지
-       if (message.value.match(/^@\d+$/)) {
+       if (message.value.match(/^@\d+$/)){
            const auctionId = getUrlParams()["auctionId"];
-
             $.ajax({
                 url : `/api/auctions/${auctionId}/bid`,
                 type : 'post',
@@ -130,26 +117,13 @@
                         auctionId: auctionId, price: parseInt(message.value.substr(1)), username: username}),
                 contentType: "application/json; charset=UTF-8",
                 success : function (result) {
-                    if (!result.isSuccess) {
-                        document.querySelector('#msgArea').innerHTML +=
-                        `<div class='row h-auto'>
-                            <div class='alert alert-warning h-auto'>
-                                <b>System: 현재 입찰가 보다 낮습니다.</b>
-                            </div>
-                        </div>`
+                    if(!result.isSuccess) {
+                    document.querySelector('#msgArea').innerHTML +=
+                        `<div class='row h-auto'><div class='alert alert-warning h-auto'><b>System: 현재 입찰가 보다 낮습니다.</b></div></div>`
                            $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
-                    } else {
-                        stomp.send(
-                            '/send/chat/message',
-                            {},
-                            JSON.stringify(
-                                {
-                                    auctionId: auctionId,
-                                    message: "@"+ result.price,
-                                    username: username
-                                }
-                            )
-                        );
+                    }else{
+                        stomp.send('/send/chat/message', {}, JSON.stringify({
+                        auctionId: auctionId, message: "@"+ result.price, username: username}));
                     }
                 },
                 error : function (request, status, error) {
@@ -158,17 +132,8 @@
             });
        } else {
            // 그냥 메세지
-            stomp.send(
-                '/send/chat/message',
-                {},
-                JSON.stringify(
-                    {
-                        auctionId: auctionId,
-                        message: message.value,
-                        username: username
-                    }
-                )
-            );
+            stomp.send('/send/chat/message', {}, JSON.stringify({auctionId: auctionId,
+            message: message.value, username: username}));
        }
        message.value = '';
      });
