@@ -1,5 +1,6 @@
 package com.example.auctrade.global.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -17,7 +18,7 @@ public class MessageSecurityConfig {
 
     // 웹소켓 관련
     @Bean
-    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(@Qualifier("builder") MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
                 .nullDestMatcher().authenticated()
 //                .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // 개인 사용자 큐에 에러 메세지 보낼 때 써먹기
