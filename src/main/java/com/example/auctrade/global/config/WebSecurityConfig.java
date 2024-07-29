@@ -13,7 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
+import org.springframework.messaging.Message;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,8 +23,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.messaging.simp.SimpMessageType.MESSAGE;
+import static org.springframework.messaging.simp.SimpMessageType.SUBSCRIBE;
 
 // 2024.7.29 pm 6:29 - 포스트맨으로 로그인 테스트 성공
 @Configuration
@@ -102,5 +108,19 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class); // JwtAuthenticationFilter 앞단에 JwtExceptionFilter를 위치시키겠다는 설정
 
         return http.build();
+    }
+
+    // 웹소켓 관련
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        messages
+                .nullDestMatcher().authenticated()
+//                .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // 개인 사용자 큐에 에러 메세지 보낼 때 써먹기
+                .simpDestMatchers("/send/**").hasAnyRole("USER", "ADMIN")
+                .simpSubscribeDestMatchers("/sub/**").hasAnyRole("USER", "ADMIN")
+                .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll()
+                .anyMessage().denyAll();
+
+        return messages.build();
     }
 }
