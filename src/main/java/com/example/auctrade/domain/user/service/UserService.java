@@ -7,4 +7,5 @@ public interface UserService {
 
     UserDTO createUser(UserDTO userDto);
 
+    UserDTO logoutUser(User user);
 }

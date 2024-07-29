@@ -23,14 +23,14 @@ public class UserMapper {
     }
 
     // DTO를 엔티티로 변환하는 static 메서드
-    public static User toEntity(UserDTO userDTO) {
+    public static User toEntity(UserDTO userDTO, String password) {
         if (userDTO == null) {
             return null;
         }
 
         return new User(
                 userDTO.getEmail(),
-                userDTO.getPassword(),
+                password,
                 userDTO.getPhone(),
                 userDTO.getAddress(),
                 userDTO.getBirth(),
