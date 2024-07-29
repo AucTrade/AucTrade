@@ -30,4 +30,10 @@ public class UserDTO {
         this.role = role;
         this.postcode = postcode;
     }
+
+    @Getter
+    public static class Login {
+        private String email;
+        private String password;
+    }
 }
