@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -144,19 +143,15 @@ public class JwtUtil {
         }
     }
 
-    // cookie에 액세스 토큰 저장
+    // 쿠키에 액세스 토큰 저장
     public void addJwtToCookie(String token, HttpServletResponse res) {
-        try {
-            logger.info("쿠키에 엑세스 토큰이 저장됨: {}", token);
-            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
-            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
-            cookie.setPath("/");
+        logger.info("쿠키에 엑세스 토큰이 저장됨: {}", token);
+        token = URLEncoder.encode(token, StandardCharsets.UTF_8).replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+        cookie.setPath("/");
 
-            // Response 객체에 Cookie 추가
-            res.addCookie(cookie);
-        } catch (UnsupportedEncodingException e) {
-            logger.error("토큰 저장에서 생긴 에러: {}", e.getMessage());
-        }
+        // Response 객체에 Cookie 추가
+        res.addCookie(cookie);
     }
 
     // 쿠키에서 엑세스 토큰 갖고오기
@@ -164,12 +159,15 @@ public class JwtUtil {
         Cookie[] cookies = req.getCookies();
 
         if(cookies != null) {
+            logger.info("요청으로부터 쿠키가 확인됨");
+
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
                     return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8); // Encode 되어 넘어간 Value 다시 Decode
                 }
             }
         }
+
         return null;
     }
 }
