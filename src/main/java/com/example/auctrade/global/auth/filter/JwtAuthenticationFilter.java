@@ -92,9 +92,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         long expirationTime = 24 * 7 + 1;
         redisRefreshToken.opsForValue().set(username, refreshTokenValue, expirationTime, TimeUnit.HOURS);
 
-//        response.addHeader(JwtUtil.ACCESS_TOKEN_HEADER, accessToken);
-//        jwtUtil.addJwtToCookie(refreshToken, response);
-        jwtUtil.addJwtToCookie(accessToken, response); // 바뀐 부분 : 쿠키에 Authorization 헤더로 액세스토큰 저장해서 전달
+        jwtUtil.addJwtToCookie(accessToken, response);
         response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json;charset=UTF-8");
 
