@@ -24,6 +24,7 @@ public class ChatMessageController {
     public void enter(MessageDTO.Create message, Principal principal){
         log.info("{} 채팅방 입장", principal.getName());
         message.setUsername(principal.getName());
+        message.setMessage(principal.getName() + " 님이 채팅방에 입장하였습니다.");
 
         MessageDTO.Get responseDto = chatMessageService.saveChatMessage(message);
         if( responseDto != null)
