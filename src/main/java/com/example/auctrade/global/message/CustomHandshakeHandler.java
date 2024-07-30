@@ -54,6 +54,6 @@ public class CustomHandshakeHandler implements HandshakeHandler {
             log.error("오류 발생: {}", ex.getMessage(), ex);
         }
 
-        return true;
+        return false;
     }
 }

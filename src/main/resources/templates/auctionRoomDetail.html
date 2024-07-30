@@ -94,12 +94,16 @@
         var sockJs = new SockJS("/stomp/chat");
         var stomp = Stomp.over(sockJs);
 
+        console.log("여기는 오나??")
+
         stomp.connect({}, function (){
             stomp.subscribe(
                 "/sub/chat/auctions/" + auctionId,
                 (chat) => createMsg(JSON.parse(chat.body)),
                 { 'Authorization': 'Bearer ' + accessToken }
             );
+
+            console.log("일단 구독은 됐을까?")
 
             stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
      });
