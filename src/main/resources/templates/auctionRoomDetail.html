@@ -96,11 +96,10 @@
 
         console.log("여기는 오나??")
 
-        stomp.connect({}, function (){
+        stomp.connect({ 'Authorization': 'Bearer ' + accessToken }, function (){
             stomp.subscribe(
                 "/sub/chat/auctions/" + auctionId,
-                (chat) => createMsg(JSON.parse(chat.body)),
-                { 'Authorization': 'Bearer ' + accessToken }
+                (chat) => createMsg(JSON.parse(chat.body))
             );
 
             console.log("일단 구독은 됐을까?")
