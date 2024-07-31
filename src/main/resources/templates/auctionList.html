@@ -51,7 +51,8 @@
                         <h5 class="modal-title text-white">경매 등록</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form method="post" action="/api/auctions">
+                    <form method="post" action="/api/auctions" id="createForm" enctype="multipart/form-data">
+
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="title" class="col-form-label">제목</label>
@@ -73,15 +74,15 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <input type="file" class="form-control" id="imgFiles" multiple>
+                                        <input type="file" class="form-control" id="imgFiles" name="imgFiles" multiple>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-4 dongle-regular fs-4 mb-2">상품명 :</div>
-                                                <div class="col-8 dongle-regular"><input type="text" class="form-control" id="productName" placeholder="상품명" ></div>
+                                                <div class="col-8 dongle-regular"><input type="text" class="form-control" id="productName" name="productName" placeholder="상품명" ></div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-4 dongle-regular fs-4 mb-2">카테고리 :</div>
-                                                <div class="col-8 dongle-regular"><select class="form-select" id="productCategory">
+                                                <div class="col-8 dongle-regular"><select class="form-select" id="productCategory" name="productCategory">
                                                     <option value="잡화" selected>잡화</option>
                                                     <option value="1">One</option>
                                                     <option value="2">Two</option>
@@ -89,7 +90,7 @@
                                                 </select></div>
                                             </div>
                                             <label for="productDetail" class="col-form-label dongle-regular fs-5">상세정보</label>
-                                            <textarea class="form-control dongle-regular fs-4" id="productDetail" name="content" rows="3"></textarea>
+                                            <textarea class="form-control dongle-regular fs-4" id="productDetail" name="productDetail" rows="3"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +107,7 @@
                                     <div class="col-6">
                                         <label for="maxPersonnel" class="col-form-label">인원 설정</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control dongle-regular fs-4" id="maxPersonnel" name="maxNum" value="50">
+                                            <input type="number" class="form-control dongle-regular fs-4" id="maxPersonnel" name="maxPersonnel" value="50">
                                             <span class="input-group-text">명</span>
                                         </div>
                                     </div>
@@ -114,20 +115,23 @@
                             </div>
                             <div class="mb-3">
                                 <div class="col-form-label">시작일</div>
+                                <input type="hidden" name="startDate" id="startDate">
+                                <input type="hidden" name="finishDate" id="finishDate">
+                                <input type="hidden" name="saleUserEmail" id="saleUserEmail" value="java@test.com">
                                 <div class="input-group">
                                     <span class="input-group-text">📅</span>
-                                    <input type="text" class="form-control date-picker dongle-regular fs-4" name="startDate" id="startDate" placeholder="시작 날짜 입력">
+                                    <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDay" placeholder="시작 날짜 입력">
                                     <span class="input-group-text">⏰</span>
-                                    <input type="text" class="form-control time-picker dongle-regular fs-4" name="startTime" id="startTime" placeholder="시작 시간 입력">
+                                    <input type="text" class="form-control time-picker dongle-regular fs-4" id="startTime" placeholder="시작 시간 입력">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="col-form-label">종료일</div>
                                 <div class="input-group">
                                     <span class="input-group-text">📅</span>
-                                    <input type="text" class="form-control date-picker dongle-regular fs-4" name="endDate" id="endDate" placeholder="종료 날짜 입력">
+                                    <input type="text" class="form-control date-picker dongle-regular fs-4" id="endDate" placeholder="종료 날짜 입력">
                                     <span class="input-group-text">⏰</span>
-                                    <input type="text" class="form-control time-picker dongle-regular fs-4" name="endTime" id="endTime" placeholder="종료 시간 입력">
+                                    <input type="text" class="form-control time-picker dongle-regular fs-4" id="endTime" placeholder="종료 시간 입력">
                                 </div>
                             </div>
                         </div>
@@ -139,10 +143,11 @@
                 </div>
             </div>
         </div>
+        <div class="container" style="height: 30px"></div>
         <div class="container">
-            <br><div class="row text-center"><h2>경매 리스트</h2></div>
+            <div class="row text-center"><h2>경매 리스트</h2></div>
         </div>
-        <div class="container px-4 py-5" id="custom-cards">
+        <div class="container px-4 pt-3" id="custom-cards">
             <div class="container mt-2 mb-4 d-flex justify-content-center">
                 <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
                        style="width: 500px; display: inline-block;">
@@ -267,7 +272,7 @@
         var obj = new Object();
         obj.title = document.querySelector('#title').value;
         obj.introduce = document.querySelector('#introduce').value;
-        obj.startDate = document.querySelector('#startDate').value + "T" + document.querySelector('#startTime').value;
+        obj.startDate = document.querySelector('#startDay').value + "T" + document.querySelector('#startTime').value;
         obj.finishDate = document.querySelector('#endDate').value + "T" + document.querySelector('#endTime').value;
         obj.maxPersonnel = parseInt(document.querySelector('#maxPersonnel').value);
         obj.minimumPrice = parseInt(document.querySelector('#minimumPrice').value);
@@ -275,6 +280,10 @@
         obj.productName = document.querySelector('#productName').value;
         obj.productDetail = document.querySelector('#productDetail').value;
         obj.productCategory = "잡화";
+
+        document.querySelector('#startDate').value =  obj.startDate;
+
+        document.querySelector('#finishDate').value = obj.finishDate;
 
         var start = new Date(obj.startDate)
         var end = new Date(obj.finishDate)
@@ -331,17 +340,24 @@
     });
 
     function createRoom(roomInfo){
-    alert(JSON.stringify(roomInfo));
+
+    let formData = new FormData();
+
+    formData.append("request", new Blob([JSON.stringify(roomInfo)], {type: "application/json"}));
+    Array.from($('#imgFiles')[0].files).forEach(file => formData.append("imgFiles", file));
+
     $.ajax({
             url : `/api/auctions`,
             type : 'post',
-            data: JSON.stringify(roomInfo),
-            contentType: "application/json; charset=UTF-8",
+            data: formData,
+            processData: false,
+            contentType: false,
             success : function (result) {
                 $('#roomModal').modal('hide')
                 location.reload(true);
             },
             error : function (request, status, error) {
+            console.log(error);
                 console.log(JSON.stringify(request));
             }
         });

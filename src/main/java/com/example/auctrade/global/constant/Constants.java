@@ -8,4 +8,5 @@ public final class Constants {
     public static final String REDIS_DEPOSIT_KEY = "deposit:";
     public static final String CHAT_AUCTION_DESTINATION = "/sub/chat/auctions/";
 
+
 }

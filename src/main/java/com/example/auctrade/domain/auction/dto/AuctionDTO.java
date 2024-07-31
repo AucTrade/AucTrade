@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AuctionDTO {
 
@@ -72,10 +73,12 @@ public class AuctionDTO {
         private LocalDateTime startDate;
         private LocalDateTime finishDate;
         private Long minimumPrice;
+        private String username;
         private String saleUserEmail;
         private String productName;
         private String productDetail;
         private String productCategory;
+        private java.util.List<String> files;
     }
 
     @Getter
@@ -109,6 +112,15 @@ public class AuctionDTO {
 
         @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
         private Long price;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class BidResult{
+        private Long auctionId;
+        private String username;
+        private Long price;
+        private Boolean isSuccess;
     }
 
     @Getter

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Dongle&family=Playwrite+HU:wght@100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Do+Hyeon&family=Dongle&family=Jua&family=Playwrite+HU:wght@100..400&display=swap');
 
 .search-input-box{
            background-image: url(https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-256.png);
@@ -45,6 +45,20 @@ a.room-card:hover { color: black; text-decoration: none; border : 1px solid blac
         --bs-btn-font-size: 0.8rem;
 }
 
+.category-btn {
+          font-size: 12px;
+          background-color: skyblue;
+          color: white;
+          border: none;
+          border-radius: 20px;
+}
+
+.category-button-text{
+        --bs-btn-padding-y: .1rem;
+        --bs-btn-padding-x: .5rem;
+        --bs-btn-font-size: 0.5rem;
+}
+
 .date-time-text{
      font-size: 0.8 rem;
 }
@@ -76,6 +90,16 @@ a.room-card:hover { color: black; text-decoration: none; border : 1px solid blac
   font-weight: 400;
   font-style: normal;
 }
+.do-hyeon-regular {
+  font-family: "Do Hyeon", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.jua-regular {
+  font-family: "Jua", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 .product-card-title {
         overflow: hidden;
@@ -84,3 +108,7 @@ a.room-card:hover { color: black; text-decoration: none; border : 1px solid blac
         -webkit-line-clamp:1;
         -webkit-box-orient: vertical;
 }
+
+a.profile-card:link { color: black; text-decoration: none;}
+a.profile-card:visited { color: black; text-decoration: none;}
+a.profile-card:hover { color: black; text-decoration: none; opacity: .5; background-color: black;}

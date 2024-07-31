@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
     <script src="/js/bootstrap-datepicker.ko.min.js"></script>
     <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <script src="/js/jquery-timepicker.min.js"></script>
@@ -53,30 +54,12 @@
                 <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
             </div>
             <div class="container" style="height: 10px"></div>
-            <div class="row justify-content-between">
-                <div class="col-4" style="height: 50px">
-                    <button class="btn btn-outline-primary" onclick="prevPage()"> < </button>
-                    <button class="btn btn-outline-primary" onclick="nextPage()"> > </button>
-                </div>
-            </div>
             <div id="auctionList"></div>
             <div class="container" style="height: 10px"></div>
-            <nav aria-label="...">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
+    </div>
+    <div class="item-container" id="item-container">
+
     </div>
     <div id="footer"></div>
 </body>
@@ -85,27 +68,31 @@
     $("#header").load("/header #header");
     $("#footer").load("/footer #footer");
 
+    let page = 1;
+    const size = 10;
+
+    let lastItem;
+    let lastObservedItem;
+    let isLastPage = false;
+
     $(document).ready(function(){
-        fetch('/api/auctions/deposits', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8'
-            }
-        }).then(response => {
-            if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
-            return response.json();
-        }).then(result => {
-            makeList(result);
-        }).catch(error => {
-            console.log(error);
-        });
+        loadItems();
     });
 
-    function makeList(result) {
-        var inner = '';
-        result.forEach((element,index) => {
-          inner += `
-          <div class="card m-2">
+    function loadItems() {
+    if (isLastPage) return;
+     var inner = document.querySelector('#auctionList').innerHTML;
+        $.ajax({
+            url: `/api/auctions/deposits?page=${page}&size=${size}`,
+            method: 'GET',
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                if (data.length === 0) {
+                    isLastPage = true;
+                    return;
+                }
+                data.forEach((element, index) => {
+                inner += `<div class="auction-item card m-2">
             <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
                 <div class="row g-0">
                     <div style="height: 240px;" class="col-md-3">
@@ -134,11 +121,35 @@
                     </div>
                 </div>
             </a>
-            </div>
-           `;
+            </div>`;});
+                document.querySelector('#auctionList').innerHTML = inner;
+                page++;
+                lastItem = $("#auctionList .auction-item:last")[0];
+                if (lastItem !== lastObservedItem) {
+                    observer.observe(lastItem);
+                    lastObservedItem = lastItem;
+                }
+            },
+            error: function (error) {
+                console.error('데이터를 가져오는 동안 오류가 발생했습니다:', error);
+            }
         });
-        document.querySelector('#auctionList').innerHTML = inner;
     }
+
+    const observerOptions = {
+        root: null,
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                observer.unobserve(entry.target);
+                lastObservedItem = $("#auctionList .auction-item:last")[0];
+                loadItems();
+            }
+        });
+    }, observerOptions);
 
     $("#btn-create").on("click", function (e){
         e.preventDefault();

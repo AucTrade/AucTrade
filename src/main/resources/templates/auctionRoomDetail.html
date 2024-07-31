@@ -2,30 +2,75 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/sockjs.min.js"></script>
     <script src="/js/stomp.min.js"></script>
+    <style>
+        .btn.btn-outline-primary[disabled] {
+            background-color: #000000;
+        }
+    </style>
 </head>
 <body>
 <script src="/js/bootstrap.bundle.min.js"></script>
 <div id="header"></div>
+<div class="container" style="height: 30px;"></div>
 <div class="container">
     <div class="row">
-        <div class="col-8" >
-            <div class="row" id="title"></div>
-            <hr>
-            <div class="row"><h2>현재 낙찰가</h2></div>
-            <div class="row" id="price"></div>
+        <div class="col-8 pe-5" >
+            <div class="row border-bottom jua-regular" id="title"></div>
+            <div class = "row justify-content-between">
+                <div class="col-7 ps-4 fs-2 dongle-regular" id="period"></div>
+                <div class="col-5 pt-2" id="timer"></div>
+            </div>
+            <div class="container" style="height: 30px;"></div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="row bagel-fat-one-regular"><h3>Bid Info</h3></div>
+                    <div class="container" style="height: 10px;"></div>
+                    <div class="card" style="width: 12rem;">
+                        <img class="card-img-top " src="/icon/bootstrap-icons-1.11.3/incognito.svg" alt="Card image cap" style="background-color: #acb5ae">
+                        <div class="card-body">
+                            <div class="row border-bottom" id="bidNickname"></div>
+                            <div class="row pt-2" id="price"></div>
+                        </div>
+                    </div>
+                    <div class="container" style="height: 10px;"></div>
+                </div>
+                <div class="col-8 pe-5">
+                    <div class="row " id="productName"></div>
+                    <div class ="row" id="img-view">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container" style="height: 30px;"></div>
+                    <div class="row">
+                        <div class="col-6 dongle-regular"><h3>제품 상세정보</h3></div>
+                        <div class="col-6 pt-1 pe-3 text-end" id="productCategory" ></div>
+                    </div>
+                    <div class="container" style="height: 10px;"></div>
+                    <div class="row px-3">
+                    <div class="container rounded dongle-regular" id="productDetail" style="background-color: #f2f5f7"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class="col-4">
-            <div class="row"><h3>채팅창</h3></div>
-            <div class="overflow-auto overflow-x-hidden" id="msgArea" style="height: 500px; padding: 10px; background-color:#F5F5F5;"></div>
+            <div class="container" style="height: 10px;"></div>
+            <div class="row"><h3>CHAT &nbsp;<i class="bi bi-chat"></i></h3></div>
+            <div class="container" style="height: 10px;"></div>
+            <div class="overflow-auto overflow-x-hidden" id="msgArea" style="height: 550px; padding: 10px; background-color:#F5F5F5;"></div>
             <div>
                 <div class="input-group mb-3">
                     <input type="text" id="msg" class="form-control">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" id="button-send">전송</button>
+                        <button class="btn btn-outline-primary" type="button" id="button-send" >&nbsp;<i class="bi bi-send"></i>&nbsp;</button>
                     </div>
                 </div>
             </div>
@@ -38,6 +83,7 @@
     $("#header").load("/header #header");
     $("#footer").load("/footer #footer");
     var username = 'java@test.com';
+    var finishTime;
 
     $(document).ready(function(){
      const auctionId = getUrlParams()["auctionId"];
@@ -49,13 +95,30 @@
         if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
         return response.json();
      }).then(result => {
-        document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
-        document.querySelector('#price').innerHTML = `<h1>${result.minimumPrice}</h1>`;
+        makeRoom(result);
+        loadImg(result.files);
+        finishTime = result.finishDate;
         socket(auctionId, username);
      }).catch(error => {
         console.log('There has been a problem with your fetch operation:', error);
      });
+    $('#button-send').attr('disabled', true);
+
     });
+
+    function makeRoom(result){
+        document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
+        var bidUser = (result.username=='') ? "None" : result.username;
+        document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${bidUser}</h5>`;
+        document.querySelector('#price').innerHTML =`<p class="text-end fs-5 text-primary">${result.minimumPrice} ￦</p>`;
+        document.querySelector('#productName').innerHTML =`<p class="text-start fs-4 do-hyeon-regular">${result.productName.slice(0, 20)}</p>`;
+        document.querySelector('#productDetail').innerHTML =`<p class="fs-2">${result.productDetail}</p>`;
+
+        document.querySelector('#productCategory').innerHTML =`<button class="btn btn-primary category-btn category-button-text" disabled>${result.productCategory}</button>`;
+        var start = result.startDate.split('T');
+        var end = result.finishDate.split('T');
+        document.querySelector('#period').innerHTML = `${start[0]} ${start[1].slice(0, -3)} ~ ${end[0]} ${end[1].slice(0, -3)}`;
+    }
 
     function getUrlParams() {
        var params = {};
@@ -67,14 +130,67 @@
        return params;
     }
 
+    function displayRemainingTime(finishTime) {
+        const timeRemaining = new Date(finishTime) - new Date();
+
+        if (timeRemaining <= 0) {
+            document.getElementById('timer').textContent = '시간 초과';
+            return;
+        }
+
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        document.querySelector('#timer').innerHTML = `<div class="col-5">
+                                <button class="btn btn-success fs-6 text-white bold fill-button-text"
+                                 style="width: 250px;" disabled>🕓 ${days}일 ${hours}시간 ${minutes}분 ${seconds}초</button></div>
+                            `;
+    }
+
+    setInterval(() => {
+             displayRemainingTime(finishTime);
+    }, 1000);
+
+    function loadImg(urls) {
+      var htm = '<div class="carousel-inner"><div class="carousel-item active">';
+      var htm2 = '';
+      if(urls.length == 0){
+          htm += '<img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="..."></div></div>';
+
+      }else if(urls.length == 1){
+          htm += `<img id="img-one" src="${URL.createObjectURL(urls[0])}" class="d-block w-100" alt="..."></div></div>`;
+
+      }else{
+          htm = '<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">';
+          urls.forEach((f, i) => {
+                var str = '';
+                var str2 = '';
+                if(i == 0){
+                    str = 'class="active" aria-current="true"';
+                    str2 = 'active';
+                }
+
+                htm += `<button type="button" ${str} data-bs-target="#carouselExampleIndicators" data-bs-slide-to="${i}" aria-label="Slide ${i+1}"></button>`;
+                htm2 += `<div class="carousel-item ${str2}"><img src="${f}" class="d-block w-100" alt="..."></div>`;
+          });
+
+         htm += '</div><div class="carousel-inner">' + htm2 + '</div>';
+         htm += '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button><button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>';
+     }
+       document.querySelector('#img-view').innerHTML = htm;
+    }
+
     function createMsg(content){
          var message = content.message;
+         if(message =='') return;
 
          if(/^@[0-9]+/.test(message)){
            document.querySelector('#price').innerHTML = `<h3>${message.substring(1)}</h3>`;
-
+           document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${content.username}</h5>`;
            document.querySelector('#msgArea').innerHTML +=
-           `<div class='row h-auto'><div class='alert alert-warning h-auto'><b>${content.username} : ${message}</b></div></div>`;
+           `<div class='row h-auto'><div class='alert alert-success h-auto'><b>${content.username} : ${message}</b></div></div>`;
          }else{
            var color = (username == content.username) ? "text-primary fs-5" : "text-body dongle-regular fs-3";
            document.querySelector('#msgArea').innerHTML +=
@@ -82,6 +198,17 @@
          }
          $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
     }
+
+    document.querySelector("#msg").addEventListener("keyup", function(e) {
+        if (e.keyCode === 13) {
+            document.querySelector("#button-send").click();
+        }
+    });
+
+    $('#msg').on('input', function(){
+        if($('#msg').val()=='') $('#button-send').attr('disabled', true);
+        else $('#button-send').attr('disabled', false);
+    });
 
     function socket(auctionId, username){
      var sockJs = new SockJS("/stomp/chat");
@@ -111,7 +238,7 @@
                            $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
                     }else{
                         stomp.send('/send/chat/message', {}, JSON.stringify({
-                        auctionId: auctionId, message: "@"+ result.price, username: username}));
+                        auctionId: result.auctionId, message: "@"+ result.price, username: result.username}));
                     }
                 },
                 error : function (request, status, error) {

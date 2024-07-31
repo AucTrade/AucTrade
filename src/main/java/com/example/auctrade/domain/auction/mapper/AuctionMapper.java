@@ -8,6 +8,7 @@ import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class AuctionMapper {
 
@@ -25,27 +26,19 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDto(Auction auction) {
+    public static AuctionDTO.Enter toEnterDto(Auction auction,String username, Long price, List<String> files) {
         return (auction == null) ? null : AuctionDTO.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .productName(auction.getProduct().getName())
-                .saleUserEmail(auction.getSaleUser().getEmail())
-                .startDate(auction.getStartDate())
-                .minimumPrice((long) auction.getMinimumPrice())
-                .finishDate(auction.getFinishDate())
-                .build();
-    }
-
-    public static AuctionDTO.Enter toEnterDto(Auction auction, Long price) {
-        return (auction == null) ? null : AuctionDTO.Enter.builder()
-                .title(auction.getTitle())
-                .introduce(auction.getIntroduce())
-                .productName(auction.getProduct().getName())
-                .saleUserEmail(auction.getSaleUser().getEmail())
-                .startDate(auction.getStartDate())
+                .productDetail(auction.getProduct().getDetail())
+                .productCategory(auction.getProduct().getCategory().getCategoryName())
+                .username(username)
                 .minimumPrice(price)
+                .saleUserEmail(auction.getSaleUser().getEmail())
+                .startDate(auction.getStartDate())
                 .finishDate(auction.getFinishDate())
+                .files(files)
                 .build();
     }
 
