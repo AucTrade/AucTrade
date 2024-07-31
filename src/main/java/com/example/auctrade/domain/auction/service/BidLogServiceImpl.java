@@ -31,7 +31,8 @@ public class BidLogServiceImpl implements BidLogService {
         BidLog bidLog = bidLogRepository.save(AuctionMapper.toEntity(requestDto));
 
         Object obj = redisTemplate.opsForHash().get(key, "bid");
-        long beforePrice = (obj == null) ? -1 : (long) obj;
+//        long beforePrice = (obj == null) ? -1 : (long) obj;
+        long beforePrice = (obj == null) ? -1 : ((obj instanceof Integer) ? ((Integer) obj).longValue() : (Long) obj);
         if(beforePrice >= requestDto.getPrice())
             return AuctionMapper.toBidResultDTO(bidLog, false);
 

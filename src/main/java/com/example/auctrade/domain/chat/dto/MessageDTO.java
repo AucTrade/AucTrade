@@ -9,6 +9,7 @@ import lombok.*;
 
 public class MessageDTO {
     @Getter
+    @Setter
     @AllArgsConstructor
     public static class Create {
 
@@ -21,6 +22,7 @@ public class MessageDTO {
     }
 
     @Getter
+    @Setter
     public static class Get{
         private final String id;
         private final Long auctionId;

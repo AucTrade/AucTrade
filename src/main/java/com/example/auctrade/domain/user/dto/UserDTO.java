@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UserDTO {
 
+    // 회원가입 처리 및 인증 예외 처리
     private String email;
     private String password;
     private String phone;
@@ -29,5 +30,11 @@ public class UserDTO {
         this.birth = birth;
         this.role = role;
         this.postcode = postcode;
+    }
+
+    @Getter
+    public static class Login {
+        private String email;
+        private String password;
     }
 }

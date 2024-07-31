@@ -33,6 +33,7 @@ public class RedisConfig {
         redisConfiguration.setHostName(host);
         redisConfiguration.setPort(port);
         redisConfiguration.setPassword(password);
+        redisConfiguration.setDatabase(0);
 
         final SocketOptions socketoptions = SocketOptions.builder().connectTimeout(Duration.ofSeconds(10)).build();
         final ClientOptions clientoptions = ClientOptions.builder().socketOptions(socketoptions).build();
@@ -43,9 +44,9 @@ public class RedisConfig {
                 .shutdownTimeout(Duration.ZERO)
                 .build();
 
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-        redisStandaloneConfiguration.setDatabase(0);
-        return new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceClientConfiguration);
+//        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
+//        redisStandaloneConfiguration.setDatabase(0);
+        return new LettuceConnectionFactory(redisConfiguration, lettuceClientConfiguration);
     }
 
     @Bean
@@ -60,6 +61,17 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Integer.class));
 
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, String> redisRefreshToken(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }
