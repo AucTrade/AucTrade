@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AucTrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/auth.css">
+</head>
+<body>
+<div class="container" id="container">
+    <div class="form-container sign-up">
+        <form id="form-container-signup-box">
+            <h1>Sign Up</h1>
+            <span>use your email for registration</span>
+            <input type="email" id="signup-email" name="email" placeholder="Email" required>
+            <input type="password" id="signup-password" name="password" placeholder="Password" required>
+            <input type="password" id="signup-checkPassword" placeholder="Check Password">
+            <input type="text" id="signup-phone" name="phone" placeholder="Phone" required>
+            <input type="text" id="signup-address" name="address" placeholder="Address" required>
+            <input type="date" id="signup-birth" name="birth" placeholder="Birth Date" required>
+            <select id="signup-role" name="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+            <input type="text" id="signup-postcode" name="postcode" placeholder="Postcode" required>
+            <button type="submit" id="signup-button">회원가입</button>
+        </form>
+    </div>
+    <div class="form-container sign-in">
+        <form id="form-container-box">
+            <h1>Sign In</h1>
+            <span>use your email password</span>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <a class="forget" href="#">Forget Your Password?</a>
+            <button type="submit" id="login-button">로그인</button>
+        </form>
+    </div>
+    <div class="toggle-container">
+        <div class="toggle">
+            <div class="toggle-panel toggle-left">
+                <h2>Remember Account?</h2>
+                <p>로그인해서 물품을 나눠보세요!</p>
+                <button class="hidden" id="login">로그인</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h2>Play the Game!</h2>
+                <p>간단한 회원가입 후, 거래에 참여하세요!</p>
+                <button class="hidden" id="register">회원가입</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/js/auth.js"></script>
+</html>

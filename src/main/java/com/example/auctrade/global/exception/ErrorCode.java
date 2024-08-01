@@ -39,10 +39,12 @@ public enum ErrorCode {
     PRODUCT_CATEGORY_NOT_FOUND(NOT_FOUND, "해당 물품 카테고리를 찾을 수 없습니다."),
     POST_IMAGE_NOT_FOUND(NOT_FOUND, "해당 게시글의 이미지를 찾을 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    USER_ID_MISMATCH(NOT_FOUND, "데이터베이스의 사용자 식별자와 불일치한 사용자 정보입니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "이미 존재하는 닉네임입니다."),
+    USER_ALREADY_LOGGED_IN(CONFLICT, "이미 로그인된 사용자입니다."),
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");

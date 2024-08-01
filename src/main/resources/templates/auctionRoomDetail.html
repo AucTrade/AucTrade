@@ -211,20 +211,35 @@
     });
 
     function socket(auctionId, username){
-     var sockJs = new SockJS("/stomp/chat");
-     var stomp = Stomp.over(sockJs);
+        console.log("쿠키 확인: " + document.cookie);
 
-     stomp.connect({}, function (){
-       stomp.subscribe("/sub/chat/auctions/" + auctionId, (chat) => createMsg(JSON.parse(chat.body)));
+        let parts = document.cookie.split("Bearer%20"); // "Bearer%20"을 기준으로 분리
+        let accessToken = parts[1];
 
-       stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
+        console.log("소켓 설정과 관련된 엑세스 토큰: " + accessToken)
+
+        var sockJs = new SockJS("/stomp/chat");
+        var stomp = Stomp.over(sockJs);
+
+        console.log("여기는 오나??")
+
+        stomp.connect({ 'Authorization': 'Bearer ' + accessToken }, function (){
+            stomp.subscribe(
+                "/sub/chat/auctions/" + auctionId,
+                (chat) => createMsg(JSON.parse(chat.body))
+            );
+
+            console.log("일단 구독은 됐을까?")
+
+            stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
      });
 
      $("#button-send").on("click", function(e){
        var message = document.getElementById("msg");
 
-       if(message.value.match(/^@\d+$/)){
-       const auctionId = getUrlParams()["auctionId"];
+       // 입찰 메세지
+       if (message.value.match(/^@\d+$/)){
+           const auctionId = getUrlParams()["auctionId"];
             $.ajax({
                 url : `/api/auctions/bids`,
                 type : 'post',
@@ -245,9 +260,10 @@
                     console.log(error);
                 }
             });
-       }else{
+       } else {
+           // 그냥 메세지
             stomp.send('/send/chat/message', {}, JSON.stringify({auctionId: auctionId,
-             message: message.value, username: username}));
+            message: message.value, username: username}));
        }
        message.value = '';
      });
