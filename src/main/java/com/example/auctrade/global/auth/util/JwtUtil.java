@@ -1,9 +1,8 @@
 package com.example.auctrade.global.auth.util;
 
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.auctrade.global.exception.ErrorCode;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,8 +15,6 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -147,52 +144,46 @@ public class JwtUtil {
     }
 
     // 쿠키에서 엑세스 토큰 갖고오기
-    public String getAccessTokenFromRequestCookie(HttpServletRequest req) {
+    public String getAccessTokenFromCookie(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
 
-        if(cookies == null) return null;
-
-        logger.info("요청으로부터 쿠키가 확인됨");
+        if(cookies == null)
+            throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(AUTHORIZATION_HEADER))
-                return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                return getTokenValue(URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8));
         }
-        logger.info("쿠키내 토큰 정보가 없음");
-        return null;
+        log.info("토큰 없음");
+        throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
-    // jwt 토큰 substring
-    public String getTokenValue(String tokenValue) {
+    public String getAccessTokenFromHeader(String fromHeader) {
+        return getTokenValue(fromHeader);
+    }
+
+    private String getTokenValue(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX))
             return tokenValue.substring(7);
-        return null;
+
+        throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
     // 토큰 만료일자 파싱
     public Date getTokenIat(String token) {
-        Claims claims = getClaims(token);
-        if(claims == null) return null;
-        return claims.getIssuedAt();
+        return getClaims(token).getIssuedAt();
     }
 
     // 토큰 유효여부 검증(웹소켓 전용)
     public boolean validateToken(String token) {
-        return getClaims(token) != null;
+        return !getClaims(token).isEmpty();
     }
 
     private Claims getClaims(String token){
-        try {
             return Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-
-        }catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException | SecurityException e) {
-            // 토큰이 만료되었을 경우 ExpiredJwtException에서 클레임을 추출
-            logger.info("기한이 만료된 토큰으로부터 이메일 추출");
-            return null;
-        }
     }
 }

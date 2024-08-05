@@ -27,8 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static com.example.auctrade.global.auth.util.JwtUtil.AUTHORIZATION_HEADER;
 
 @Configuration
-@EnableWebSecurity(debug = true)
-@EnableMethodSecurity(securedEnabled = false)
+@EnableWebSecurity(debug = false)
+@EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -68,10 +68,10 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers( "/error").permitAll()
+                                .requestMatchers( "/pages/error").permitAll()
                                 .anyRequest().authenticated()
         );
-
+        //만약 권한이 없는 상태에서 바로 권한 요청을 하는 경우 처리
         http.exceptionHandling(e ->
                 e.authenticationEntryPoint(jwtAuthenticationEntryPoint).accessDeniedHandler(jwtAccessDenyHandler));
 
@@ -80,22 +80,22 @@ public class WebSecurityConfig {
         http.formLogin(formLogin ->
                 formLogin
                         // 로그인 View 제공 (GET /api/user/login-page)
-                        .loginPage("/login")
+                        .loginPage("/pages/login")
                         // 로그인 처리 (POST /api/user/login)
                         .loginProcessingUrl("/api/users/login") // 둘을 똑같이 작성하면 안 됨
                         // 로그인 처리 후 성공 시 URL alwaysUse를 false로 작성해 다른곳에서 요청이 들어왔을때 항상 같은곳으로 가면안된다.
-                        .defaultSuccessUrl("/auctions",false)
-                        .failureUrl("/login")
+                        .defaultSuccessUrl("/pages/auctions",false)
+                        .failureUrl("/pages/login")
                         .permitAll()
         );
 
-        http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService, userService, redisTemplate), JwtAuthenticationFilter.class); // 인가 처리 필터
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // 인증(+ 로그인) 처리 필터
+        http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService, userService, redisTemplate), JwtAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class); // JwtAuthenticationFilter 앞단에 JwtExceptionFilter를 위치시키겠다는 설정
 
         http.logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/pages/login")
                         .deleteCookies(AUTHORIZATION_HEADER)
                 );
 
@@ -106,13 +106,12 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer(){
         return web ->
             web.ignoring()
-                    .requestMatchers("/login")
                     .requestMatchers("/api/users/login")
                     .requestMatchers("/api/users/signup")
+                    .requestMatchers("/pages/**")
                     .requestMatchers("/img/**")
                     .requestMatchers("/icon/**")
-                    .requestMatchers("/header")
-                    .requestMatchers("/footer")
+                    .requestMatchers("/js/**")
                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 }

@@ -3,15 +3,16 @@ package com.example.auctrade.global.page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@Controller
+@Controller()
 public class MainPageController {
-    @GetMapping("/header")
+    @GetMapping("/pages/header")
     public String header(Model model) {
         return "header";
     }
 
-    @GetMapping("/footer")
+    @GetMapping("/pages/footer")
     public String footer(Model model) {
         return "footer";
     }
@@ -21,7 +22,7 @@ public class MainPageController {
         return "auctionList";
     }
 
-    @GetMapping("/login")
+    @GetMapping("/pages/login")
     public String auth() {
         return "auth";
     }

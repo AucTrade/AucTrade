@@ -45,14 +45,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     }
 
     private void setAuthenticate(final StompHeaderAccessor accessor) {
-        String bearerToken = accessor.getFirstNativeHeader(JwtUtil.AUTHORIZATION_HEADER);
-
-        if (bearerToken == null || !(StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtUtil.BEARER_PREFIX))) {
-            logger.error("인터셉터) 토큰이 비어있거나 혹은 유효하지 않음");
-            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-        }
-
-        String accessToken = jwtUtil.getTokenValue(bearerToken);
+        String accessToken = jwtUtil.getAccessTokenFromHeader(accessor.getFirstNativeHeader(JwtUtil.AUTHORIZATION_HEADER));
         validateToken(accessToken);
 
         String email = jwtUtil.getUsernameFromAnyToken(accessToken);

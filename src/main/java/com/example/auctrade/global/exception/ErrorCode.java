@@ -33,6 +33,7 @@ public enum ErrorCode {
     POST_ACCESS_NOT_PERMISSION(FORBIDDEN, "접근할 수 없는 게시물입니다."),
 
     // 404 NOT_FOUND: 잘못된 리소스 접근
+    ACCESS_TOKEN_NOT_FOUND(NOT_FOUND, "Access 토큰이 없습니다"),
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     MEMBER_NOT_FOUND(NOT_FOUND, "해당 회원 정보를 찾을 수 없습니다."),
     AUCTION_NOT_FOUND(NOT_FOUND, "해당 경매를 찾을 수 없습니다."),

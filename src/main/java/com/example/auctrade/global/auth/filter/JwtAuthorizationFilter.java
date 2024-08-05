@@ -5,6 +5,7 @@ import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.auth.util.TokenPayload;
 import com.example.auctrade.global.exception.ErrorCode;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +20,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
@@ -38,16 +38,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String accessTokenValue = jwtUtil.getAccessTokenFromRequestCookie(request);
-
-        // 만약 필터를 거쳤는데 토큰이 없다면 login page로 이동
-        if(!StringUtils.hasText(accessTokenValue)) {
-            response.sendRedirect("/login");
-            return;
-        }
-        
-        String accessToken = jwtUtil.getTokenValue(accessTokenValue);
-        if(accessToken == null) throw new InternalAuthenticationServiceException("Token Not Found");
+        String accessToken = jwtUtil.getAccessTokenFromCookie(request);
         String email = jwtUtil.getUsernameFromAnyToken(accessToken);
 
         //2-2. 유효성 판별

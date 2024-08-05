@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(value = "/auctions")
+@RequestMapping(value = "/pages/auctions")
 public class AuctionPageController {
     @GetMapping("")
     public String roomList() {
