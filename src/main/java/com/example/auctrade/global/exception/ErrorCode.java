@@ -24,6 +24,7 @@ public enum ErrorCode {
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
     STATUS_NOT_LOGIN(UNAUTHORIZED, "로그인 상태가 아닙니다."),
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "존재하지 않는 회원입니다."),
+    INTERNAL_AUTH(UNAUTHORIZED,"내부 시스템 문제로 로그인할 수 없습니다. 관리자에게 문의하세요."),
 
     // 403 FORBIDDEN: 권한이 없는 접근
     POST_GET_NOT_PERMISSION(FORBIDDEN, "해당 게시물을 조회할 권한이 없습니다."),

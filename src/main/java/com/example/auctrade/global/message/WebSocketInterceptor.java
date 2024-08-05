@@ -4,7 +4,6 @@ import com.example.auctrade.domain.user.service.UserDetailsServiceImpl;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
             throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
-        String accessToken = jwtUtil.substringToken(bearerToken);
+        String accessToken = jwtUtil.getTokenValue(bearerToken);
         validateToken(accessToken);
 
         String email = jwtUtil.getUsernameFromAnyToken(accessToken);

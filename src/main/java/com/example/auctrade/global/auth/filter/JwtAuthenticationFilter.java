@@ -3,7 +3,7 @@ package com.example.auctrade.global.auth.filter;
 import com.example.auctrade.domain.user.dto.UserDTO;
 import com.example.auctrade.domain.user.entity.UserDetailsImpl;
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
-import com.example.auctrade.domain.user.repository.UserRepository;
+import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.auth.util.TokenPayload;
 import com.example.auctrade.global.exception.CustomException;
@@ -15,54 +15,59 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j(topic = "로그인 및 JWT 생성 + 인증")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
-    private final RedisTemplate<String, String> redisRefreshToken;
+    private final UserService userService;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserRepository userRepository, RedisTemplate<String, String> redisRefreshToken) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService, RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/api/users/login"); // 로그인 처리 경로 설정(매우매우 중요)
         super.setUsernameParameter("email");
-        this.userRepository = userRepository;
-        this.redisRefreshToken = redisRefreshToken;
+        this.userService = userService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // 로그인 시도를 담당함
-        log.info("로그인 단계 진입");
 
+        log.info("로그인 단계 진입");
         try {
             UserDTO.Login requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDTO.Login.class);
-            return getAuthenticationManager().authenticate( // 인증 처리 하는 메소드
+            // 인증 처리 하는 메소드
+            return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             requestDto.getEmail(),
                             requestDto.getPassword(),
                             null
-                    )
-            );
+                    ));
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new InternalAuthenticationServiceException(e.getMessage());
         }
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult){
         log.info("로그인 성공 및 JWT 생성");
 
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
@@ -72,53 +77,57 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 인덱스 0: accessTokenPayload, 인덱스 1: refreshTokenPayload
         List<TokenPayload> tokenPayloads = jwtUtil.createTokenPayloads(username, role);
 
-        String accessToken = jwtUtil.createAccessToken(tokenPayloads.get(0));
-        String refreshToken = jwtUtil.createRefreshToken(tokenPayloads.get(1));
-        String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + username;
+        if(!userService.existUserEmail(username))
+            throw new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage());
 
-        userRepository.findByEmail(username).orElseThrow(
-                () ->  new CustomException(ErrorCode.USER_ID_MISMATCH)
-        );
+        if (redisTemplate.opsForValue().get(username) != null)
+            throw new InternalAuthenticationServiceException(ErrorCode.USER_ALREADY_LOGGED_IN.getMessage());
 
-        if (redisRefreshToken.opsForValue().get(username) != null) {
-            throw new CustomException(ErrorCode.USER_ALREADY_LOGGED_IN);
-        }
-
-        String refreshTokenValue = refreshToken.substring(7);
+        String refreshTokenValue = jwtUtil.createRefreshToken(tokenPayloads.get(1)).substring(7);
         log.info("초기 리프레쉬토큰: " + refreshTokenValue);
 
         // username(email) - refreshToken 덮어씌우기 저장
         // 7일 + 1시간을 시한으로 설정
-        long expirationTime = 24 * 7 + 1;
-        redisRefreshToken.opsForValue().set(refreshTokenKey, refreshTokenValue, expirationTime, TimeUnit.HOURS);
+        redisTemplate.opsForValue()
+                .set(JwtUtil.REFRESH_TOKEN_KEY+username, refreshTokenValue, 24 * 7 + 1L, TimeUnit.HOURS);
 
-        jwtUtil.addJwtToCookie(accessToken, response);
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType("application/json;charset=UTF-8");
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonMessage = objectMapper.writeValueAsString("로그인 성공 및 토큰 발급");
-        PrintWriter writer = response.getWriter();
-
-        writer.print(jsonMessage);
-        writer.flush();
-        writer.close();
+        jwtUtil.addJwtToCookie(jwtUtil.createAccessToken(tokenPayloads.get(0)), response);
+        sendResponseMsg(response, HttpStatus.OK.value(),"로그인 성공 및 토큰 발급");
     }
 
+
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception){
         log.info("로그인 실패 및 401 에러 반환");
 
-        // 로그인 실패로 상태코드 반환
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        String errorMessage = null;
+        if (exception instanceof BadCredentialsException) {
+            errorMessage = "아이디와 비밀번호를 확인해주세요.";
+        } else if (exception instanceof InternalAuthenticationServiceException) {
+            errorMessage = "내부 시스템 문제로 로그인할 수 없습니다. 관리자에게 문의하세요.";
+        } else if (exception instanceof UsernameNotFoundException) {
+            errorMessage = "존재하지 않는 계정입니다.";
+        } else {
+            errorMessage = "알 수없는 오류입니다.";
+        }
+        sendResponseMsg(response,HttpStatus.UNAUTHORIZED.value(),errorMessage);
+    }
+
+    private void sendResponseMsg(HttpServletResponse response, int statusCode, String msg){
+        response.setStatus(statusCode);
         response.setContentType("application/json;charset=UTF-8");
+        try {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonMessage = objectMapper.writeValueAsString("로그인 실패");
-        PrintWriter writer = response.getWriter();
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("status", statusCode);
+            responseBody.put("data", msg);
 
-        writer.print(jsonMessage);
-        writer.flush();
-        writer.close();
+            PrintWriter writer = response.getWriter();
+            writer.print(new ObjectMapper().writeValueAsString(responseBody));
+            writer.flush();
+            writer.close();
+        } catch(IOException e){
+            log.error(e.getMessage());
+        }
     }
 }

@@ -1,9 +1,8 @@
 package com.example.auctrade.domain.user.dto;
 
+import com.example.auctrade.domain.user.entity.User;
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -33,8 +32,17 @@ public class UserDTO {
     }
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Login {
         private String email;
         private String password;
+        private UserRoleEnum role;
+
+        public Login(User user){
+            this.email = user.getEmail();
+            this.password = user.getPassword();
+            this.role = user.getRole();
+        }
     }
 }

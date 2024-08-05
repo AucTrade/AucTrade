@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisRefreshToken;
 
-    @Override
+
     public UserDTO createUser(UserDTO userDto) {
         if (existUserEmail(userDto.getEmail())) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
 
@@ -35,7 +35,12 @@ public class UserServiceImpl implements UserService{
         return UserMapper.toDTO(userRepository.save(UserMapper.toEntity(userDto, password)));
     }
 
-    @Override
+
+    public UserDTO.Login getUserInfo(String email) {
+        return new UserDTO.Login(findUserByEmail(email));
+    }
+
+
     public UserDTO logoutUser(User user) {
         String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + user.getEmail();
         redisRefreshToken.delete(refreshTokenKey);
@@ -47,7 +52,10 @@ public class UserServiceImpl implements UserService{
         return UserMapper.toDTO(user);
     }
 
-    private boolean existUserEmail(String email){
+    public boolean existUserEmail(String email){
         return userRepository.findByEmail(email).isPresent();
+    }
+    private User findUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

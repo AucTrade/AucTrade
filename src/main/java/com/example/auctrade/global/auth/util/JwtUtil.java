@@ -1,11 +1,13 @@
 package com.example.auctrade.global.auth.util;
 
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,15 +16,15 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
+@Slf4j
 public class JwtUtil {
     // Request 에서 받을 KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -106,45 +108,35 @@ public class JwtUtil {
      * */
     // 토큰이 만료되었는지 확인하는 메서드
     public boolean isTokenExpired(String token) {
-        try {
-            // 서명을 검증하지 않고 클레임을 파싱
-            logger.info("아직 토큰 만료되지 않음");
-            Claims claims = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            Date expiration = claims.getExpiration();
-            return expiration.before(new Date());
-        } catch (ExpiredJwtException ex) {
-            // 토큰 파싱 중 에러가 발생한 경우
-            logger.info("토큰 파싱 결과: {}", ex.getMessage());
-            return true;
-        }
+        // 서명을 검증하지 않고 클레임을 파싱
+        logger.info("아직 토큰 만료되지 않음");
+        Claims claims = getClaims(token);
+        return claims == null || claims.getExpiration().before(new Date());
     }
 
     // 엑세스토큰의 만료는 예외 발생 대상이 아니므로 별도의 메소드 작성
     public String getUsernameFromAnyToken(String token) {
-        try {
-            // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
-            logger.info("기한이 아직 남은 토큰으로부터 이메일 추출");
-            Claims claims = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            return claims.getSubject(); // username이나 email을 subject로 저장했다고 가정
-        } catch (ExpiredJwtException e) {
-            // 토큰이 만료되었을 경우 ExpiredJwtException에서 클레임을 추출
-            logger.info("기한이 만료된 토큰으로부터 이메일 추출");
-            return e.getClaims().getSubject();
-        }
+        // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
+        logger.info("기한이 아직 남은 토큰으로부터 이메일 추출");
+        Claims claims = getClaims(token);
+        return (claims == null) ? "" : claims.getSubject();
     }
+
+
 
     // 쿠키에 액세스 토큰 저장
     public void addJwtToCookie(String token, HttpServletResponse res) {
+        logger.info("쿠키에 엑세스 토큰이 저장됨: {}", token);
+        token = URLEncoder.encode(token, StandardCharsets.UTF_8).replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+        cookie.setPath("/");
+
+        // Response 객체에 Cookie 추가
+        res.addCookie(cookie);
+    }
+
+    // 쿠키에 액세스 토큰 저장
+    public void removeJwtToCookie(String token, HttpServletResponse res) {
         logger.info("쿠키에 엑세스 토큰이 저장됨: {}", token);
         token = URLEncoder.encode(token, StandardCharsets.UTF_8).replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
@@ -171,43 +163,36 @@ public class JwtUtil {
     }
 
     // jwt 토큰 substring
-    public String substringToken(String tokenValue) {
-        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
+    public String getTokenValue(String tokenValue) {
+        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX))
             return tokenValue.substring(7);
-        }
-
-        logger.error("Not Found Token");
-        throw new NullPointerException("Not Found Token");
+        return null;
     }
 
     // 토큰 만료일자 파싱
     public Date getTokenIat(String token) {
-        try {
-            // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getIssuedAt(); // username 이나 email 을 subject 로 저장했다고 가정
-        } catch (ExpiredJwtException e) {
-            // 토큰이 만료되었을 경우 ExpiredJwtException 에서 클레임을 추출
-            return e.getClaims().getIssuedAt();
-        }
+        Claims claims = getClaims(token);
+        if(claims == null) return null;
+        return claims.getIssuedAt();
     }
 
     // 토큰 유효여부 검증(웹소켓 전용)
     public boolean validateToken(String token) {
+        return getClaims(token) != null;
+    }
+
+    private Claims getClaims(String token){
         try {
-            Claims claims = Jwts.parser()
+            return Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
 
-            return true;
-        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException | SecurityException ex) {
-            return false;
+        }catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException | SecurityException e) {
+            // 토큰이 만료되었을 경우 ExpiredJwtException에서 클레임을 추출
+            logger.info("기한이 만료된 토큰으로부터 이메일 추출");
+            return null;
         }
     }
 }
