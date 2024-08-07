@@ -22,10 +22,11 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         try {
+
             chain.doFilter(req, res);
         }  catch (JwtException | IllegalArgumentException ex) {
             res.setStatus(HttpStatus.UNAUTHORIZED.value());
-            res.sendRedirect("/pages/login");
+            res.sendRedirect("/login");
         }
     }
 }

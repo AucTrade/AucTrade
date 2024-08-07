@@ -21,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Slf4j(topic = "WebSocketInterceptor")
 @Component
@@ -45,10 +44,10 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     }
 
     private void setAuthenticate(final StompHeaderAccessor accessor) {
-        String accessToken = jwtUtil.getAccessTokenFromHeader(accessor.getFirstNativeHeader(JwtUtil.AUTHORIZATION_HEADER));
+        String accessToken = jwtUtil.getAccessToken(accessor.getFirstNativeHeader(jwtUtil.getAuthorizationHeader()));
         validateToken(accessToken);
 
-        String email = jwtUtil.getUsernameFromAnyToken(accessToken);
+        String email = jwtUtil.getUsernameFromToken(accessToken);
 
         logger.info("소켓 CONNECT 시도, 유저 이메일 : {}", email);
 

@@ -6,7 +6,6 @@ import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.auth.util.TokenPayload;
-import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -25,7 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,15 +81,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         if (redisTemplate.opsForValue().get(username) != null)
             throw new InternalAuthenticationServiceException(ErrorCode.USER_ALREADY_LOGGED_IN.getMessage());
 
-        String refreshTokenValue = jwtUtil.createRefreshToken(tokenPayloads.get(1)).substring(7);
+        String refreshTokenValue = jwtUtil.createToken(tokenPayloads.get(1)).substring(7);
         log.info("초기 리프레쉬토큰: " + refreshTokenValue);
 
         // username(email) - refreshToken 덮어씌우기 저장
         // 7일 + 1시간을 시한으로 설정
         redisTemplate.opsForValue()
-                .set(JwtUtil.REFRESH_TOKEN_KEY+username, refreshTokenValue, 24 * 7 + 1L, TimeUnit.HOURS);
+                .set(jwtUtil.getRefreshTokenKey()+username, refreshTokenValue, 24 * 7 + 1L, TimeUnit.HOURS);
 
-        jwtUtil.addJwtToCookie(jwtUtil.createAccessToken(tokenPayloads.get(0)), response);
+        jwtUtil.addJwtToCookie(jwtUtil.createToken(tokenPayloads.get(0)), response);
         sendResponseMsg(response, HttpStatus.OK.value(),"로그인 성공 및 토큰 발급");
     }
 

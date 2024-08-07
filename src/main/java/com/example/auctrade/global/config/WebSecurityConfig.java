@@ -24,10 +24,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.auctrade.global.auth.util.JwtUtil.AUTHORIZATION_HEADER;
 
 @Configuration
-@EnableWebSecurity(debug = false)
+@EnableWebSecurity(debug = true)
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
@@ -68,7 +67,7 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers( "/pages/error").permitAll()
+                       .requestMatchers( "/error").permitAll()
                                 .anyRequest().authenticated()
         );
         //만약 권한이 없는 상태에서 바로 권한 요청을 하는 경우 처리
@@ -80,12 +79,12 @@ public class WebSecurityConfig {
         http.formLogin(formLogin ->
                 formLogin
                         // 로그인 View 제공 (GET /api/user/login-page)
-                        .loginPage("/pages/login")
+                        .loginPage("/login")
                         // 로그인 처리 (POST /api/user/login)
                         .loginProcessingUrl("/api/users/login") // 둘을 똑같이 작성하면 안 됨
                         // 로그인 처리 후 성공 시 URL alwaysUse를 false로 작성해 다른곳에서 요청이 들어왔을때 항상 같은곳으로 가면안된다.
-                        .defaultSuccessUrl("/pages/auctions",false)
-                        .failureUrl("/pages/login")
+                        .defaultSuccessUrl("/auctions",false)
+                        .failureUrl("/login")
                         .permitAll()
         );
 
@@ -95,8 +94,8 @@ public class WebSecurityConfig {
 
         http.logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/pages/login")
-                        .deleteCookies(AUTHORIZATION_HEADER)
+                        .logoutSuccessUrl("/login")
+                        .deleteCookies(jwtUtil.getAuthorizationHeader())
                 );
 
         return http.build();
@@ -108,10 +107,12 @@ public class WebSecurityConfig {
             web.ignoring()
                     .requestMatchers("/api/users/login")
                     .requestMatchers("/api/users/signup")
-                    .requestMatchers("/pages/**")
+                    .requestMatchers("/header")
+                    .requestMatchers("/footer")
+                    .requestMatchers("/login")
                     .requestMatchers("/img/**")
                     .requestMatchers("/icon/**")
-                    .requestMatchers("/js/**")
+                    .requestMatchers("/error")
                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 }

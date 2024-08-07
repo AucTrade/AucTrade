@@ -187,8 +187,8 @@
 </body>
 </html>
 <script>
-    $("#header").load("/pages/header #header");
-    $("#footer").load("/pages/footer #footer");
+    $("#header").load("/header #header");
+    $("#footer").load("/footer #footer");
 
     $(document).ready(function(){
         fetch('/api/auctions', {
@@ -233,7 +233,7 @@
         result.forEach((element,index) => {
           inner += `
           <div class="card m-2">
-            <a href="/pages/auctions/enter?auctionId=${element.id}" class="card-link room-card" >
+            <a href="/auctions/enter?auctionId=${element.id}" class="card-link room-card" >
                 <div class="row g-0">
                     <div style="height: 240px;" class="col-md-3">
                         <img style="height: 100%; width:100%; object-fit:cover;" src="/img/default.jpg" class="img-fluid rounded-start">

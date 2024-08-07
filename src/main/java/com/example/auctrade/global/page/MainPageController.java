@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller()
 public class MainPageController {
-    @GetMapping("/pages/header")
+    @GetMapping("/header")
     public String header(Model model) {
         return "header";
     }
 
-    @GetMapping("/pages/footer")
+    @GetMapping("/footer")
     public String footer(Model model) {
         return "footer";
     }
@@ -22,7 +22,12 @@ public class MainPageController {
         return "auctionList";
     }
 
-    @GetMapping("/pages/login")
+    @GetMapping("/error")
+    public String error() {
+        return "error";
+    }
+
+    @GetMapping("/login")
     public String auth() {
         return "auth";
     }

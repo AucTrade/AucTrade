@@ -25,6 +25,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisRefreshToken;
 
 
@@ -42,7 +43,7 @@ public class UserServiceImpl implements UserService{
 
 
     public UserDTO logoutUser(User user) {
-        String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + user.getEmail();
+        String refreshTokenKey = jwtUtil.getRefreshTokenKey() + user.getEmail();
         redisRefreshToken.delete(refreshTokenKey);
 
         if (redisRefreshToken.opsForValue().get(refreshTokenKey) != null) {
