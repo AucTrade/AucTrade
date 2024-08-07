@@ -3,6 +3,7 @@ package com.example.auctrade.global.config;
 import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.exception.JwtAccessDenyHandler;
 import com.example.auctrade.global.auth.exception.JwtAuthenticationEntryPoint;
+import com.example.auctrade.global.auth.filter.CustomLoginFilter;
 import com.example.auctrade.global.auth.filter.JwtAuthenticationFilter;
 import com.example.auctrade.global.auth.filter.JwtAuthorizationFilter;
 import com.example.auctrade.global.auth.filter.JwtExceptionFilter;
@@ -48,16 +49,15 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception { // 인증필터 생성
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, userService, redisTemplate);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration)); // 인증매니저 설정
+    public CustomLoginFilter customLoginFilter() throws Exception {
+        CustomLoginFilter filter = new CustomLoginFilter(jwtUtil, userService, redisTemplate);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // CSRF(사이트 간 요청 위조) 설정 비활성화
-        // 해당 기능은 람다식으로
         http.csrf(AbstractHttpConfigurer::disable);
 
         // Security 의 기본 설정인 Session 방식이 아닌 JWT 방식을 사용하기 위한 설정
@@ -78,19 +78,20 @@ public class WebSecurityConfig {
         // 로그인 사용
         http.formLogin(formLogin ->
                 formLogin
-                        // 로그인 View 제공 (GET /api/user/login-page)
                         .loginPage("/login")
-                        // 로그인 처리 (POST /api/user/login)
-                        .loginProcessingUrl("/api/users/login") // 둘을 똑같이 작성하면 안 됨
+                        .loginProcessingUrl("/api/users/login")
                         // 로그인 처리 후 성공 시 URL alwaysUse를 false로 작성해 다른곳에서 요청이 들어왔을때 항상 같은곳으로 가면안된다.
                         .defaultSuccessUrl("/auctions",false)
                         .failureUrl("/login")
                         .permitAll()
         );
 
-        http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService, userService, redisTemplate), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class); // JwtAuthenticationFilter 앞단에 JwtExceptionFilter를 위치시키겠다는 설정
+        // 필터 체인에 필터 추가 및 순서 지정
+        http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService, userService, redisTemplate),
+                CustomLoginFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil,userDetailsService, userService, redisTemplate), JwtAuthorizationFilter.class);
+        http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+        http.addFilterBefore(customLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.logout(logout -> logout
                         .logoutUrl("/logout")

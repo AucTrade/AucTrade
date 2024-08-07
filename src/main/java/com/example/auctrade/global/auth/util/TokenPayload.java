@@ -7,11 +7,11 @@ import java.util.Date;
 
 @Getter
 public class TokenPayload {
-    private String sub;
-    private String jti;
-    private String role;
-    private Date iat;
-    private Date expiresAt;
+    private final String sub;
+    private final String jti;
+    private final String role;
+    private final Date iat;
+    private final Date expiresAt;
 
     public TokenPayload(String sub, String jti, Date iat, Date expiresAt, UserRoleEnum role) {
         this.sub = sub;
