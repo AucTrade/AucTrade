@@ -22,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
+
 @Slf4j(topic = "WebSocketInterceptor")
 @Component
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     }
 
     private void setAuthenticate(final StompHeaderAccessor accessor) {
-        String accessToken = jwtUtil.getAccessToken(accessor.getFirstNativeHeader(jwtUtil.getAuthorizationHeader()));
+        String accessToken = jwtUtil.getAccessToken(accessor.getFirstNativeHeader(COOKIE_AUTH_HEADER));
         validateToken(accessToken);
 
         String email = jwtUtil.getUsernameFromToken(accessToken);

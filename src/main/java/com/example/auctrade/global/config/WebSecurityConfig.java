@@ -1,18 +1,16 @@
 package com.example.auctrade.global.config;
 
-import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.exception.JwtAccessDenyHandler;
 import com.example.auctrade.global.auth.exception.JwtAuthenticationEntryPoint;
 import com.example.auctrade.global.auth.filter.CustomLoginFilter;
 import com.example.auctrade.global.auth.filter.JwtAuthenticationFilter;
 import com.example.auctrade.global.auth.filter.JwtAuthorizationFilter;
 import com.example.auctrade.global.auth.filter.JwtExceptionFilter;
-import com.example.auctrade.global.auth.util.JwtUtil;
+import com.example.auctrade.global.auth.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,18 +23,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
+
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    private final UserService userService;
+    private final JwtTokenService jwtTokenService;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final RedisTemplate<String, String> redisTemplate;
     // 필터단 예외
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // 인증 예외 커스텀 메시지 던지기
     private final JwtAccessDenyHandler jwtAccessDenyHandler; // 인가 예외 커스텀 메시지 던지기(역할별 접근권한같은)
@@ -50,7 +48,7 @@ public class WebSecurityConfig {
 
     @Bean
     public CustomLoginFilter customLoginFilter() throws Exception {
-        CustomLoginFilter filter = new CustomLoginFilter(jwtUtil, userService, redisTemplate);
+        CustomLoginFilter filter = new CustomLoginFilter(jwtTokenService);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
@@ -87,16 +85,16 @@ public class WebSecurityConfig {
         );
 
         // 필터 체인에 필터 추가 및 순서 지정
-        http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService, userService, redisTemplate),
+        http.addFilterBefore(new JwtAuthorizationFilter(userDetailsService),
                 CustomLoginFilter.class);
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil,userDetailsService, userService, redisTemplate), JwtAuthorizationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(userDetailsService, jwtTokenService), JwtAuthorizationFilter.class);
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         http.addFilterBefore(customLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
-                        .deleteCookies(jwtUtil.getAuthorizationHeader())
+                        .deleteCookies(COOKIE_AUTH_HEADER)
                 );
 
         return http.build();

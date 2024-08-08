@@ -1,4 +1,4 @@
-package com.example.auctrade.global.auth.util;
+package com.example.auctrade.global.auth.vo;
 
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import lombok.Getter;

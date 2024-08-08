@@ -1,6 +1,5 @@
 package com.example.auctrade.global.auth.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,13 +16,9 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
-    private final ObjectMapper objectMapper;
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         try {
-
             chain.doFilter(req, res);
         }  catch (JwtException | IllegalArgumentException ex) {
             res.setStatus(HttpStatus.UNAUTHORIZED.value());

@@ -86,6 +86,7 @@ document.getElementById("form-container-box").addEventListener("submit", async f
         }
     } catch (error) {
         console.log("네트워크 오류 발생:", error);
+
         alert("네트워크 오류 발생. 다시 시도해주세요.");
     }
 });

@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.example.auctrade.global.constant.Constants.REDIS_REFRESH_KEY;
 import static com.example.auctrade.global.exception.ErrorCode.USER_ID_MISMATCH;
 
 
@@ -25,7 +26,6 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisRefreshToken;
 
 
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService{
 
 
     public UserDTO logoutUser(User user) {
-        String refreshTokenKey = jwtUtil.getRefreshTokenKey() + user.getEmail();
+        String refreshTokenKey = REDIS_REFRESH_KEY + user.getEmail();
         redisRefreshToken.delete(refreshTokenKey);
 
         if (redisRefreshToken.opsForValue().get(refreshTokenKey) != null) {
