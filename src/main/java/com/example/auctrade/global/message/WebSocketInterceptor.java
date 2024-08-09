@@ -1,6 +1,5 @@
 package com.example.auctrade.global.message;
 
-import com.example.auctrade.domain.user.service.UserDetailsServiceImpl;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
@@ -20,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
@@ -31,7 +31,7 @@ import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
 public class WebSocketInterceptor implements ChannelInterceptor {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketInterceptor.class);
 
@@ -59,7 +59,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     }
 
     private Authentication createAuthentication(final String email) {
-        final UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+        final UserDetails userDetails = userService.loadUserByUsername(email);
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,

@@ -1,5 +1,6 @@
 package com.example.auctrade.global.auth.filter;
 
+import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.service.JwtTokenService;
 import com.example.auctrade.global.exception.ErrorCode;
 import io.jsonwebtoken.JwtException;
@@ -25,8 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenService jwtTokenService;
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtTokenService jwtTokenService){
-        this.userDetailsService = userDetailsService;
+    public JwtAuthenticationFilter(UserService userService, JwtTokenService jwtTokenService){
+        this.userDetailsService = userService;
         this.jwtTokenService = jwtTokenService;
     }
     @Override

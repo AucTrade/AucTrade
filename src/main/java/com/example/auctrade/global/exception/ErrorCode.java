@@ -47,6 +47,7 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "이미 존재하는 닉네임입니다."),
     USER_ALREADY_LOGGED_IN(CONFLICT, "이미 로그인된 사용자입니다."),
+    REDIS_INTERNAL_ERROR(CONFLICT, "레디스의 내부 정보와 차이가 있습니다."),
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");

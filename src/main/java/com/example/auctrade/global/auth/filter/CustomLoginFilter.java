@@ -84,8 +84,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         } else {
             errorMessage = "알 수없는 오류입니다.";
         }
-        log.info("로그인 실패 :" + errorMessage);
-        sendResponseMsg(response,HttpStatus.UNAUTHORIZED.value(),errorMessage);
+        log.error("로그인 실패 :" + errorMessage);
+        sendResponseMsg(response, HttpStatus.UNAUTHORIZED.value(),errorMessage);
     }
 
     private void sendResponseMsg(HttpServletResponse response, int statusCode, String msg){

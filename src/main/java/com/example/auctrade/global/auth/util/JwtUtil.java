@@ -15,14 +15,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 @Component
-@Slf4j
+@Slf4j(topic = "JWT UTIL")
 public class JwtUtil {
     private final String AUTHORIZATION_KEY = "auth";
     private final String BEARER_PREFIX = "Bearer ";
     private final SecretKey secretKey;
-
-    // 로그 세팅
-    public static final Logger logger = LoggerFactory.getLogger("JWT UTIL");
 
     public JwtUtil(@Value("${jwt.secret.key}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());

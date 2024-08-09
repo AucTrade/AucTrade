@@ -19,12 +19,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        // 유저 권한을 가져오는 메서드
+        // 유저 , 관리자, 들어온 사람, 권한을 가져오는 메서드
        //권한을 체크하는 로직
         filterChain.doFilter(request, response);
     }
-
-
-
-
 }

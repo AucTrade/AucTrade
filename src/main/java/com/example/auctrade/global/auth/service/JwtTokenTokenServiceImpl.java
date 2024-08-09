@@ -55,20 +55,31 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @return 기존 또는 갱신된 토큰
      */
     public String vaildAccessToken(String token){
-        String res = token;
         String accessToken = extractValue(token);
         String email = getUsernameFromToken(accessToken);
 
-        String refreshToken = redisTemplate.opsForValue().get(REDIS_REFRESH_KEY + email);
-
-        if(isExpired(accessToken) && isExpired(refreshToken))
+        if(isExpired(accessToken) && isExpired(redisTemplate.opsForValue().get(REDIS_REFRESH_KEY+email)))
             throw new JwtException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage());
 
         if (isExpired(accessToken)){
-            UserDTO.Login user = userService.getUserInfo(email);
-            res = jwtUtil.createToken(createTokenPayload(email, new Date(), HOUR_SECONDS, user.getRole()));
+            UserDTO.Info user = userService.getUserInfo(email);
+            return jwtUtil.createToken(createTokenPayload(email, new Date(), HOUR_SECONDS, user.getRole()));
         }
-        return res;
+        return token;
+    }
+
+    /**
+     * 토큰의 유저 이메일 반환
+     * @param token 대상 토큰 값
+     * @return 유저 이메일
+     */
+    public String getUsernameFromToken(String token) {
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        if(!userService.existUserEmail(email))
+            throw new JwtException(ErrorCode.INVALID_AUTH_TOKEN.getMessage());
+
+        return email;
     }
 
     /**
@@ -76,8 +87,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 유저 정보
      */
-    public String getUsernameFromToken(String token) {
-        return  jwtUtil.getUsernameFromToken(token);
+    public UserDTO.Info getUserFromToken(String token) {
+        return userService.getUserInfo(jwtUtil.getUsernameFromToken(token));
     }
     /**
      * 토큰 값 디코딩 및 추출

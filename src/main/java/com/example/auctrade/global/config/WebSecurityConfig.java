@@ -1,5 +1,6 @@
 package com.example.auctrade.global.config;
 
+import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.exception.JwtAccessDenyHandler;
 import com.example.auctrade.global.auth.exception.JwtAuthenticationEntryPoint;
 import com.example.auctrade.global.auth.filter.CustomLoginFilter;
@@ -27,12 +28,12 @@ import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
 
 
 @Configuration
-@EnableWebSecurity(debug = false)
+@EnableWebSecurity(debug = true)
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
     private final JwtTokenService jwtTokenService;
     private final AuthenticationConfiguration authenticationConfiguration;
     // 필터단 예외
@@ -85,9 +86,9 @@ public class WebSecurityConfig {
         );
 
         // 필터 체인에 필터 추가 및 순서 지정
-        http.addFilterBefore(new JwtAuthorizationFilter(userDetailsService),
+        http.addFilterBefore(new JwtAuthorizationFilter(userService),
                 CustomLoginFilter.class);
-        http.addFilterBefore(new JwtAuthenticationFilter(userDetailsService, jwtTokenService), JwtAuthorizationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenService), JwtAuthorizationFilter.class);
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         http.addFilterBefore(customLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
