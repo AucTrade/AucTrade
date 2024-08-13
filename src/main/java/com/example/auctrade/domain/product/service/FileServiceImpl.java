@@ -37,4 +37,8 @@ public class FileServiceImpl implements FileService{
     public List<String> getFiles(Long productId){
         return productFileRepository.findByProductId(productId).stream().map(ProductFile::getFilePath).toList();
     }
+
+    public ProductFile getThumbnail(Long productId){
+        return productFileRepository.findFirstByProductId(productId).orElse(null);
+    }
 }

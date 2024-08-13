@@ -2,6 +2,7 @@ package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.document.BidLog;
 import com.example.auctrade.domain.auction.dto.BidDTO;
+import com.example.auctrade.domain.auction.mapper.BidMapper;
 import com.example.auctrade.domain.auction.repository.BidLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,15 @@ public class BidServiceImpl implements BidService {
      * @param request 회원이 입력한 경매 입찰가 정보
      * @return 입찰 결과
      */
-    public Boolean updateBidPrice(BidDTO.Create request) {
+    public BidDTO.Result updateBidPrice(BidDTO.Create request) {
         bidLogRepository.save(new BidLog(request));
-        if(findBidPriceByAuctionId(request.getAuctionId()) >= request.getPrice()) return false;
-        redisTemplate.opsForList().leftPush(BID_QUEUE_KEY+request.getAuctionId(), request.getUsername()+":"+request.getPrice());
-        return true;
+
+        if(getBidPrice(request.getAuctionId()) >= request.getPrice())
+            return BidMapper.toBidResultDto(request,false);
+
+        redisTemplate.opsForList().leftPush(BID_QUEUE_KEY+request.getAuctionId(),
+                request.getUsername()+":"+request.getPrice());
+        return BidMapper.toBidResultDto(request,true);
     }
     /**
      * 입찰 update
@@ -66,15 +71,27 @@ public class BidServiceImpl implements BidService {
             if (isLocked) lock.unlock();
         }
     }
+    /**
+     * 특정 경매방의 현재 입찰 정보 조회
+     * @param auctionId 대상이 될 경매 ID
+     * @return 현재 입찰 정보 조회
+     */
+    public BidDTO.Get getBid(Long auctionId) {
+        Map<Object, Object> val = redisTemplate.opsForHash().entries(REDIS_BID_KEY + auctionId);
+        return BidDTO.Get.builder()
+                .username(val.isEmpty() ? "NONE" : val.get(BID_USER_KEY).toString())
+                .price(val.isEmpty() ? -1 : (long) val.get(BID_PRICE_KEY))
+                .build();
+    }
 
     /**
      * 특정 경매방의 현재 입찰가 조회
      * @param auctionId 대상이 될 경매 ID
      * @return 현재 입찰가 (입찰가가 존재하지 않을 경우 -1)
      */
-    public Long findBidPriceByAuctionId(Long auctionId) {
+    public long getBidPrice(Long auctionId) {
         Object val = redisTemplate.opsForHash().get(REDIS_BID_KEY + auctionId, BID_PRICE_KEY);
-        return (val == null) ? -1 : Long.parseLong(val.toString());
+        return (val == null) ? -1L : (long) val;
     }
 
     /**
@@ -82,7 +99,7 @@ public class BidServiceImpl implements BidService {
      * @param auctionId 대상이 될 경매 ID
      * @return 현재 입찰자 (입찰자가 존재하지 않을 경우 빈 문자열)
      */
-    public String findBidUserByAuctionId(Long auctionId) {
+    public String getBidUser(Long auctionId) {
         Object val = redisTemplate.opsForHash().get(REDIS_BID_KEY + auctionId, BID_USER_KEY);
         return (val == null) ? "" : val.toString();
     }
@@ -93,7 +110,6 @@ public class BidServiceImpl implements BidService {
      * @return 해당 경매 내역 로그 리스트
      */
     public List<BidDTO.List> getBidLogs(Long auctionId) {
-        return bidLogRepository.findAllByAuctionId(auctionId).stream().map(BidDTO.List::new).toList();
+        return bidLogRepository.findAllByAuctionId(auctionId).stream().map(BidMapper::toListDto).toList();
     }
-
 }

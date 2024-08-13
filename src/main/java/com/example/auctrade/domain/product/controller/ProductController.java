@@ -22,8 +22,8 @@ public class ProductController {
     // 상품 생성
     @PostMapping
     public ResponseEntity<ProductDTO.Create> addProduct(@RequestBody ProductDTO.Create dto, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles) throws IOException {
-        ProductDTO.Create productDTO = productService.create(dto, imgFiles);
-        return ResponseEntity.ok(productDTO);
+        //ProductDTO.Create productDTO = productService.create(dto, imgFiles);
+        return ResponseEntity.ok(null);
     }
 
     // 상품 카테고리 생성

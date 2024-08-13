@@ -19,7 +19,12 @@ public class MainPageController {
 
     @GetMapping("/")
     public String main() {
-        return "auctionList";
+        return "auctionBeforeStartList";
+    }
+
+    @GetMapping("/mypage")
+    public String myPage() {
+        return "myPage";
     }
 
     @GetMapping("/error")

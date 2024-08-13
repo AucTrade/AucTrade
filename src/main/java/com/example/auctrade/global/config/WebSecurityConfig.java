@@ -28,7 +28,7 @@ import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
 
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
@@ -86,7 +86,7 @@ public class WebSecurityConfig {
         );
 
         // 필터 체인에 필터 추가 및 순서 지정
-        http.addFilterBefore(new JwtAuthorizationFilter(userService),
+        http.addFilterBefore(new JwtAuthorizationFilter(),
                 CustomLoginFilter.class);
         http.addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenService), JwtAuthorizationFilter.class);
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);

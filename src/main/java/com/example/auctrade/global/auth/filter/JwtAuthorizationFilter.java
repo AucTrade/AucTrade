@@ -14,7 +14,6 @@ import java.io.IOException;
 @Slf4j(topic = "JwtAuthorizationFilter")
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

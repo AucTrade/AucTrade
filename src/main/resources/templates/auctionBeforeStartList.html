@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/bootstrap-datepicker.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
     <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
     <script src="/js/bootstrap-datepicker.ko.min.js"></script>
     <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
@@ -65,8 +66,6 @@
 </body>
 </html>
 <script>
-    $("#header").load("/header #header");
-    $("#footer").load("/footer #footer");
 
     let page = 1;
     const size = 10;
@@ -76,80 +75,79 @@
     let isLastPage = false;
 
     $(document).ready(function(){
-        loadItems();
+        loadAuctions();
     });
 
-    function loadItems() {
-    if (isLastPage) return;
-     var inner = document.querySelector('#auctionList').innerHTML;
-        $.ajax({
-            url: `/api/auctions/deposits?page=${page}&size=${size}`,
-            method: 'GET',
-            contentType: "application/json; charset=UTF-8",
-            success: function (data) {
-                if (data.length === 0) {
-                    isLastPage = true;
-                    return;
-                }
-                data.forEach((element, index) => {
-                inner += `<div class="auction-item card m-2">
-            <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
-                <div class="row g-0">
-                    <div style="height: 240px;" class="col-md-3">
-                        <img style="height: 100%; width:100%; object-fit:cover;" src="/img/default.jpg" class="img-fluid rounded-start">
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body px-3" style="background-color:#F5F5F5; height: 240px;">
-                            <div style="height: 40px; border-bottom:1px solid #bbbbbb;">
-                            <p class="card-title fs-3 bold">${element.title}</p></div>
-                            <div class="ellipsis dongle-regular fs-4 px-3 py-1 mb-1" style="height: 115px; border-bottom:1px solid #bbbbbb;">${element.introduce}</div>
-                            <div class="row" style="height: 30px;">
-                                <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
-                                <div class="col-6">
-                                <div class="row">
-                                <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
-                                <div class="col-6 text-primary"><b>최저 예치금 : ${element.minimumPrice}</b></div>
-                                <div class="col-6 text-primary"><b>인원 : ${element.currentPersonnel} / ${element.maxPersonnel}</b></div>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="row" style="height: 30px;">
-                                <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
-                                 <div class="col-6"><p>현재 최저 예치금 : ${element.minDeposit}</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            </div>`;});
-                document.querySelector('#auctionList').innerHTML = inner;
-                page++;
-                lastItem = $("#auctionList .auction-item:last")[0];
-                if (lastItem !== lastObservedItem) {
-                    observer.observe(lastItem);
-                    lastObservedItem = lastItem;
-                }
-            },
-            error: function (error) {
-                console.error('데이터를 가져오는 동안 오류가 발생했습니다:', error);
-            }
-        });
-    }
-
-    const observerOptions = {
-        root: null,
-        threshold: 0.1
-    };
-
+    const observerOptions = { root: null, threshold: 0.1};
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 observer.unobserve(entry.target);
                 lastObservedItem = $("#auctionList .auction-item:last")[0];
-                loadItems();
+                loadAuctions();
             }
         });
     }, observerOptions);
+
+    function loadAuctions(){
+        if(isLastPage) return;
+
+        getAjaxRequest(`/api/auctions/deposits?page=${page}&size=${size}`)
+        .then(result => {
+            if(result == null) return;
+
+            if (result.length === 0) {
+                isLastPage = true;
+                return;
+            }
+
+            document.querySelector('#auctionList').innerHTML += makeAuctionListHTML(result);
+
+            page++;
+            lastItem = $("#auctionList .auction-item:last")[0];
+            if (lastItem !== lastObservedItem) {
+                observer.observe(lastItem);
+                lastObservedItem = lastItem;
+            }
+        }).catch(error => {console.error('오류 발생:', error);});
+    } //loadAuctions
+
+    function makeAuctionListHTML(data){
+        var newHtml = '';
+        data.forEach((element, index) => {
+            newHtml += `<div class="auction-item card m-2">
+                <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
+                    <div class="row g-0">
+                        <div style="height: 240px;" class="col-md-3">
+                            <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body px-3" style="background-color:#F5F5F5; height: 240px;">
+                                <div style="height: 40px; border-bottom:1px solid #bbbbbb;">
+                                    <p class="card-title fs-3 bold">${element.title}</p></div>
+                                <div class="ellipsis dongle-regular fs-4 px-3 py-1 mb-1" style="height: 115px; border-bottom:1px solid #bbbbbb;">${element.introduce}</div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                    <div class="col-6">
+                                        <div class="row">
+                                            <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
+                                                <div class="col-6 text-primary"><b>최저 예치금 : ${element.minimumPrice}</b></div>
+                                                <div class="col-6 text-primary"><b>인원 : ${element.currentPersonnel} / ${element.maxPersonnel}</b></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                    <div class="col-6"><p>현재 최저 예치금 : ${element.minDeposit}</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>`;
+        }); //for-each
+        return newHtml;
+    }
 
     $("#btn-create").on("click", function (e){
         e.preventDefault();
@@ -157,31 +155,22 @@
         const minPrice = document.querySelector("#minPrice").value;
         var obj = new Object();
 
-        obj.id = document.querySelector('#auctionId').value;
+        obj.auctionId = document.querySelector('#auctionId').value;
         obj.deposit = document.querySelector('#deposit').value;
-        obj.username = "java@test.com";
 
-        if(obj.title == "")
-            alert("Please write the title.");
-        else if(obj.deposit < minPrice)
+        if(obj.deposit < minPrice)
             alert("The maximum number of participants must be more than ${minPrice}.");
         else
             registDeposit(obj);
     });
 
     function registDeposit(obj){
-        $.ajax({
-            url : `/api/auctions/deposits`,
-            type : 'post',
-            data: JSON.stringify(obj),
-            contentType: "application/json; charset=UTF-8",
-            success : function (result) {
-                $('#depositModal').modal('hide')
-                location.reload(true);
-            },
-            error : function (request, status, error) {
-                console.log(JSON.stringify(request));
-            }
+        postAjaxRequest('/api/auctions/deposits', obj)
+        .then(result => {
+               $('#depositModal').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
         });
     }
 

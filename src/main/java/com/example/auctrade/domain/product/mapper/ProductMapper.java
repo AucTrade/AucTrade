@@ -8,19 +8,24 @@ import com.example.auctrade.domain.user.entity.User;
 import java.util.List;
 
 public class ProductMapper {
+    private ProductMapper(){}
 
     public static ProductDTO.Create toDTO(Product product) {
-        if (product == null) {
-            return null;
-        }
-        return new ProductDTO.Create(
-                product.getName(),
-                product.getDetail(),
-                product.getCategory() != null ? product.getCategory().getId() : null
-        );
+        return (product == null) ? null : ProductDTO.Create.builder()
+                .name(product.getName())
+                .detail(product.getDetail())
+                .productCategoryId(product.getId())
+                .build();
+    }
+    public static ProductDTO.Get toGetDto(Product product) {
+        return (product == null) ? null : ProductDTO.Get.builder()
+                .name(product.getName())
+                .detail(product.getDetail())
+                .categoryName(product.getCategory().getCategoryName())
+                .build();
     }
 
-    public static Product toEntity(ProductDTO.Create productDTO, ProductCategory category, User user) {
-        return (productDTO == null) ? null : new Product(productDTO.getName(), productDTO.getDetail(), category, user);
+    public static Product toEntity(ProductDTO.Create productDTO, ProductCategory category) {
+        return (productDTO == null) ? null : new Product(productDTO, category);
     }
 }

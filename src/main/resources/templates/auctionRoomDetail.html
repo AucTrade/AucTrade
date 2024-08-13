@@ -7,6 +7,7 @@
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/sockjs.min.js"></script>
     <script src="/js/stomp.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
     <style>
         .btn.btn-outline-primary[disabled] {
             background-color: #000000;
@@ -80,30 +81,19 @@
 <div id="footer"></div>
 </body>
 <script>
-    $("#header").load("/header #header");
-    $("#footer").load("/footer #footer");
-    var username = 'java@test.com';
     var finishTime;
 
     $(document).ready(function(){
-     const auctionId = getUrlParams()["auctionId"];
+         const auctionId = getUrlParams()["auctionId"];
 
-     fetch(`/api/auctions/enter/${auctionId}`, {
-        method: 'GET',
-        headers: {'Content-Type': 'application/json; charset=UTF-8'}
-     }).then(response => {
-        if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
-        return response.json();
-     }).then(result => {
-        makeRoom(result);
-        loadImg(result.files);
-        finishTime = result.finishDate;
-        socket(auctionId, username);
-     }).catch(error => {
-        console.log('There has been a problem with your fetch operation:', error);
-     });
-    $('#button-send').attr('disabled', true);
+         getAjaxRequest(`/api/auctions/enter/${auctionId}`).then(result => {
+                makeRoom(result);
+                loadImg(result.files);
+                finishTime = result.finishDate;
+                socket(auctionId, username);
+                $('#button-send').attr('disabled', true);
 
+         }).catch(error => {console.error('오류 발생:', error);});
     });
 
     function makeRoom(result){
@@ -118,16 +108,6 @@
         var start = result.startDate.split('T');
         var end = result.finishDate.split('T');
         document.querySelector('#period').innerHTML = `${start[0]} ${start[1].slice(0, -3)} ~ ${end[0]} ${end[1].slice(0, -3)}`;
-    }
-
-    function getUrlParams() {
-       var params = {};
-       window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
-           function(str, key, value) {
-               params[key] = value;
-           }
-       );
-       return params;
     }
 
     function displayRemainingTime(finishTime) {
@@ -154,13 +134,14 @@
     }, 1000);
 
     function loadImg(urls) {
+
       var htm = '<div class="carousel-inner"><div class="carousel-item active">';
       var htm2 = '';
       if(urls.length == 0){
           htm += '<img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="..."></div></div>';
 
       }else if(urls.length == 1){
-          htm += `<img id="img-one" src="${URL.createObjectURL(urls[0])}" class="d-block w-100" alt="..."></div></div>`;
+          htm += `<img id="img-one" src="${urls[0]}" class="d-block w-100" alt="..."></div></div>`;
 
       }else{
           htm = '<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">';
@@ -220,8 +201,6 @@
 
         var sockJs = new SockJS("/stomp/chat");
         var stomp = Stomp.over(sockJs);
-
-        console.log("여기는 오나??")
 
         stomp.connect({ 'Authorization': 'Bearer ' + accessToken }, function (){
             stomp.subscribe(

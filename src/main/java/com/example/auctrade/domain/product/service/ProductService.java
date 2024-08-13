@@ -6,43 +6,39 @@ import com.example.auctrade.domain.product.entity.ProductCategory;
 import com.example.auctrade.domain.product.mapper.ProductMapper;
 import com.example.auctrade.domain.product.repository.ProductCategoryRepository;
 import com.example.auctrade.domain.product.repository.ProductRepository;
-import com.example.auctrade.domain.user.entity.User;
-import com.example.auctrade.domain.user.repository.UserRepository;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
+@Slf4j(topic = "ProductService")
 @Transactional
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final FileService fileService;
 
-    // 상품 생성
-    public ProductDTO.Create create(ProductDTO.Create productDTO, MultipartFile[] uploadFiles) throws IOException {
-        User user = userRepository.findById(1L).orElseThrow();
-        ProductCategory category =
-                productCategoryRepository.findById(productDTO.getProductCategoryId()).orElseThrow();
+    public Long create(ProductDTO.Create productDTO){
 
-        Product product = productRepository.save(ProductMapper.toEntity(productDTO, category, user));
-        if(!fileService.uploadFile(uploadFiles, product.getId()))
-            throw new CustomException(ErrorCode.WRONG_MULTIPARTFILE);
-        return ProductMapper.toDTO(product);
+        return productRepository
+                .save(ProductMapper.toEntity(productDTO, findCategory(productDTO.getProductCategoryId())))
+                .getId();
+    }
+    public ProductDTO.Get get(Long productId){
+        return ProductMapper.toGetDto(findProduct(productId));
+    }
+    private Product findProduct(long id){
+        return productRepository.findById(id).orElseThrow(()-> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
-    // 상품 생성
-    public ProductDTO.Get get(Long productId) throws IOException {
-        User user = userRepository.findById(1L).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
-        return new ProductDTO.Get(product, fileService.getFiles(product.getId()));
+    private ProductCategory findCategory(long id){
+        log.info("카테고리 찾기 : " + id);
+
+        return productCategoryRepository.findById(id)
+                .orElseThrow(()-> new CustomException(ErrorCode.PRODUCT_CATEGORY_NOT_FOUND));
     }
 }

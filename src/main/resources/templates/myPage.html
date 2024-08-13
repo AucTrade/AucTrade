@@ -9,6 +9,7 @@
     <script src="/js/bootstrap-datepicker.min.js"></script>
     <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
     <script src="/js/bootstrap-datepicker.ko.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
     <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
     <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 </head>
@@ -39,32 +40,32 @@
             }
 </style>
 <body>
-    <script src="/js/jquery-timepicker.min.js"></script>
-    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/jquery-timepicker.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
 
-    <div id="header"></div>
-    <div class="container">
-        <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-dark" data-bs-theme="dark">
-                        <h5 class="modal-title text-white">경매 등록</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="/api/auctions" id="createForm" enctype="multipart/form-data">
+<div id="header"></div>
+<div class="container">
+    <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark" data-bs-theme="dark">
+                    <h5 class="modal-title text-white">경매 등록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="/api/auctions" id="createForm" enctype="multipart/form-data">
 
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="title" class="col-form-label">제목</label>
-                                <input type="text" class="form-control dongle-regular fs-4" id="title" name="title" placeholder="방 제목">
-                            </div>
-                            <div class="mb-4">
-                                <label for="introduce" class="col-form-label">상세정보</label>
-                                <textarea type="text" class="form-control dongle-regular fs-4" id="introduce" name="introduce" rows="3"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">상품선택</label>
-                                <div class="row justify-content-center">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="title" class="col-form-label">제목</label>
+                            <input type="text" class="form-control dongle-regular fs-4" id="title" name="title" placeholder="방 제목">
+                        </div>
+                        <div class="mb-4">
+                            <label for="introduce" class="col-form-label">상세정보</label>
+                            <textarea type="text" class="form-control dongle-regular fs-4" id="introduce" name="introduce" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">상품선택</label>
+                            <div class="row justify-content-center">
                                 <div class="col-8 ">
                                     <div class="card" id="productCard">
                                         <div id="img-preview">
@@ -94,101 +95,99 @@
                                         </div>
                                     </div>
                                 </div>
-                                </div>
                             </div>
-                            <div class="mb-3">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label for="minimumPrice" class="col-form-label">최저입찰가</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control dongle-regular fs-4" id="minimumPrice" name="minimumPrice" value="1000" step="100"><span class="input-group-text">￦</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="maxPersonnel" class="col-form-label">인원 설정</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control dongle-regular fs-4" id="maxPersonnel" name="maxPersonnel" value="50">
-                                            <span class="input-group-text">명</span>
-                                        </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="minimumPrice" class="col-form-label">최저입찰가</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control dongle-regular fs-4" id="minimumPrice" name="minimumPrice" value="1000" step="100"><span class="input-group-text">￦</span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-form-label">시작일</div>
-                                <input type="hidden" name="startDate" id="startDate">
-                                <input type="hidden" name="finishDate" id="finishDate">
-                                <input type="hidden" name="saleUserEmail" id="saleUserEmail" value="java@test.com">
-                                <div class="input-group">
-                                    <span class="input-group-text">📅</span>
-                                    <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDay" placeholder="시작 날짜 입력">
-                                    <span class="input-group-text">⏰</span>
-                                    <input type="text" class="form-control time-picker dongle-regular fs-4" id="startTime" placeholder="시작 시간 입력">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="col-form-label">종료일</div>
-                                <div class="input-group">
-                                    <span class="input-group-text">📅</span>
-                                    <input type="text" class="form-control date-picker dongle-regular fs-4" id="endDate" placeholder="종료 날짜 입력">
-                                    <span class="input-group-text">⏰</span>
-                                    <input type="text" class="form-control time-picker dongle-regular fs-4" id="endTime" placeholder="종료 시간 입력">
+                                <div class="col-6">
+                                    <label for="maxPersonnel" class="col-form-label">인원 설정</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control dongle-regular fs-4" id="maxPersonnel" name="maxPersonnel" value="50">
+                                        <span class="input-group-text">명</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button class="btn btn-primary" id = "btn-create">Create</button>
+                        <div class="mb-3">
+                            <div class="col-form-label">시작일</div>
+                            <input type="hidden" name="startDate" id="startDate">
+                            <input type="hidden" name="finishDate" id="finishDate">
+                            <input type="hidden" name="saleUserEmail" id="saleUserEmail" value="java@test.com">
+                            <div class="input-group">
+                                <span class="input-group-text">📅</span>
+                                <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDay" placeholder="시작 날짜 입력">
+                                <span class="input-group-text">⏰</span>
+                                <input type="text" class="form-control time-picker dongle-regular fs-4" id="startTime" placeholder="시작 시간 입력">
+                            </div>
                         </div>
-                    </form>
-                </div>
+                        <div class="mb-3">
+                            <div class="col-form-label">종료일</div>
+                            <div class="input-group">
+                                <span class="input-group-text">📅</span>
+                                <input type="text" class="form-control date-picker dongle-regular fs-4" id="endDate" placeholder="종료 날짜 입력">
+                                <span class="input-group-text">⏰</span>
+                                <input type="text" class="form-control time-picker dongle-regular fs-4" id="endTime" placeholder="종료 시간 입력">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" id = "btn-create">Create</button>
+                    </div>
+                </form>
             </div>
-        </div>
-        <div class="container" style="height: 30px"></div>
-        <div class="container">
-            <div class="row text-center"><h2>경매 리스트</h2></div>
-        </div>
-        <div class="container px-4 pt-3" id="custom-cards">
-            <div class="container mt-2 mb-4 d-flex justify-content-center">
-                <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
-                       style="width: 500px; display: inline-block;">
-                <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
-            </div>
-            <div class="container" style="height: 10px"></div>
-            <div class="row justify-content-between">
-                <div class="col-4" style="height: 50px">
-                    <button class="btn btn-outline-primary" onclick="prevPage()"> < </button>
-                    <button class="btn btn-outline-primary" onclick="nextPage()"> > </button>
-                </div>
-                <div class="col-2" style="height: 50px">
-                    <button class="btn btn-primary" data-bs-target="#roomModal" data-bs-toggle="modal" type="button">경매 등록</button>
-                    <button class="btn btn-primary" type="button" id="updateRoom2">↺</button>
-                </div>
-            </div>
-            <div id="auctionList"></div>
-            <div class="container" style="height: 10px"></div>
-            <nav aria-label="...">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
-    <div id="footer"></div>
+    <div class="container" style="height: 30px"></div>
+    <div class="container">
+        <div class="row text-center"><h2>MY PAGE</h2></div>
+    </div>
+    <div class="container px-4 pt-3" id="custom-cards">
+        <div class="container mt-2 mb-4 d-flex justify-content-center">
+            <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
+                   style="width: 500px; display: inline-block;">
+            <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
+        </div>
+        <div class="container" style="height: 10px"></div>
+        <div class="row justify-content-between">
+            <div class="col-4" style="height: 50px">
+                <button class="btn btn-outline-primary" onclick="prevPage()"> < </button>
+                <button class="btn btn-outline-primary" onclick="nextPage()"> > </button>
+            </div>
+            <div class="col-2" style="height: 50px">
+                <button class="btn btn-primary" data-bs-target="#roomModal" data-bs-toggle="modal" type="button">경매 등록</button>
+                <button class="btn btn-primary" type="button" id="updateRoom2">↺</button>
+            </div>
+        </div>
+        <div id="auctionList"></div>
+        <div class="container" style="height: 10px"></div>
+        <nav aria-label="...">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<div id="footer"></div>
 </body>
 </html>
 <script>
-    $("#header").load("/header #header");
-    $("#footer").load("/footer #footer");
 
     $(document).ready(function(){
         fetch('/api/auctions', {
@@ -236,7 +235,7 @@
             <a href="/auctions/enter?auctionId=${element.id}" class="card-link room-card" >
                 <div class="row g-0">
                     <div style="height: 240px;" class="col-md-3">
-                        <img style="height: 100%; width:100%; object-fit:cover;" src="/img/default.jpg" class="img-fluid rounded-start">
+                        <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
                     </div>
                     <div class="col-md-9">
                         <div class="card-body px-3" style="background-color:#F5F5F5; height: 240px;">
@@ -276,10 +275,9 @@
         obj.finishDate = document.querySelector('#endDate').value + "T" + document.querySelector('#endTime').value;
         obj.maxPersonnel = parseInt(document.querySelector('#maxPersonnel').value);
         obj.minimumPrice = parseInt(document.querySelector('#minimumPrice').value);
-        obj.saleUserEmail = "java@test.com";
         obj.productName = document.querySelector('#productName').value;
         obj.productDetail = document.querySelector('#productDetail').value;
-        obj.productCategory = "잡화";
+        obj.productCategoryId = 1;
 
         document.querySelector('#startDate').value =  obj.startDate;
 

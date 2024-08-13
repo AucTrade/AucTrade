@@ -1,6 +1,6 @@
 package com.example.auctrade.domain.auction.document;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
+import com.example.auctrade.domain.auction.dto.DepositDTO;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,16 +19,22 @@ public class DepositLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private Long auctionId;
+    @Indexed
+    private String startAt;
     private String username;
     private Long deposit;
 
     @CreatedDate
-    @Indexed
     private String createdAt;
 
-    public DepositLog(AuctionDTO.Deposit requestDTO) {
-        this.auctionId = requestDTO.getId();
-        this.username = requestDTO.getUsername();
+    public DepositLog(DepositDTO.Create requestDTO,String startAt, String email) {
+        this.auctionId = requestDTO.getAuctionId();
+        this.startAt = startAt;
+        this.username = email;
         this.deposit =  requestDTO.getDeposit();
+    }
+
+    public void updateDeposit(long deposit){
+        this.deposit = deposit;
     }
 }

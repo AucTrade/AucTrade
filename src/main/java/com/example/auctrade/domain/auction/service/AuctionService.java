@@ -1,30 +1,35 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface AuctionService {
 
-    AuctionDTO.Get save(AuctionDTO.Create request, MultipartFile[] files);
+    Long createAuction(AuctionDTO.Create request, long productId, String saleUsername);
 
-    List<AuctionDTO.List> findAll();
+    List<AuctionDTO.GetList> findAll(Pageable pageable);
 
-    AuctionDTO.Enter enter(Long id);
+    AuctionDTO.Get findById(long id);
 
-    AuctionDTO.BidResult bid(AuctionDTO.Bid request);
+    List<AuctionDTO.GetList> getMyAuctions(Pageable pageable, String email);
 
-    AuctionDTO.Result deposit(AuctionDTO.Deposit request);
+    List<AuctionDTO.GetList> getMyAuctions(List<Long> ids);
 
-    List<AuctionDTO.DepositList> getDepositList(int page, int size);
+    List<AuctionDTO.GetList> getDepositList(Pageable pageable);
 
     List<Long> findAllActiveAuctionIds();
-    void processBids(long id);
 
     void startAuction(Long id);
 
     void endAuction(Long id);
 
+    int getMaxPersonnel(Long id);
 
+    int getMinimumPrice(Long id);
+
+    int getLastPageNum(String email, int size);
+
+    String getStartAt(Long id);
 }
