@@ -21,6 +21,10 @@ public class BidDTO {
         private Long auctionId;
         private String username;
         private Long price;
+
+        public void updatePrice(long price){
+            this.price = price;
+        }
     }
 
     @Getter

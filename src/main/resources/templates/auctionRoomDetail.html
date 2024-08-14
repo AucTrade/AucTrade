@@ -92,15 +92,20 @@
                 finishTime = result.finishDate;
                 socket(auctionId, username);
                 $('#button-send').attr('disabled', true);
+         }).catch(error => {console.error('오류 발생:', error);});
 
+         getAjaxRequest(`/api/auctions/bids/${auctionId}`).then(result => {
+                makeBidInfo(result);
          }).catch(error => {console.error('오류 발생:', error);});
     });
 
+    function makeBidInfo(result){
+        document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${result.username}</h5>`;
+        document.querySelector('#price').innerHTML =`<p class="text-end fs-5 text-primary">${result.price} ￦</p>`;
+    }
+
     function makeRoom(result){
         document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
-        var bidUser = (result.username=='') ? "None" : result.username;
-        document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${bidUser}</h5>`;
-        document.querySelector('#price').innerHTML =`<p class="text-end fs-5 text-primary">${result.minimumPrice} ￦</p>`;
         document.querySelector('#productName').innerHTML =`<p class="text-start fs-4 do-hyeon-regular">${result.productName.slice(0, 20)}</p>`;
         document.querySelector('#productDetail').innerHTML =`<p class="fs-2">${result.productDetail}</p>`;
 

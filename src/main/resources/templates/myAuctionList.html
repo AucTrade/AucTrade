@@ -206,9 +206,7 @@
             return;
             }
 
-            if (result.maxPage < page) {
-                return;
-            }
+            if (result.maxPage < page) return;
 
             document.querySelector('#pageButton').innerHTML = makePageButtonHTML(page, result.maxPage);
             document.querySelector('#auctionList').innerHTML += makeAuctionListHTML(result.auctions);
@@ -227,40 +225,75 @@
 
     function makeAuctionListHTML(data){
         var newHtml = '';
+        var isStart = false;
+        var nowDate = new Date();
         data.forEach((element, index) => {
-            newHtml += `
-            <div class="col-6">
-            <div class="card m-2">
-            <a href="/auctions/enter?auctionId=${element.id}" class="card-link room-card" >
-                <div class="row g-0">
-                    <div style="height: 120px;" class="col-md-3">
-                        <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body px-3" style="background-color:#F5F5F5; height: 120px;">
-                            <div class="row fs-4 bold ps-2" style="height: 30px; ">
-                            ${element.title}</div>
-                            <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
-                            <div class="row" style="height: 30px;">
-                                <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
-                                <div class="col-6">
-                                <div class="row text-primary">
-                                <b>인원 : ${element.curPersonnel} / ${element.maxPersonnel}</b></div>
+             newHtml += (new Date(element.startDate) - nowDate) ?
+             makeAvailableCard(element, index) : makeUnavailableCard(element, index);
+        });
+        return newHtml;
+    }
+
+    function makeAvailableCard(element, index){
+        return `<div class="col-6">
+                <div class="card m-2">
+                <a href="/auctions/enter?auctionId=${element.id}" class="card-link room-card" >
+                    <div class="row g-0">
+                        <div style="height: 120px;" class="col-md-3">
+                            <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body px-3" style="background-color:#cffccf; height: 120px;">
+                                <div class="row fs-4 bold ps-2" style="height: 30px; ">
+                                ${element.title}</div>
+                                <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                    <div class="col-6">
+                                    <div class="row text-primary">
+                                    <b>인원 : ${element.curPersonnel} / ${element.maxPersonnel}</b></div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                     <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
                                 </div>
                             </div>
-                            <div class="row" style="height: 30px;">
-                                <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
-                                 <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                        </div>
+                    </div>
+                </a>
+                </div>
+                </div>`;
+    }
+
+    function makeUnavailableCard(element, index){
+        return `<div class="col-6">
+                <div class="card m-2">
+                    <div class="row g-0">
+                        <div style="height: 120px;" class="col-md-3">
+                            <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body px-3" style="background-color:#d6d6d4; height: 120px;">
+                                <div class="row fs-4 bold ps-2" style="height: 30px; ">
+                                ${element.title}</div>
+                                <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                    <div class="col-6">
+                                    <div class="row text-primary">
+                                    <b>인원 : ${element.curPersonnel} / ${element.maxPersonnel}</b></div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                     <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </a>
-            </div>
-            </div>
-           `;
-        }); //for-each
-        return newHtml;
+                </div>`;
     }
 
     function makePaginationHTML(page, maxPage){

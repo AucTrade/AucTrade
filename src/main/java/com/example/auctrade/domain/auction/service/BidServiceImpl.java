@@ -80,7 +80,7 @@ public class BidServiceImpl implements BidService {
         Map<Object, Object> val = redisTemplate.opsForHash().entries(REDIS_BID_KEY + auctionId);
         return BidDTO.Get.builder()
                 .username(val.isEmpty() ? "NONE" : val.get(BID_USER_KEY).toString())
-                .price(val.isEmpty() ? -1 : (long) val.get(BID_PRICE_KEY))
+                .price(val.isEmpty() ? -1L : Long.parseLong(val.get(BID_PRICE_KEY).toString()))
                 .build();
     }
 
@@ -91,7 +91,7 @@ public class BidServiceImpl implements BidService {
      */
     public long getBidPrice(Long auctionId) {
         Object val = redisTemplate.opsForHash().get(REDIS_BID_KEY + auctionId, BID_PRICE_KEY);
-        return (val == null) ? -1L : (long) val;
+        return (val == null) ? -1L : Long.parseLong(val.toString());
     }
 
     /**

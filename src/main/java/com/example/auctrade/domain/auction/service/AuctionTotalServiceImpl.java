@@ -4,6 +4,7 @@ import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.dto.BidDTO;
 import com.example.auctrade.domain.auction.dto.DepositDTO;
 import com.example.auctrade.domain.auction.mapper.AuctionMapper;
+import com.example.auctrade.domain.auction.mapper.BidMapper;
 import com.example.auctrade.domain.product.dto.ProductDTO;
 import com.example.auctrade.domain.product.service.FileService;
 import com.example.auctrade.domain.product.service.ProductService;
@@ -50,7 +51,13 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
 
         return AuctionMapper.toResultDto(auctionService.createAuction(request, productId, email) != null);
     }
-
+    /**
+     * 예치금을 넣은 경매방 리스트 조회
+     * @param page 요청할 page 인덱스
+     * @param size page 사이즈
+     * @param email 경매에 예치금을 넣은 회원 이메일
+     * @return 예치금을 넣은 경매방 리스트
+     */
     public AuctionDTO.AfterStartList getMyAuctionPage(int page, int size, String email){
         List<AuctionDTO.GetList> auctions = auctionService.getMyAuctions(
                 depositService.getMyAuctions(toPageable(page,size,"startDate"), email));
@@ -62,17 +69,22 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
                     productService.get(data.getProductId()).getCategoryName(),
                     fileService.getThumbnail(data.getProductId()).getFilePath(),
                     depositService.getCurrentPersonnel(data.getId()),
-                    bidService.getBidPrice(data.getId())));
+                    getBidInfo(data.getId()).getPrice()));
         }
         return AuctionMapper.toMyAuctionPage(result, depositService.getMyDepositSize(email));
     }
 
     public AuctionDTO.Enter enterAuction(Long id, String email) {
         AuctionDTO.Get auction = auctionService.findById(id);
-        return AuctionMapper.toEnterDto(auction, productService.get(auction.getProductId()), bidService.getBid(id), fileService.getFiles(id), email);
+        return AuctionMapper.toEnterDto(auction, productService.get(auction.getProductId()), fileService.getFiles(id));
     }
 
     public BidDTO.Result bidPrice(BidDTO.Create request) {
+        long auctionId = request.getAuctionId();
+
+        if(bidService.getBidPrice(auctionId) == -1L && request.getPrice() < auctionService.getMinimumPrice(auctionId))
+            return BidMapper.toBidResultDto(request,false);
+
         return bidService.updateBidPrice(request);
     }
 
@@ -87,7 +99,7 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
      * @param size 리스트 사이즈
      * @return 경매 리스트
      */
-    public List<AuctionDTO.BeforeStart> getDepositList(int page, int size) {
+    public List<AuctionDTO.BeforeStart> getBeforeStartPage(int page, int size) {
         List<AuctionDTO.BeforeStart> result = new ArrayList<>();
         for(AuctionDTO.GetList data : auctionService.getDepositList(toPageable(page, size, "createdAt"))){
             result.add(AuctionMapper.toBeforeStartDto(
@@ -101,6 +113,16 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
 
     public List<Long> findAllActiveAuctionIds() {
         return auctionService.findAllActiveAuctionIds();
+    }
+    /**
+     * 현재 경매방의 최대 입찰금
+     * @param auctionId 조회 대상 경매 id
+     * @return 최대 입찰금
+     */
+    public BidDTO.Get getBidInfo(Long auctionId) {
+        BidDTO.Get load = bidService.getBid(auctionId);
+        if(load.getPrice() == -1L) load.updatePrice(auctionService.getMinimumPrice(auctionId));
+        return load;
     }
 
     public void processBids(long id) {

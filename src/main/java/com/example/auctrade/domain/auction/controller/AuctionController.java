@@ -54,7 +54,12 @@ public class AuctionController {
     @GetMapping("/deposits")
     public ResponseEntity<List<AuctionDTO.BeforeStart>> getDepositAuctions(@RequestParam(defaultValue = "1") int page,
                                                                            @RequestParam(defaultValue = "9") int size) {
-        return ResponseEntity.ok(auctionTotalService.getDepositList(page, size));
+        return ResponseEntity.ok(auctionTotalService.getBeforeStartPage(page, size));
+    }
+
+    @GetMapping("/bids/{auctionId}")
+    public ResponseEntity<BidDTO.Get> getAuction(@PathVariable Long auctionId) {
+        return ResponseEntity.ok(auctionTotalService.getBidInfo(auctionId));
     }
 
     @PostMapping("/bids")

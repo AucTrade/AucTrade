@@ -19,9 +19,12 @@ public interface AuctionTotalService {
 
     DepositDTO.Result depositPrice(DepositDTO.Create requestDto, String email);
 
-    List<AuctionDTO.BeforeStart> getDepositList(int page, int size);
+    List<AuctionDTO.BeforeStart> getBeforeStartPage(int page, int size);
 
     List<Long> findAllActiveAuctionIds();
+
+    BidDTO.Get getBidInfo(Long auctionId);
+
     void processBids(long id);
 
     void startAuction(Long id);

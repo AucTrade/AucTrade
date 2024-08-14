@@ -1,12 +1,10 @@
 package com.example.auctrade.domain.auction.mapper;
 
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.auction.dto.BidDTO;
 import com.example.auctrade.domain.auction.dto.DepositDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.product.dto.ProductDTO;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AuctionMapper {
@@ -27,20 +25,17 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDto(AuctionDTO.Get auction, ProductDTO.Get product, BidDTO.Get bid, List<String> files, String email) {
+    public static AuctionDTO.Enter toEnterDto(AuctionDTO.Get auction, ProductDTO.Get product, List<String> files) {
         return (auction == null) ? null : AuctionDTO.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .productName(product.getName())
                 .productDetail(product.getDetail())
                 .productCategory(product.getCategoryName())
-                .username(bid.getUsername())
-                .minimumPrice(bid.getPrice())
                 .saleUserEmail(auction.getSaleUserEmail())
                 .startDate(auction.getStartDate())
                 .finishDate(auction.getFinishDate())
                 .files(files)
-                .enterUser(email)
                 .build();
     }
 
@@ -85,8 +80,7 @@ public class AuctionMapper {
                 .curPersonnel(curPersonnel)
                 .maxPersonnel(auctions.getMaxPersonnel())
                 .productId(auctions.getProductId())
-                .price((long) auctions.getMinimumPrice())
-                .minimumPrice(minDeposit)
+                .price(minDeposit)
                 .build();
     }
 

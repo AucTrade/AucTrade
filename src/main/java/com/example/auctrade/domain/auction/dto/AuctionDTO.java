@@ -78,12 +78,10 @@ public class AuctionDTO {
         private LocalDateTime startDate;
         private LocalDateTime finishDate;
         private Long minimumPrice;
-        private String username;
         private String saleUserEmail;
         private String productName;
         private String productDetail;
         private String productCategory;
-        private String enterUser;
         private List<String> files;
     }
 
@@ -98,7 +96,6 @@ public class AuctionDTO {
         private String finishDate;
         private Integer maxPersonnel;
         private Integer curPersonnel;
-        private Long minimumPrice;
         private Long productId;
         private Long price;
         private String productCategory;
