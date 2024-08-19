@@ -6,6 +6,8 @@ import com.example.auctrade.domain.product.entity.ProductCategory;
 import com.example.auctrade.domain.product.mapper.ProductMapper;
 import com.example.auctrade.domain.product.repository.ProductCategoryRepository;
 import com.example.auctrade.domain.product.repository.ProductRepository;
+import com.example.auctrade.domain.user.entity.User;
+import com.example.auctrade.domain.user.repository.UserRepository;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -36,8 +38,6 @@ public class ProductService {
     }
 
     private ProductCategory findCategory(long id){
-        log.info("카테고리 찾기 : " + id);
-
         return productCategoryRepository.findById(id)
                 .orElseThrow(()-> new CustomException(ErrorCode.PRODUCT_CATEGORY_NOT_FOUND));
     }
