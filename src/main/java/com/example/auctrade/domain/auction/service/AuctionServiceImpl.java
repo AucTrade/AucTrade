@@ -4,77 +4,86 @@ import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
-import com.example.auctrade.domain.product.dto.ProductDTO;
-import com.example.auctrade.domain.product.entity.Product;
-import com.example.auctrade.domain.product.entity.ProductCategory;
-import com.example.auctrade.domain.product.mapper.ProductMapper;
-import com.example.auctrade.domain.product.repository.ProductCategoryRepository;
-import com.example.auctrade.domain.product.repository.ProductRepository;
-import com.example.auctrade.domain.user.entity.User;
-import com.example.auctrade.domain.user.repository.UserRepository;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
-import static com.example.auctrade.global.constant.Constants.REDIS_AUCTION_KEY;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository auctionRepository;
-    private final UserRepository userRepository;
-    private final ProductCategoryRepository productCategoryRepository;
-    private final ProductRepository productRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * 회원이 입력한 여행후기 게시글 저장
-     * @param requestDto 회원이 입력한 경매 정보
+     * 경매 등록
+     * @param request 회원이 입력한 경매 정보
      * @return 생성된 경매 정보
      */
-    public AuctionDTO.Get save(AuctionDTO.Create requestDto) {
-        User user = findUser(requestDto.getSaleUserEmail());
-        ProductCategory category = findCategory(requestDto.getProductCategory());
-        Product product = productRepository.save(ProductMapper.toEntity(new ProductDTO(requestDto.getProductName(), requestDto.getProductDetail(), category.getId()), category, user));
+    public Long createAuction(AuctionDTO.Create request, long productId, String saleUsername) {
+        return auctionRepository.save(AuctionMapper.toEntity(request, productId, saleUsername)).getId();
+    }
+    /**
+     * 경매 리스트 전체 조회
+     * @return 아직 실행 되지 않은 모든 경매 정보
+     */
+    public List<AuctionDTO.GetList> findAll(Pageable pageable) {
+        return auctionRepository.findAll(pageable).stream().map(AuctionMapper::toGetListDto).toList();
+    }
+    /**
+     * 경매 리스트 전체 조회
+     * @return 아직 실행 되지 않은 모든 경매 정보
+     */
+    public AuctionDTO.Get findById(long id) {
+        return AuctionMapper.toGetDto(findAuction(id));
+    }
 
-        return AuctionMapper.toDto(auctionRepository.save(AuctionMapper.toEntity(requestDto, product, user)));
+    /**
+     * 시작하기 전 경매 리스트 전체 조회
+     * @return 아직 실행 되지 않은 모든 경매 정보
+     */
+    public List<AuctionDTO.GetList> getMyAuctions(Pageable pageable, String email) {
+        return auctionRepository.findByStartedFalse(pageable).stream().map(AuctionMapper::toGetListDto).toList();
+    }
+    public List<AuctionDTO.GetList> getMyAuctions(List<Long> ids) {
+        return auctionRepository.findAllById(ids).stream().map(AuctionMapper::toGetListDto).toList();
+    }
+
+    /**
+     * 진행중인 경매 리스트 전체 조회
+     * @return 진행 중인 경매 Id 리스트
+     */
+    public List<Long> findAllActiveAuctionIds() {
+        return auctionRepository.findAllAuctionIds().stream().toList();
+    }
+
+    /**
+     * 진행중인 경매 리스트 전체 조회
+     * @return 진행 중인 경매 Id 리스트
+     */
+    public int getLastPageNum(String email, int size) {
+
+        int totalCount = (int) auctionRepository.count();
+        return  totalCount/size + ((totalCount%size == 0) ? 0 : 1);
+    }
+
+    public String getStartAt(Long id) {
+        return auctionRepository.findStartAtById(id).toString();
     }
 
     /**
      * 경매 리스트 전체 조회
      * @return 아직 실행 되지 않은 모든 경매 정보
      */
-    @Transactional(readOnly = true)
-    public List<AuctionDTO.GetList> findAll() {
-
-        return auctionRepository.findByStartedFalse().stream().map(res ->{
-            Object obj = redisTemplate.opsForHash().get(REDIS_AUCTION_KEY + res.getId(), "bid");
-            if (obj == null) return AuctionMapper.toDtoList(res);
-            return AuctionMapper.toDtoList(res, Long.parseLong(obj.toString()));
-            }).toList();
+    public List<AuctionDTO.GetList> getDepositList(Pageable pageable) {
+        return auctionRepository.findByStartedFalse(pageable).stream().map(AuctionMapper::toGetListDto).toList();
     }
-
-    /**
-     * 경매 정보 조회
-     * @param id 경매 id
-     * @return 조회된 경매 정보
-     */
-    @Transactional(readOnly = true)
-    public AuctionDTO.Enter enter(Long id) {
-        Object obj = redisTemplate.opsForHash().get(REDIS_AUCTION_KEY + id, "bid");
-
-        return (obj == null) ? AuctionMapper.toEnterDTO(findAuction(id)):
-                AuctionMapper.toEnterDTO(findAuction(id), Long.parseLong(obj.toString()));
-    }
-
     /**
      * 지정된 경매 시작일 보다 빠르게 경매를 시작
      * @param id 경매 id
@@ -82,7 +91,6 @@ public class AuctionServiceImpl implements AuctionService {
     public void startAuction(Long id) {
         findAuction(id).start();
     }
-    
     /**
      * 지정된 경매 종료일 보다 빠르게 경매를 종료
      * @param id 경매 id
@@ -91,15 +99,15 @@ public class AuctionServiceImpl implements AuctionService {
         findAuction(id).end();
     }
 
+    public int getMaxPersonnel(Long id){
+        return auctionRepository.findPersonnelById(id).orElseThrow(() -> new CustomException(ErrorCode.AUCTION_NOT_FOUND));
+    }
+
+    public int getMinimumPrice(Long id){
+        return auctionRepository.findMinimumPriceById(id).orElseThrow(() -> new CustomException(ErrorCode.AUCTION_NOT_FOUND));
+    }
+
     private Auction findAuction(Long id){
         return auctionRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.AUCTION_NOT_FOUND));
-    }
-
-    private User findUser(String email){
-        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private ProductCategory findCategory(String categoryName){
-        return productCategoryRepository.findByCategoryName(categoryName).orElseThrow(()-> new CustomException(ErrorCode.PRODUCT_CATEGORY_NOT_FOUND));
     }
 }

@@ -1,11 +1,9 @@
 package com.example.auctrade.domain.auction.document;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.chat.dto.MessageDTO;
+import com.example.auctrade.domain.auction.dto.BidDTO;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,9 +26,9 @@ public class BidLog {
     @Indexed
     private String createdAt;
 
-    public BidLog(AuctionDTO.Bid requestDto) {
-        this.auctionId = requestDto.getAuctionId();
-        this.username = requestDto.getUsername();
-        this.price =  requestDto.getPrice();
+    public BidLog(BidDTO.Create bidLogDTO) {
+        this.auctionId = bidLogDTO.getAuctionId();
+        this.username = bidLogDTO.getUsername();
+        this.price =  bidLogDTO.getPrice();
     }
 }

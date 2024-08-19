@@ -1,6 +1,5 @@
 package com.example.auctrade.domain.chat.dto;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.chat.document.AuctionChatMessage;
 import com.example.auctrade.global.vaild.MessageValidationGroups;
 import jakarta.validation.constraints.NotBlank;
@@ -36,21 +35,6 @@ public class MessageDTO {
             this.username = auctionChatMessage.getUsername();
             this.message = auctionChatMessage.getMessage();
             this.createAt = auctionChatMessage.getCreatedAt();
-        }
-    }
-
-
-
-    public static class BidGet{
-        private final Long auctionId;
-        private final String username;
-        private final Boolean isSuccess;
-        private final Long price;
-        public BidGet(AuctionDTO.BidResult bidResult){
-            this.auctionId = bidResult.getAuctionId();
-            this.username = bidResult.getUsername();
-            this.isSuccess = bidResult.getIsSuccess();
-            this.price = bidResult.getPrice();
         }
     }
 }

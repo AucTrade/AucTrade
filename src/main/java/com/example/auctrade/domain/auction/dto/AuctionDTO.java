@@ -1,8 +1,7 @@
 package com.example.auctrade.domain.auction.dto;
 
-import com.example.auctrade.domain.auction.document.BidLog;
+import com.example.auctrade.domain.product.dto.ProductDTO;
 import com.example.auctrade.global.vaild.AuctionValidationGroups;
-import com.example.auctrade.global.vaild.MessageValidationGroups;
 import com.example.auctrade.global.vaild.ProductValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
@@ -12,10 +11,11 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AuctionDTO {
+    private AuctionDTO(){}
 
-    @Builder
     @Getter
     @AllArgsConstructor
     public static class Create {
@@ -38,21 +38,19 @@ public class AuctionDTO {
         @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = AuctionValidationGroups.MinPriceRangeGroup.class)
         private Integer minimumPrice;
 
-        @NotBlank(message = "경매 등록 인원의 email을 입력해 주세요.", groups = AuctionValidationGroups.SaleUserBlankGroup.class)
-        private String saleUserEmail;
-
         @NotBlank(message = "경매 상품명을 입력해 주세요.", groups = ProductValidationGroups.NameBlankGroup.class)
         private String productName;
 
         private String productDetail;
 
         @NotBlank(message = "상품의 카테고리를 입력해 주세요.", groups = ProductValidationGroups.CategoryBlankGroup.class)
-        private String productCategory;
+        private long productCategoryId;
     }
 
     @Getter
     @Builder
     public static class Get {
+        private Long id;
         private String title;
         private String introduce;
         private LocalDateTime startDate;
@@ -60,9 +58,16 @@ public class AuctionDTO {
         private Integer maxPersonnel;
         private Integer minimumPrice;
         private String saleUserEmail;
+        private Long productId;
         private String productName;
         private String productDetail;
         private String productCategory;
+
+        public void updateProduct(ProductDTO.Get product){
+            this.productName = product.getName();
+            this.productDetail = product.getDetail();
+            this.productCategory = product.getCategoryName();
+        }
     }
 
     @Getter
@@ -77,6 +82,24 @@ public class AuctionDTO {
         private String productName;
         private String productDetail;
         private String productCategory;
+        private List<String> files;
+    }
+
+    @Getter
+    @Builder
+    public static class My {
+        private Long id;
+        private String title;
+        private String introduce;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime startDate;
+        private String finishDate;
+        private Integer maxPersonnel;
+        private Integer curPersonnel;
+        private Long productId;
+        private Long price;
+        private String productCategory;
+        private String thumbnail;
     }
 
     @Getter
@@ -85,54 +108,42 @@ public class AuctionDTO {
         private Long id;
         private String title;
         private String introduce;
-        private String startDate;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime startDate;
         private String finishDate;
         private Integer maxPersonnel;
         private Integer minimumPrice;
+        private Long productId;
         private Long price;
-        private String productCategory;
     }
 
     @Getter
     @AllArgsConstructor
-    public static class Bid{
-        @NotBlank(message = "경매 ID가 없습니다.", groups = MessageValidationGroups.AuctionIdBlankGroup.class)
-        private Long auctionId;
+    public static class AfterStartList {
+        private final List<My> auctions;
+        private final Long maxPage;
+    }
 
-        @NotBlank(message = "user ID 가 없습니다.", groups = MessageValidationGroups.UsernameBlankGroup.class)
-        private String username;
-
-        @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
+    @Getter
+    @AllArgsConstructor
+    public static class Result{
+        private Boolean isSuccess;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class BeforeStart{
+        private Long id;
+        private String title;
+        private String introduce;
+        private LocalDateTime startDate;
+        private LocalDateTime finishDate;
+        private Long minDeposit;
+        private Integer currentPersonnel;
+        private String thumbnail;
+        private Integer maxPersonnel;
+        private Integer minimumPrice;
         private Long price;
-    }
-
-    @Getter
-    public static class BidResult{
-        private final Long auctionId;
-        private final String username;
-        private final Long price;
-        private final Boolean isSuccess;
-        @Builder
-        public BidResult(Long auctionId, String username, Boolean isSuccess, Long price){
-            this.auctionId = auctionId;
-            this.username = username;
-            this.price = price;
-            this.isSuccess = isSuccess;
-        }
-    }
-
-    @Getter
-    public static class BidList{
-        private final String id;
-        private final Long auctionId;
-        private final String username;
-        private final Long price;
-
-        public BidList(BidLog bidLog){
-            this.id = bidLog.getId();
-            this.auctionId = bidLog.getAuctionId();
-            this.username = bidLog.getUsername();
-            this.price = bidLog.getPrice();
-        }
+        private String productCategory;
     }
 }

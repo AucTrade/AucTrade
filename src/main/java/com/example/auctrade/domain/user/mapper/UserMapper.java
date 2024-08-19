@@ -4,38 +4,28 @@ import com.example.auctrade.domain.user.dto.UserDTO;
 import com.example.auctrade.domain.user.entity.User;
 
 public class UserMapper {
-
-    // 엔티티를 DTO로 변환하는 static 메서드
-    public static UserDTO toDTO(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return new UserDTO(
-                user.getEmail(),
-                user.getPassword(),
-                user.getPhone(),
-                user.getAddress(),
-                user.getBirth(),
-                user.getRole(),
-                user.getPostcode()
+    private  UserMapper(){}
+    public static User CreateDTOToEntity(UserDTO.Create dto, String password) {
+        return (dto == null) ? null : new User(
+                dto.getEmail(),
+                password,
+                dto.getPhone(),
+                dto.getAddress(),
+                dto.getBirth(),
+                dto.getRole(),
+                dto.getPostcode()
         );
     }
 
-    // DTO를 엔티티로 변환하는 static 메서드
-    public static User toEntity(UserDTO userDTO, String password) {
-        if (userDTO == null) {
-            return null;
-        }
+    public static UserDTO.Login EntityToLoginDTO(User user) {
+        return (user == null) ? null : new UserDTO.Login(user.getEmail(), user.getPassword(), user.getRole());
+    }
 
-        return new User(
-                userDTO.getEmail(),
-                password,
-                userDTO.getPhone(),
-                userDTO.getAddress(),
-                userDTO.getBirth(),
-                userDTO.getRole(),
-                userDTO.getPostcode()
-        );
+    public static UserDTO.Info EntityToInfoDTO(User user){
+        return (user == null) ? null : new UserDTO.Info(user.getEmail(), user.getRole());
+    }
+
+    public static UserDTO.Result CreateResultDTO(boolean isSuccess){
+        return new UserDTO.Result(isSuccess);
     }
 }

@@ -55,24 +55,24 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
+        redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Long.class));
 
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Integer.class));
+        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Long.class));
 
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }
 
-    @Bean
-    public RedisTemplate<String, String> redisRefreshToken(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-
-        return redisTemplate;
-    }
+//    @Bean
+//    public RedisTemplate<String, String> redisRefreshToken(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(redisConnectionFactory);
+//
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.setValueSerializer(new StringRedisSerializer());
+//
+//        return redisTemplate;
+//    }
 }
