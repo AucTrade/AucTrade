@@ -63,37 +63,30 @@ document.getElementById("form-container-signup-box").addEventListener("submit", 
 
 // 로그인 관련 로직
 
-document.getElementById("form-container-box").addEventListener("submit", function (event) {
+document.getElementById("form-container-box").addEventListener("submit", async function (event) {
     event.preventDefault(); // 기본 동작 중지
     const formData = {
         email: document.getElementById("login-email").value,
         password: document.getElementById("login-password").value,
     };
 
-    console.log(formData)
-
-    fetch("/api/users/login", { // 서버에 POST 요청 보내기
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-        .then(response => {
-            console.log(response)
-            if (response.status === 200) {
-                // 로그인 성공 시 알림창 표시
-                alert("로그인에 성공했습니다.");
-                window.location.href = "/auctions"; // 홈페이지로 이동
-            } else {
-                // 회원가입 실패 시 알림창 표시
-                alert("로그인 실패. 입력 정보를 확인하거나 관리자에게 문의하세요.");
-                console.error("로그인 실패:", response.message);
-            }
-        })
-        .catch(error => {
-            // 오류 발생 시 알림창 표시
-            alert("오류 발생. 다시 시도해주세요.");
-            console.error("오류 발생:", error);
+    try {
+        const response = await fetch("/api/users/login", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            window.location.href = "/auctions"; // 홈페이지로 이동
+        } else {
+            document.getElementById('login-failed').innerHTML = `<font size=2>${data.data}</>`;
+        }
+    } catch (error) {
+        console.log("네트워크 오류 발생:", error);
+
+        alert("네트워크 오류 발생. 다시 시도해주세요.");
+    }
 });

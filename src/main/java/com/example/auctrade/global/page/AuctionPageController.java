@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuctionPageController {
     @GetMapping("")
     public String roomList() {
-        return "auctionList";
+        return "auctionBeforeStartList";
     }
 
     @GetMapping("/deposits")

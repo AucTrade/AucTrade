@@ -2,19 +2,22 @@ package com.example.auctrade.domain.user.service;
 
 import com.example.auctrade.domain.user.dto.UserDTO;
 import com.example.auctrade.domain.user.entity.User;
+import com.example.auctrade.domain.user.entity.UserDetailsImpl;
 import com.example.auctrade.domain.user.mapper.UserMapper;
 import com.example.auctrade.domain.user.repository.UserRepository;
-import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.example.auctrade.global.exception.ErrorCode.USER_ID_MISMATCH;
+import static com.example.auctrade.global.constant.Constants.REDIS_REFRESH_KEY;
 
 
 @Slf4j
@@ -22,32 +25,59 @@ import static com.example.auctrade.global.exception.ErrorCode.USER_ID_MISMATCH;
 @Transactional
 @AllArgsConstructor
 public class UserServiceImpl implements UserService{
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisRefreshToken;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    @Override
-    public UserDTO createUser(UserDTO userDto) {
+    /**
+     * 회원가입
+     * @param userDto 대상 정보
+     * @return 회원 가입 성공 여부
+     */
+    public UserDTO.Result createUser(UserDTO.Create userDto) {
         if (existUserEmail(userDto.getEmail())) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        userRepository.save(UserMapper.CreateDTOToEntity(userDto, passwordEncoder.encode(userDto.getPassword())));
+        return UserMapper.CreateResultDTO(true);
+    }
+    
+    /**
+     * DB 내부 유저 정보 반환
+     * @param email 대상 이메일
+     * @return 조회된 회원 정보
+     */
+    public UserDTO.Info getUserInfo(String email) {
+        return UserMapper.EntityToInfoDTO(findUserByEmail(email));
+    }
 
-        String password = passwordEncoder.encode(userDto.getPassword());
-        return UserMapper.toDTO(userRepository.save(UserMapper.toEntity(userDto, password)));
+    /**
+     * 로그아웃 요청
+     * @param email 대상 이메일
+     * @return 로그아웃 성공 여부
+     */
+    public UserDTO.Result logoutUser(String email) {
+        Boolean isDelete = redisTemplate.delete(REDIS_REFRESH_KEY+email);
+
+        if (isDelete == null || !isDelete)
+            throw new InternalAuthenticationServiceException(ErrorCode.REDIS_INTERNAL_ERROR.getMessage());
+
+        return new UserDTO.Result(true);
+    }
+    /**
+     * 이메일 존재 여부
+     * @param email 대상 이메일
+     * @return 해당 이메일 존재 여부
+     */
+    public boolean existUserEmail(String email){
+        return userRepository.findByEmail(email).isPresent();
     }
 
     @Override
-    public UserDTO logoutUser(User user) {
-        String refreshTokenKey = JwtUtil.REFRESH_TOKEN_KEY + user.getEmail();
-        redisRefreshToken.delete(refreshTokenKey);
-
-        if (redisRefreshToken.opsForValue().get(refreshTokenKey) != null) {
-            throw new CustomException(USER_ID_MISMATCH);
-        }
-
-        return UserMapper.toDTO(user);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return new UserDetailsImpl(userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));
     }
 
-    private boolean existUserEmail(String email){
-        return userRepository.findByEmail(email).isPresent();
+    private User findUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

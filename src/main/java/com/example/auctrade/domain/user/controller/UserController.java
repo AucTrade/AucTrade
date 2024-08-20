@@ -18,22 +18,14 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<UserDTO> signup(@RequestBody UserDTO userDTO) {
-        UserDTO user = userServiceImpl.createUser(userDTO);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<UserDTO.Result> signup(@RequestBody UserDTO.Create userDTO) {
+        return new ResponseEntity<>(userServiceImpl.createUser(userDTO), HttpStatus.OK);
     }
-
-    // 인증 테스트용 메소드
-    @GetMapping("/test")
-    public String test() {
-        return "success";
-    }
-
+    
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<UserDTO> logout(
+    public ResponseEntity<UserDTO.Result> logout(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        UserDTO user = userServiceImpl.logoutUser(userDetails.getUser());
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userServiceImpl.logoutUser(userDetails.getUser().getEmail()), HttpStatus.OK);
     }
 }

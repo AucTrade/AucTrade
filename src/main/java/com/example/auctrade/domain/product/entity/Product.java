@@ -1,6 +1,6 @@
 package com.example.auctrade.domain.product.entity;
 
-import com.example.auctrade.domain.user.entity.User;
+import com.example.auctrade.domain.product.dto.ProductDTO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,14 +26,13 @@ public class Product {
     @JoinColumn(name = "category", nullable = false)
     private ProductCategory category;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // 상품 등록자
+    @JoinColumn(name = "sale_username", nullable = false)
+    private String saleUsername;
 
-    public Product(String name, String detail, ProductCategory category, User user) {
-        this.name = name;
-        this.detail = detail;
+    public Product(ProductDTO.Create requestDto, ProductCategory category) {
+        this.name = requestDto.getName();
+        this.detail = requestDto.getDetail();
         this.category = category;
-        this.user = user;
+        this.saleUsername = requestDto.getSaleUsername();
     }
 }
