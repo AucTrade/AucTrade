@@ -1,7 +1,7 @@
 package com.example.auctrade.domain.chat.dto;
 
 import com.example.auctrade.domain.chat.document.AuctionChatMessage;
-import com.example.auctrade.global.vaild.MessageValidationGroups;
+import com.example.auctrade.global.valid.MessageValidationGroups;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 

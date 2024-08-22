@@ -1,7 +1,7 @@
 package com.example.auctrade.domain.user.dto;
 
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
-import com.example.auctrade.global.vaild.UserValidationGroups;
+import com.example.auctrade.global.valid.UserValidationGroups;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;

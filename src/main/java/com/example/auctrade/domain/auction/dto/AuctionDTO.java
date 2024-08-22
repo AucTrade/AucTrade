@@ -1,8 +1,8 @@
 package com.example.auctrade.domain.auction.dto;
 
 import com.example.auctrade.domain.product.dto.ProductDTO;
-import com.example.auctrade.global.vaild.AuctionValidationGroups;
-import com.example.auctrade.global.vaild.ProductValidationGroups;
+import com.example.auctrade.global.valid.AuctionValidationGroups;
+import com.example.auctrade.global.valid.ProductValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

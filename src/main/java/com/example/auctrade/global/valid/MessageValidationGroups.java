@@ -1,4 +1,4 @@
-package com.example.auctrade.global.vaild;
+package com.example.auctrade.global.valid;
 
 public class MessageValidationGroups {
     public interface AuctionIdBlankGroup {}
