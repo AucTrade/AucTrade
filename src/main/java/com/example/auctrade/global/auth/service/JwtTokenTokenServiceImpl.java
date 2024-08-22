@@ -84,6 +84,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 유저 이메일
      */
+    // 이메일을 추출하려는 과정에서 토큰 파싱 검증이 일어나고
+    // 만료기간이 지난 엑세스토큰이라서 클레임 관련 예외인 JwtException 을 던지는 것
     @Override
     public String getUsernameFromToken(String token) {
         log.info("이메일 추출을 위한 토큰 파싱 작업: {}", token);

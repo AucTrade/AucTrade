@@ -100,12 +100,20 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token){
-        log.info("클레임 파싱 확인: {}", token);
+        try {
+            log.info("클레임 파싱 확인: {}", token);
 
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException ex) {
+            log.error("엑세스 토큰 기한 만료");
+
+            // 여기서 리프레쉬 토큰 기반 액세스토큰 재발급 절차 작성 필요
+
+            throw ex;
+        }
     }
 }
