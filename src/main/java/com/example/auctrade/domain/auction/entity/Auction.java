@@ -90,7 +90,27 @@ public class Auction {
         this.started = true;
     }
 
+    // 날짜 지났으면 강제 시작 처리
+    public boolean checkAndStartAuction(LocalDateTime now) {
+        if (now.isAfter(this.startDate)) {
+            this.start();
+            return true;
+        }
+
+        return false;
+    }
+
     public void end() {
         this.ended = true;
+    }
+
+    // 날짜 지났으면 강제 종료 처리
+    public boolean checkAndEndAuction(LocalDateTime now) {
+        if (now.isAfter(this.finishDate)) {
+            this.end();
+            return true;
+        }
+
+        return false;
     }
 }

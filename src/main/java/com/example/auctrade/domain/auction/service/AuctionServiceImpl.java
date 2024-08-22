@@ -90,6 +90,7 @@ public class AuctionServiceImpl implements AuctionService {
      * 경매 리스트 전체 조회
      * @return 아직 실행 되지 않은 모든 경매 정보
      */
+    // 즉 여기서 아직 시작되지 않은 경매를 반환시키는 중
     @Override
     public List<AuctionDTO.GetList> getDepositList(Pageable pageable) {
         return auctionRepository.findByStartedFalse(pageable).stream().map(AuctionMapper::toGetListDto).toList();
