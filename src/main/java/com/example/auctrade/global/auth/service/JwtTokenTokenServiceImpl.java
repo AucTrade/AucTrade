@@ -27,8 +27,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
     private final UserService userService;
-    private final long HOUR_SECONDS = 60 * 60 * 1000L;
-    private final long DAY_SECONDS = 24 * 60 * 60 * 1000L;
+    private final long ACCESS_TOKEN_EAT = 60 * 60 * 1000L;
+    private final long REFRESH_TOKEN_EAT = 7* 60 * 60 * 1000L;
 
     /**
      * 로그인 인증이 끝난 후 신규 토큰 발행
@@ -43,11 +43,11 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
 //        if (redisTemplate.opsForValue().get(email) != null)
 //            throw new InternalAuthenticationServiceException(ErrorCode.USER_ALREADY_LOGGED_IN.getMessage());
 
-        String tokenValue = jwtUtil.createToken(createTokenPayload(email, date, 7*DAY_SECONDS, role)).substring(7);
+        String tokenValue = jwtUtil.createToken(createTokenPayload(email, date, REFRESH_TOKEN_EAT, role)).substring(7);
         //리프레시 토큰 발행
-        redisTemplate.opsForValue().set(REDIS_REFRESH_KEY+email, tokenValue, 24*7 + 1L, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(REDIS_REFRESH_KEY+email, tokenValue, REFRESH_TOKEN_EAT, TimeUnit.MILLISECONDS);
 
-        return jwtUtil.createToken(createTokenPayload(email, date, HOUR_SECONDS, role));
+        return jwtUtil.createToken(createTokenPayload(email, date, ACCESS_TOKEN_EAT, role));
     }
 
     /**
@@ -55,7 +55,6 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 기존 또는 갱신된 토큰
      */
-    // 여기서 리프레쉬 토큰 예외 확인하기(로깅)
     @Override
     public String validAccessToken(String token){
         String accessToken = extractValue(token);
@@ -64,10 +63,13 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
         if(isExpired(accessToken) && isExpired(redisTemplate.opsForValue().get(REDIS_REFRESH_KEY+email)))
             throw new JwtException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage());
 
+        // 비정상적인 인증 시도(공격자의 시도 등의 시나리오) 등에 대한 예외 로직 작성 위치
+
         if (isExpired(accessToken)){
             UserDTO.Info user = userService.getUserInfo(email);
-            return jwtUtil.createToken(createTokenPayload(email, new Date(), HOUR_SECONDS, user.getRole()));
+            return jwtUtil.createToken(createTokenPayload(email, new Date(), ACCESS_TOKEN_EAT, user.getRole()));
         }
+
         return token;
     }
 
