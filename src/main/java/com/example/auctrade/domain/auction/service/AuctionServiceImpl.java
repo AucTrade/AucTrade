@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -93,7 +96,24 @@ public class AuctionServiceImpl implements AuctionService {
     // 즉 여기서 아직 시작되지 않은 경매를 반환시키는 중
     @Override
     public List<AuctionDTO.GetList> getDepositList(Pageable pageable) {
-        return auctionRepository.findByStartedFalse(pageable).stream().map(AuctionMapper::toGetListDto).toList();
+        List<Auction> auctions = auctionRepository.findByStartedFalse(pageable).stream().toList();
+        List<Auction> unStartedAuctions = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        log.info("아직 시작하지 않은 경매들: {}", auctions.stream().map(Auction::getTitle).toList());
+
+        for (Auction auction : auctions) {
+            log.info("조회되는 경매 제목: {}", auction.getTitle());
+
+            // 시작하지 않은 경매들이 리스트에 올라야 한다.
+            // 그리고 이 메소드는 클라이언트에 데이터를 흩뿌리는 용도의 시발점
+            if (!auction.checkAndStartAuction(now)) {
+                log.info("경매 아직 시작 안 함 // 지금: {} // 경매 시작: {}", now, auction.getStartDate());
+                unStartedAuctions.add(auction);
+            }
+        }
+
+        return unStartedAuctions.stream().map(AuctionMapper::toGetListDto).toList();
     }
 
     /**

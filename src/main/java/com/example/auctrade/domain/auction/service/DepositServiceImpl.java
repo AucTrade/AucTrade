@@ -112,7 +112,10 @@ public class DepositServiceImpl implements DepositService {
      */
     @Override
     public List<Long> getMyAuctions(Pageable pageable, String email) {
-        return depositLogRepository.findAllAuctionIdByUsername(pageable, email).stream().map(DepositLog::getAuctionId).toList();
+        List<Long> auctions = depositLogRepository.findAllAuctionIdByUsername(pageable, email).stream().map(DepositLog::getAuctionId).toList();
+        log.info("Mongo DB 에서 추출한 경매 id들: {}", auctions); // 정말 순수하게 예치금을 넣은 아이디만 뜨네
+
+        return auctions;
     }
 
     /**
