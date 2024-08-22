@@ -54,6 +54,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 기존 또는 갱신된 토큰
      */
+    // 여기서 리프레쉬 토큰 예외 확인하기(로깅)
     public String vaildAccessToken(String token){
         String accessToken = extractValue(token);
         String email = getUsernameFromToken(accessToken);
