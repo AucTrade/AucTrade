@@ -1,8 +1,10 @@
 package com.example.auctrade.global.auth.filter;
 
+import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.service.JwtTokenService;
 import com.example.auctrade.global.exception.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,33 +38,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("인증 시도");
         String beforeToken = findAccessToken(request.getCookies());
 
-        log.info("before access token: {}", beforeToken);
+        try {
+            log.info("before access token: {}", beforeToken);
 
-        // 엑세스토큰 유효기간 만료시 바로 JwtException 발생
-        // 그로 인해 JwtException 필터에서 곧바로 로그인 화면으로 내보내는 것
-        // 즉, 엑세스토큰 유효기간 만료시, 리프레쉬 토큰을 기반으로 한 재발급 절차 추가가 필요
+            // 엑세스토큰 유효기간 만료시 바로 JwtException 발생
+            // 그로 인해 JwtException 필터에서 곧바로 로그인 화면으로 내보내는 것
+            // 즉, 엑세스토큰 유효기간 만료시, 리프레쉬 토큰을 기반으로 한 재발급 절차 추가가 필요
 
-        if(beforeToken == null) throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
+            if(beforeToken == null) throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
 
-        log.info("토큰 만료 확인 절차를 위한 임의 로그");
+            log.info("토큰 만료 확인 절차를 위한 임의 로그");
 
-        String accessToken = jwtTokenService.validAccessToken(beforeToken);
+            String accessToken = jwtTokenService.validAccessToken(beforeToken);
 
-        log.info("validated access token: {}", accessToken);
+            log.info("validated access token: {}", accessToken);
 
-        if(!accessToken.equals(beforeToken)){
-            Cookie cookie = new Cookie(COOKIE_AUTH_HEADER, accessToken);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+            String tokenValue = jwtTokenService.extractValue(accessToken);
+
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(createAuthentication(jwtTokenService.getUsernameFromToken(tokenValue)));
+            SecurityContextHolder.setContext(context);
+
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException ex) {
+            log.error("JwtAuthenticationFilter 엑세스 토큰 만료");
+
+            String username = jwtTokenService.getUsernameFromExpiredJwt(ex);
+            log.info("Expired Jwt username: {}", username);
+
+            throw ex;
         }
-
-        String tokenValue = jwtTokenService.extractValue(accessToken);
-        
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(createAuthentication(jwtTokenService.getUsernameFromToken(tokenValue)));
-        SecurityContextHolder.setContext(context);
-
-        filterChain.doFilter(request, response);
     }
 
     // Authentication 객체 생성 (UPAT 생성)

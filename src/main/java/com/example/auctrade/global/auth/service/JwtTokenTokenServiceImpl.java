@@ -6,6 +6,7 @@ import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.util.JwtUtil;
 import com.example.auctrade.global.auth.vo.TokenPayload;
 import com.example.auctrade.global.exception.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,6 +97,12 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
             throw new JwtException(ErrorCode.INVALID_AUTH_TOKEN.getMessage());
 
         return email;
+    }
+
+    // 엑세스 토큰 재발급용 메소드
+    @Override
+    public String getUsernameFromExpiredJwt(ExpiredJwtException exception) {
+        return jwtUtil.getUsernameFromExpiredJwt(exception);
     }
 
     /**
