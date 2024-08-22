@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = "/auctions")
 public class AuctionPageController {
+
+    // 그리고 여긴가
     @GetMapping("")
     public String roomList() {
         return "auctionBeforeStartList";

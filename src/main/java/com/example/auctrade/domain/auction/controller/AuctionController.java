@@ -32,6 +32,7 @@ public class AuctionController {
 //    }
 
 
+    // 여긴가
     @GetMapping("/my-auctions")
     public ResponseEntity<AuctionDTO.AfterStartList> getMyAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionTotalService.getMyAuctionPage(page, size, userDetails.getUsername()));
