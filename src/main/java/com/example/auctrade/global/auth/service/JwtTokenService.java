@@ -9,4 +9,7 @@ public interface JwtTokenService {
     String extractValue(String token);
     String getUsernameFromToken(String token);
     String getUsernameFromExpiredJwt(ExpiredJwtException expiredJwtException);
+
+    // 리프레쉬 토큰 반환 메소드
+    String getRefreshToken(String email);
 }

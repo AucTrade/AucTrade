@@ -131,4 +131,15 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
     private TokenPayload createTokenPayload(String email,Date date,long seconds,UserRoleEnum role){
         return  new TokenPayload(email,UUID.randomUUID().toString(),date,new Date(date.getTime()+seconds),role);
     }
+
+    // 리프레쉬 토큰 반환 메소드
+    @Override
+    public String getRefreshToken(String email) {
+        String refreshToken  = redisTemplate.opsForValue().get(REDIS_REFRESH_KEY+email);
+
+        // 유효성 검증 로직 추후 추가
+
+        log.info("{}의 refresh token: {}", email, refreshToken);
+        return refreshToken;
+    }
 }

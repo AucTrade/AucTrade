@@ -3,6 +3,7 @@ package com.example.auctrade.global.auth.filter;
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.service.JwtTokenService;
+import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -11,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,18 +22,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
 
+@RequiredArgsConstructor
 @Slf4j(topic = "JwtAuthenticationFilter")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
+    private final UserService userService;
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(UserService userService, JwtTokenService jwtTokenService){
-        this.userDetailsService = userService;
-        this.jwtTokenService = jwtTokenService;
-    }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -66,7 +69,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenService.getUsernameFromExpiredJwt(ex);
             log.info("Expired Jwt username: {}", username);
 
-            throw ex;
+            if (jwtTokenService.getRefreshToken(username) != null) {
+
+                UserRoleEnum role = userService.getUserInfo(username).getRole();
+                log.info("Expired Jwt user role: {}", role.getRole());
+
+                String newAccessToken = jwtTokenService.generateNewToken(username, role);
+                log.info("New access token: {}", newAccessToken);
+
+                String encodedToken = URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8);
+
+                Cookie cookie = new Cookie(COOKIE_AUTH_HEADER, encodedToken);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(createAuthentication(username));
+                SecurityContextHolder.setContext(context);
+
+                filterChain.doFilter(request, response);
+            } else {
+                log.error("JwtAuthenticationFilter 리프레시 토큰 없음");
+                throw new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+            }
         }
     }
 
