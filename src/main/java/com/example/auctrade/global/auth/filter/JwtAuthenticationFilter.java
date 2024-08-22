@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String beforeToken = findAccessToken(request.getCookies());
 
         try {
-            log.info("before access token: {}", beforeToken);
+//            log.info("before access token: {}", beforeToken);
 
             // 엑세스토큰 유효기간 만료시 바로 JwtException 발생
             // 그로 인해 JwtException 필터에서 곧바로 로그인 화면으로 내보내는 것
@@ -50,11 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(beforeToken == null) throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
 
-            log.info("토큰 만료 확인 절차를 위한 임의 로그");
+//            log.info("토큰 만료 확인 절차를 위한 임의 로그");
 
             String accessToken = jwtTokenService.validAccessToken(beforeToken);
 
-            log.info("validated access token: {}", accessToken);
+//            log.info("validated access token: {}", accessToken);
 
             String tokenValue = jwtTokenService.extractValue(accessToken);
 
@@ -64,18 +64,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException ex) {
-            log.error("JwtAuthenticationFilter 엑세스 토큰 만료");
+//            log.error("JwtAuthenticationFilter 엑세스 토큰 만료");
 
             String username = jwtTokenService.getUsernameFromExpiredJwt(ex);
-            log.info("Expired Jwt username: {}", username);
+//            log.info("Expired Jwt username: {}", username);
 
             if (jwtTokenService.getRefreshToken(username) != null) {
 
                 UserRoleEnum role = userService.getUserInfo(username).getRole();
-                log.info("Expired Jwt user role: {}", role.getRole());
+//                log.info("Expired Jwt user role: {}", role.getRole());
 
                 String newAccessToken = jwtTokenService.generateNewToken(username, role);
-                log.info("New access token: {}", newAccessToken);
+//                log.info("New access token: {}", newAccessToken);
 
                 String encodedToken = URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 filterChain.doFilter(request, response);
             } else {
-                log.error("JwtAuthenticationFilter 리프레시 토큰 없음");
+//                log.error("JwtAuthenticationFilter 리프레시 토큰 없음");
                 throw new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
             }
         }

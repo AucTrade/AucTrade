@@ -73,7 +73,7 @@ public class JwtUtil {
 
     public String extractToken(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
-            log.info("추출 최종 확인");
+//            log.info("추출 최종 확인");
             return tokenValue.substring(7);
         }
 
@@ -100,7 +100,7 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token){
-        log.info("클레임 파싱 확인: {}", token);
+//        log.info("클레임 파싱 확인: {}", token);
 
         return Jwts.parser()
                 .verifyWith(secretKey)
