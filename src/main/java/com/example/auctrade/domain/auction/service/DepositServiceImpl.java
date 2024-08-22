@@ -67,6 +67,7 @@ public class DepositServiceImpl implements DepositService {
      * @param maxPersonnel 최대 예치 인원수
      * @return 예치금 정보 반환
      */
+    @Override
     public DepositDTO.List getDeposit(Long auctionId, int maxPersonnel){
         return DepositMapper.toListDto(getMinDeposit(auctionId, maxPersonnel), getCurrentPersonnel(auctionId));
     }
@@ -77,6 +78,7 @@ public class DepositServiceImpl implements DepositService {
      * @param auctionId 대상이 될 경매 ID
      * @return 최저 예치금
      */
+    @Override
     public Long getMinDeposit(Long auctionId, int maxPersonnel) {
         Set<ZSetOperations.TypedTuple<String>> rangeWithScores;
         Long val = redisTemplate.opsForZSet().zCard(REDIS_DEPOSIT_KEY + auctionId);
@@ -88,6 +90,7 @@ public class DepositServiceImpl implements DepositService {
                 rangeWithScores.iterator().next().getScore().longValue();
     }
 
+    @Override
     public DepositDTO.Result depositPrice(DepositDTO.Create requestDto, String email, int maxPersonnel, String startDate) {
         String key = REDIS_DEPOSIT_KEY + requestDto.getAuctionId();
 
@@ -107,6 +110,7 @@ public class DepositServiceImpl implements DepositService {
      * @param pageable 페이지 정보
      * @return 입찰한 경매 리스트
      */
+    @Override
     public List<Long> getMyAuctions(Pageable pageable, String email) {
         return depositLogRepository.findAllAuctionIdByUsername(pageable, email).stream().map(DepositLog::getAuctionId).toList();
     }
@@ -117,6 +121,7 @@ public class DepositServiceImpl implements DepositService {
      * @param auctionId 대상이 될 경매 ID
      * @return 예치 인원수 조회
      */
+    @Override
     public Integer getCurrentPersonnel(Long auctionId) {
         Long cnt = redisTemplate.opsForZSet().size(REDIS_DEPOSIT_KEY + auctionId);
         return (cnt==null) ? 0 : Math.toIntExact(cnt);
@@ -127,6 +132,7 @@ public class DepositServiceImpl implements DepositService {
      * @param email 대상 이메일
      * @return 예치금 리스트 총 갯수
      */
+    @Override
     public Long getMyDepositSize(String email) {
         return depositLogRepository.countByUsername(email);
     }

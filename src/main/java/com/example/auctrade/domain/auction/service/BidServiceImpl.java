@@ -35,6 +35,7 @@ public class BidServiceImpl implements BidService {
      * @param request 회원이 입력한 경매 입찰가 정보
      * @return 입찰 결과
      */
+    @Override
     public BidDTO.Result updateBidPrice(BidDTO.Create request) {
         bidLogRepository.save(new BidLog(request));
 
@@ -49,6 +50,7 @@ public class BidServiceImpl implements BidService {
      * 입찰 update
      * @param auctionId 대상이 될 경매 ID
      */
+    @Override
     public void processBids(Long auctionId) {
         RLock lock = redissonClient.getLock(LOCK_KEY);
         boolean isLocked = false;
@@ -76,6 +78,7 @@ public class BidServiceImpl implements BidService {
      * @param auctionId 대상이 될 경매 ID
      * @return 현재 입찰 정보 조회
      */
+    @Override
     public BidDTO.Get getBid(Long auctionId) {
         Map<Object, Object> val = redisTemplate.opsForHash().entries(REDIS_BID_KEY + auctionId);
         return BidDTO.Get.builder()
@@ -89,6 +92,7 @@ public class BidServiceImpl implements BidService {
      * @param auctionId 대상이 될 경매 ID
      * @return 현재 입찰가 (입찰가가 존재하지 않을 경우 -1)
      */
+    @Override
     public long getBidPrice(Long auctionId) {
         Object val = redisTemplate.opsForHash().get(REDIS_BID_KEY + auctionId, BID_PRICE_KEY);
         return (val == null) ? -1L : Long.parseLong(val.toString());
@@ -99,6 +103,7 @@ public class BidServiceImpl implements BidService {
      * @param auctionId 대상이 될 경매 ID
      * @return 현재 입찰자 (입찰자가 존재하지 않을 경우 빈 문자열)
      */
+    @Override
     public String getBidUser(Long auctionId) {
         Object val = redisTemplate.opsForHash().get(REDIS_BID_KEY + auctionId, BID_USER_KEY);
         return (val == null) ? "" : val.toString();
@@ -109,6 +114,7 @@ public class BidServiceImpl implements BidService {
      * @param auctionId 대상이 될 경매 ID
      * @return 해당 경매 내역 로그 리스트
      */
+    @Override
     public List<BidDTO.List> getBidLogs(Long auctionId) {
         return bidLogRepository.findAllByAuctionId(auctionId).stream().map(BidMapper::toListDto).toList();
     }

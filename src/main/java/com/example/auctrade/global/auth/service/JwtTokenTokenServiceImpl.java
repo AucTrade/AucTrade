@@ -35,6 +35,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param email 요청한 회원 이메일
      * @return 새로 발급한 토큰 정보
      */
+    @Override
     public String generateNewToken(String email, UserRoleEnum role){
 
         Date date = new Date();
@@ -55,7 +56,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @return 기존 또는 갱신된 토큰
      */
     // 여기서 리프레쉬 토큰 예외 확인하기(로깅)
-    public String vaildAccessToken(String token){
+    @Override
+    public String validAccessToken(String token){
         String accessToken = extractValue(token);
         String email = getUsernameFromToken(accessToken);
 
@@ -74,6 +76,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 유저 이메일
      */
+    @Override
     public String getUsernameFromToken(String token) {
         String email = jwtUtil.getUsernameFromToken(token);
 
@@ -96,6 +99,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 토큰이 있는 데이터
      * @return 추출한 토큰 값
      */
+    @Override
     public String extractValue(String token){
         return jwtUtil.extractToken(URLDecoder.decode(token, StandardCharsets.UTF_8));
     }
