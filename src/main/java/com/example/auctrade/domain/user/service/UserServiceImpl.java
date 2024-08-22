@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService{
      * @param userDto 대상 정보
      * @return 회원 가입 성공 여부
      */
+    @Override
     public UserDTO.Result createUser(UserDTO.Create userDto) {
         if (existUserEmail(userDto.getEmail())) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         userRepository.save(UserMapper.CreateDTOToEntity(userDto, passwordEncoder.encode(userDto.getPassword())));
@@ -45,6 +46,7 @@ public class UserServiceImpl implements UserService{
      * @param email 대상 이메일
      * @return 조회된 회원 정보
      */
+    @Override
     public UserDTO.Info getUserInfo(String email) {
         return UserMapper.EntityToInfoDTO(findUserByEmail(email));
     }
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService{
      * @param email 대상 이메일
      * @return 로그아웃 성공 여부
      */
+    @Override
     public UserDTO.Result logoutUser(String email) {
         Boolean isDelete = redisTemplate.delete(REDIS_REFRESH_KEY+email);
 
@@ -67,6 +70,7 @@ public class UserServiceImpl implements UserService{
      * @param email 대상 이메일
      * @return 해당 이메일 존재 여부
      */
+    @Override
     public boolean existUserEmail(String email){
         return userRepository.findByEmail(email).isPresent();
     }

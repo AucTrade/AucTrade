@@ -18,11 +18,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMessageFactory<AuctionChatMessage> chatMessageFactory;
+
     /**
      * 메시지 DB 저장
      * @param requestDto 메시지 정보
      * @return 저장된 메시지 정보 반환
      */
+    @Override
     public MessageDTO.Get saveChatMessage(MessageDTO.Create requestDto) {
         AuctionChatMessage auctionChatMessage =
                 chatMessageFactory.orderChatMessage(requestDto.getUsername(), requestDto.getMessage(), requestDto.getAuctionId());
@@ -34,6 +36,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
      * @param auctionId 불러올 경매 ID
      * @return 저장된 경매 메시지 리스트
      */
+    @Override
     public List<MessageDTO.Get> findLog(String auctionId) {
         return chatMessageRepository.
                 findAllByAuctionId(auctionId).stream().map(MessageDTO.Get::new).toList();
@@ -44,6 +47,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
      * @param auctionId 불러올 경매 ID
      * @return 저장된 경매 입찰 메시지 리스트
      */
+    @Override
     public List<MessageDTO.Get> findAuctionLog(String auctionId) {
         return chatMessageRepository.
                 findAllByAuctionIdAndBidTrue(auctionId).stream().map(MessageDTO.Get::new).toList();
