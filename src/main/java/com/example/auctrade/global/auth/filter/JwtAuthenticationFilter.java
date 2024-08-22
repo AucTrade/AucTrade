@@ -35,9 +35,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         log.info("인증 시도");
         String beforeToken = findAccessToken(request.getCookies());
+
+        log.info("before access token: {}", beforeToken);
+
+        // 엑세스토큰 유효기간 만료시 바로 JwtException 발생
+        // 그로 인해 JwtException 필터에서 곧바로 로그인 화면으로 내보내는 것
+        // 즉, 엑세스토큰 유효기간 만료시, 리프레쉬 토큰을 기반으로 한 재발급 절차 추가가 필요
+
         if(beforeToken == null) throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
 
         String accessToken = jwtTokenService.validAccessToken(beforeToken);
+
+        log.info("validated access token: {}", accessToken);
 
         if(!accessToken.equals(beforeToken)){
             Cookie cookie = new Cookie(COOKIE_AUTH_HEADER, accessToken);

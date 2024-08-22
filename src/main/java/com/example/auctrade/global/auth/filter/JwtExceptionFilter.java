@@ -21,6 +21,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(req, res);
         }  catch (JwtException | IllegalArgumentException ex) {
+            log.error(ex.getMessage());
             res.setStatus(HttpStatus.UNAUTHORIZED.value());
             res.sendRedirect("/login");
         }

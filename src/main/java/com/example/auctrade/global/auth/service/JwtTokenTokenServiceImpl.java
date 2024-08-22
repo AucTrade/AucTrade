@@ -27,8 +27,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
     private final UserService userService;
-    private final long ACCESS_TOKEN_EAT = 60 * 60 * 1000L;
-    private final long REFRESH_TOKEN_EAT = 7* 60 * 60 * 1000L;
+    private final long ACCESS_TOKEN_EAT = 30 * 1000L; // 1H
+    private final long REFRESH_TOKEN_EAT = 7 * 24 * 60 * 60 * 1000L; // 7D
 
     /**
      * 로그인 인증이 끝난 후 신규 토큰 발행
@@ -66,6 +66,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
         // 비정상적인 인증 시도(공격자의 시도 등의 시나리오) 등에 대한 예외 로직 작성 위치
 
         if (isExpired(accessToken)){
+            log.info("엑세스토큰(만) 완료로 인한 엑세스 토큰 재발급");
             UserDTO.Info user = userService.getUserInfo(email);
             return jwtUtil.createToken(createTokenPayload(email, new Date(), ACCESS_TOKEN_EAT, user.getRole()));
         }
