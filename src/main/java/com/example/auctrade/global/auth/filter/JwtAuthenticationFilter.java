@@ -44,6 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(beforeToken == null) throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
 
+        log.info("토큰 만료 확인 절차를 위한 임의 로그");
+
         String accessToken = jwtTokenService.validAccessToken(beforeToken);
 
         log.info("validated access token: {}", accessToken);

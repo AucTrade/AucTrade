@@ -57,13 +57,18 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      */
     @Override
     public String validAccessToken(String token){
+        log.info("파라미터 토큰: {}", token);
+
         String accessToken = extractValue(token);
         String email = getUsernameFromToken(accessToken);
+
+        log.info("토큰 만료 확인 절차를 위한 임의 로그 2");
 
         if(isExpired(accessToken) && isExpired(redisTemplate.opsForValue().get(REDIS_REFRESH_KEY+email)))
             throw new JwtException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage());
 
         // 비정상적인 인증 시도(공격자의 시도 등의 시나리오) 등에 대한 예외 로직 작성 위치
+        log.info("토큰 만료 확인 절차를 위한 임의 로그 3");
 
         if (isExpired(accessToken)){
             log.info("엑세스토큰(만) 완료로 인한 엑세스 토큰 재발급");
@@ -81,6 +86,8 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      */
     @Override
     public String getUsernameFromToken(String token) {
+        log.info("이메일 추출을 위한 토큰 파싱 작업: {}", token);
+
         String email = jwtUtil.getUsernameFromToken(token);
 
         if(!userService.existUserEmail(email))
@@ -104,6 +111,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      */
     @Override
     public String extractValue(String token){
+        log.info("토큰 서비스에서의 토큰 추출 확인");
         return jwtUtil.extractToken(URLDecoder.decode(token, StandardCharsets.UTF_8));
     }
 

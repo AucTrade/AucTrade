@@ -68,13 +68,16 @@ public class JwtUtil {
      * @return 확인된 토큰값
      */
     public String getAccessToken(String fromHeader) {
-        return extractToken(fromHeader);
+        return this.extractToken(fromHeader);
     }
 
     public String extractToken(String tokenValue) {
-        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX))
+        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
+            log.info("추출 최종 확인");
             return tokenValue.substring(7);
+        }
 
+//        log.error("예외 발생 최종 확인");
         throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
@@ -97,10 +100,12 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token){
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+        log.info("클레임 파싱 확인: {}", token);
+
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
