@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String newAccessToken = jwtTokenService.generateNewToken(username, role);
                 log.info("New access token: {}", newAccessToken);
 
-                String encodedToken = URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8);
+                String encodedToken = URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
                 Cookie cookie = new Cookie(COOKIE_AUTH_HEADER, encodedToken);
                 cookie.setPath("/");
