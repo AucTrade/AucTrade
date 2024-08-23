@@ -81,6 +81,8 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
                 this.toPageable(page, size, "startDate"), email
         );
 
+        log.info("개설 경매 리스트: {}", auctions.stream().map(AuctionDTO.GetList::getTitle).toList());
+
         List<AuctionDTO.My> result = auctions.stream()
                 .map(data -> AuctionMapper.toMyDto(
                         data,
