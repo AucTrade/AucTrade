@@ -125,6 +125,13 @@ public class AuctionDTO {
     }
 
     @Getter
+    @AllArgsConstructor // 레코드 사용 가능
+    public static class OpeningAuctionsList {
+        private final List<My> auctions;
+        private final Long maxPage;
+    }
+
+    @Getter
     @AllArgsConstructor
     public static class Result{
         private Boolean isSuccess;
