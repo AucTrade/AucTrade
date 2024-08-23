@@ -59,6 +59,12 @@ public class AuctionServiceImpl implements AuctionService {
         return auctionRepository.findByStartedFalse(pageable).stream().map(AuctionMapper::toGetListDto).toList();
     }
 
+    // 내가 개설한 것들 가지고 오기
+    @Override
+    public List<AuctionDTO.GetList> getMyOpeningAuctions(Pageable pageable, String email) {
+        return auctionRepository.findBySaleUsernameAndEndedFalse(email, pageable).stream().map(AuctionMapper::toGetListDto).toList();
+    }
+
     @Override
     public List<AuctionDTO.GetList> getMyAuctions(List<Long> ids) {
         return auctionRepository.findAllById(ids).stream().map(AuctionMapper::toGetListDto).toList();
@@ -114,11 +120,6 @@ public class AuctionServiceImpl implements AuctionService {
         }
 
         return unStartedAuctions.stream().map(AuctionMapper::toGetListDto).toList();
-    }
-
-    @Override
-    public List<AuctionDTO.GetList> getMyOpeningAuctions(String email) {
-        return List.of();
     }
 
     /**

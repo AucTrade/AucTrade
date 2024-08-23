@@ -64,21 +64,32 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
         List<AuctionDTO.GetList> auctions = auctionService.getMyAuctions(
                 depositService.getMyAuctions(toPageable(page,size,"startDate"), email));
 
-        List<AuctionDTO.My> result = new ArrayList<>();
-        for(AuctionDTO.GetList data : auctions){
-            result.add(AuctionMapper.toMyDto(
-                    data,
-                    productService.get(data.getProductId()).getCategoryName(),
-                    fileService.getThumbnail(data.getProductId()).getFilePath(),
-                    depositService.getCurrentPersonnel(data.getId()),
-                    getBidInfo(data.getId()).getPrice()));
-        }
+        List<AuctionDTO.My> result = auctions.stream()
+                .map(data -> AuctionMapper.toMyDto(
+                        data,
+                        productService.get(data.getProductId()).getCategoryName(),
+                        fileService.getThumbnail(data.getProductId()).getFilePath(),
+                        depositService.getCurrentPersonnel(data.getId()),
+                        getBidInfo(data.getId()).getPrice())).toList();
+
         return AuctionMapper.toMyAuctionPage(result, depositService.getMyDepositSize(email));
     }
 
     @Override
     public AuctionDTO.OpeningAuctionsList getMyOpeningAuctionPage(int page, int size, String email) {
-        return null;
+        List<AuctionDTO.GetList> auctions = auctionService.getMyOpeningAuctions(
+                this.toPageable(page, size, "startDate"), email
+        );
+
+        List<AuctionDTO.My> result = auctions.stream()
+                .map(data -> AuctionMapper.toMyDto(
+                        data,
+                        productService.get(data.getProductId()).getCategoryName(),
+                        fileService.getThumbnail(data.getProductId()).getFilePath(),
+                        depositService.getCurrentPersonnel(data.getId()),
+                        getBidInfo(data.getId()).getPrice())).toList();
+
+        return AuctionMapper.toOpeningAuctionPage(result, result.size());
     }
 
     @Override

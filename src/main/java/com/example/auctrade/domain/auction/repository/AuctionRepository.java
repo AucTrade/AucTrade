@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
     Page<Auction> findByStartedFalse(Pageable pageable);
 
+    Page<Auction> findBySaleUsernameAndEndedFalse(String username, Pageable pageable);
+
     @Query("SELECT minimumPrice FROM Auction WHERE id = :id")
     Optional<Integer> findMinimumPriceById(Long id);
 
