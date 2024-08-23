@@ -116,6 +116,11 @@ public class AuctionServiceImpl implements AuctionService {
         return unStartedAuctions.stream().map(AuctionMapper::toGetListDto).toList();
     }
 
+    @Override
+    public List<AuctionDTO.GetList> getMyOpeningAuctions(String email) {
+        return List.of();
+    }
+
     /**
      * 지정된 경매 시작일 보다 빠르게 경매를 시작
      * @param id 경매 id

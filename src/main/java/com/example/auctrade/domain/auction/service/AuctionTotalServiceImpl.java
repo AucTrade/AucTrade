@@ -77,6 +77,11 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
     }
 
     @Override
+    public AuctionDTO.OpeningAuctionsList getMyOpeningAuctionPage(int page, int size, String email) {
+        return null;
+    }
+
+    @Override
     public AuctionDTO.Enter enterAuction(Long id, String email) {
         AuctionDTO.Get auction = auctionService.findById(id);
         return AuctionMapper.toEnterDto(auction, productService.get(auction.getProductId()), fileService.getFiles(id));

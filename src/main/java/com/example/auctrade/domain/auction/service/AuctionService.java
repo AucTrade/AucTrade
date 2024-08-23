@@ -17,6 +17,8 @@ public interface AuctionService {
 
     List<AuctionDTO.GetList> getMyAuctions(List<Long> ids);
 
+    List<AuctionDTO.GetList> getMyOpeningAuctions(String email);
+
     List<AuctionDTO.GetList> getDepositList(Pageable pageable);
 
     List<Long> findAllActiveAuctionIds();
