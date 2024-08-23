@@ -1,0 +1,47 @@
+package com.example.auctrade.domain.limit.mapper;
+import com.example.auctrade.domain.limit.dto.LimitDTO;
+import com.example.auctrade.domain.limit.entity.Limits;
+import com.example.auctrade.domain.product.entity.Product;
+import com.example.auctrade.domain.user.entity.User;
+
+public class LimitMapper {
+
+	// Entity -> DTO (Create)
+	public static LimitDTO.Get toDto(Limits limits) {
+		return (limits == null) ? null : LimitDTO.Get.builder()
+			.title(limits.getTitle())
+			.introduce(limits.getIntroduce())
+			.price(limits.getPrice())
+			.saleDate(limits.getSaleDate())
+			.limit(limits.getLimit())
+			.productName(limits.getProduct().getName())
+			.productDetail(limits.getProduct().getDetail())
+			.productCategory(limits.getProduct().getCategory().getCategoryName())
+			.saleUserEmail(limits.getSaleUser().getEmail())
+			.created(limits.getCreated())
+			.build();
+	}
+
+
+	// DTO -> Entity (Create)
+	public static Limits toEntity(LimitDTO.Create limitDTO, Product product, User saleUser) {
+		return (limitDTO == null) ? null : Limits.builder()
+			.title(limitDTO.getTitle())
+			.introduce(limitDTO.getIntroduce())
+			.price(limitDTO.getPrice())
+			.saleDate(limitDTO.getSaleDate())
+			.limit(limitDTO.getLimit())
+			.product(product)
+			.saleUser(saleUser)
+			.build();
+	}
+
+	// DTO -> Entity (Purchase)
+	public static Limits toPurchaseEntity(LimitDTO.Purchase purchaseDTO, Limits limits) {
+		if (purchaseDTO == null || limits == null) {
+			return null;
+		}
+		limits.decrease(purchaseDTO.getQuantity());
+		return limits;
+	}
+}
