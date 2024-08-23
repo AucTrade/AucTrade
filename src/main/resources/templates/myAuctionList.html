@@ -161,6 +161,24 @@
         <div class="container" style="height: 10px"></div>
         <div id="pagination"></div>
     </div>
+
+    <div class="container" style="height: 30px"></div>
+    <div class="container">
+        <div class="row text-center"><h2>My Auction Opening List</h2></div>
+    </div>
+    <div class="container px-4 pt-3" id="custom-cards2">
+        <div class="container" style="height: 10px"></div>
+        <div class="row justify-content-between">
+<!--            <div class="col-4" id="pageButton" style="height: 50px"></div>-->
+            <div class="col-2" style="height: 50px">
+                <button class="btn btn-primary" data-bs-target="#roomModal" data-bs-toggle="modal" type="button">경매 등록</button>
+                <button class="btn btn-primary" type="button" id="updateRoom22">↺</button>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-2" id="auctionList2"></div>
+        <div class="container" style="height: 10px"></div>
+        <div id="pagination2"></div>
+    </div>
 </div>
 <div id="footer"></div>
 </body>
@@ -173,6 +191,7 @@
 
     $(document).ready(function(){
         loadAuctions();
+        // loadOpeningAuctions();
 
         $(".date-picker").datepicker({
             startDt: new Date(),
@@ -213,6 +232,24 @@
             document.querySelector('#pagination').innerHTML = makePaginationHTML(page, result.maxPage);
         }).catch(error => {console.error('오류 발생:', error);});
     } //loadAuctions
+
+    // function loadOpeningAuctions(){
+    //     getAjaxRequest(`/api/auctions/my-auctions?page=${page}&size=${size}`)
+    //         .then(result => {
+    //             if(result == null) return;
+    //
+    //             if(result.maxPage == 0){
+    //                 document.querySelector('#auctionList2').innerHTML = "개설한 경매가 없습니다.";
+    //                 return;
+    //             }
+    //
+    //             if (result.maxPage < page) return;
+    //
+    //             document.querySelector('#pageButton2').innerHTML = makePageButtonHTML(page, result.maxPage);
+    //             document.querySelector('#auctionList2').innerHTML += makeAuctionListHTML(result.auctions);
+    //             document.querySelector('#pagination2').innerHTML = makePaginationHTML(page, result.maxPage);
+    //         }).catch(error => {console.error('오류 발생:', error);});
+    // }
 
     function makePageButtonHTML(pageNum, maxPage){
         return `<div class="col-4" style="height: 50px">
