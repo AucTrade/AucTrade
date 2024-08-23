@@ -37,6 +37,12 @@ public class AuctionController {
         return ResponseEntity.ok(auctionTotalService.getMyAuctionPage(page, size, userDetails.getUsername()));
     }
 
+    // 개설한 경매방 반환
+    @GetMapping("/my-opening-auctions")
+    public ResponseEntity<AuctionDTO.OpeningAuctionsList> getMyOpeningAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(auctionTotalService.getMyOpeningAuctionPage(page, size, userDetails.getUsername()));
+    }
+
     @PostMapping(value = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AuctionDTO.Result> createAuction(@RequestPart(value = "request") AuctionDTO.Create auctionDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         return ResponseEntity.ok(auctionTotalService.createAuction(auctionDTO, imgFiles, userDetails.getUsername()));

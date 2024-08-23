@@ -57,6 +57,10 @@ public class AuctionMapper {
         return new AuctionDTO.AfterStartList(auctions, lastPage);
     }
 
+    public static AuctionDTO.OpeningAuctionsList toOpeningAuctionPage(List<AuctionDTO.My> auctions, long lastPage) {
+        return new AuctionDTO.OpeningAuctionsList(auctions, lastPage);
+    }
+
     public static AuctionDTO.GetList toGetListDto(Auction auction) {
         return (auction == null) ? null : AuctionDTO.GetList.builder()
                 .id(auction.getId())

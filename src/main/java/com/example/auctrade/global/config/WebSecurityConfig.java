@@ -34,6 +34,7 @@ import static com.example.auctrade.global.constant.Constants.COOKIE_AUTH_HEADER;
 public class WebSecurityConfig {
 
     private final UserService userService;
+    private final UserDetailsService userDetailsService;
     private final JwtTokenService jwtTokenService;
     private final AuthenticationConfiguration authenticationConfiguration;
     // 필터단 예외
@@ -88,7 +89,7 @@ public class WebSecurityConfig {
         // 필터 체인에 필터 추가 및 순서 지정
         http.addFilterBefore(new JwtAuthorizationFilter(),
                 CustomLoginFilter.class);
-        http.addFilterBefore(new JwtAuthenticationFilter(userService, jwtTokenService), JwtAuthorizationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService, userService, userDetailsService), JwtAuthorizationFilter.class);
         http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         http.addFilterBefore(customLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 

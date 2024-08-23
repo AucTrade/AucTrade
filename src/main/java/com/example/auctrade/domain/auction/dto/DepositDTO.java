@@ -1,6 +1,6 @@
 package com.example.auctrade.domain.auction.dto;
 
-import com.example.auctrade.global.vaild.MessageValidationGroups;
+import com.example.auctrade.global.valid.MessageValidationGroups;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

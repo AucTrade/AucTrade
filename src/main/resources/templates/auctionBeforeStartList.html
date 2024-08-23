@@ -113,8 +113,12 @@
     } //loadAuctions
 
     function makeAuctionListHTML(data){
+        console.log("경매 리스트 데이터: " + data)
+
         var newHtml = '';
         data.forEach((element, index) => {
+            console.log("각 경매 제목: " + element.title)
+
             newHtml += `<div class="auction-item card m-2">
                 <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
                     <div class="row g-0">

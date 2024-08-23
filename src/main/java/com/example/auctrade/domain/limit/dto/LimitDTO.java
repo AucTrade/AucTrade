@@ -2,8 +2,8 @@ package com.example.auctrade.domain.limit.dto;
 
 import java.time.LocalDateTime;
 
-import com.example.auctrade.global.vaild.LimitValidationGroups;
-import com.example.auctrade.global.vaild.PurchaseValidationGroups;
+import com.example.auctrade.global.valid.LimitValidationGroups;
+import com.example.auctrade.global.valid.PurchaseValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.Min;

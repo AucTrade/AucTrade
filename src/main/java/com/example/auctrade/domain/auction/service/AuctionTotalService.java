@@ -13,6 +13,8 @@ public interface AuctionTotalService {
 
     AuctionDTO.AfterStartList getMyAuctionPage(int page, int size, String email);
 
+    AuctionDTO.OpeningAuctionsList getMyOpeningAuctionPage(int page, int size, String email);
+
     AuctionDTO.Enter enterAuction(Long id, String email);
 
     BidDTO.Result bidPrice(BidDTO.Create request);

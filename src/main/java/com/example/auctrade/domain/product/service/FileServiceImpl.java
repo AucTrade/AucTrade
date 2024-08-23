@@ -22,6 +22,7 @@ public class FileServiceImpl implements FileService{
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath;
 
+    @Override
     public Boolean uploadFile(MultipartFile[] uploadFiles, Long productId) throws IOException {
         if (uploadFiles == null) return false;
 
@@ -34,10 +35,12 @@ public class FileServiceImpl implements FileService{
         return true;
     }
 
+    @Override
     public List<String> getFiles(Long productId){
         return productFileRepository.findByProductId(productId).stream().map(ProductFile::getFilePath).toList();
     }
 
+    @Override
     public ProductFile getThumbnail(Long productId){
         return productFileRepository.findFirstByProductId(productId).orElse(null);
     }
