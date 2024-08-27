@@ -62,7 +62,7 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
     @Override
     public AuctionDTO.AfterStartList getMyAuctionPage(int page, int size, String email){
         List<AuctionDTO.GetList> auctions = auctionService.getMyAuctions(
-                depositService.getMyAuctions(toPageable(page,size,"startDate"), email));
+                depositService.getMyAuctions(toPageable(page, size,"startDate"), email));
 
         List<AuctionDTO.My> result = auctions.stream()
                 .map(data -> AuctionMapper.toMyDto(
@@ -70,7 +70,8 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
                         productService.get(data.getProductId()).getCategoryName(),
                         fileService.getThumbnail(data.getProductId()).getFilePath(),
                         depositService.getCurrentPersonnel(data.getId()),
-                        getBidInfo(data.getId()).getPrice())).toList();
+                        getBidInfo(data.getId()).getPrice()))
+                .toList();
 
         return AuctionMapper.toMyAuctionPage(result, depositService.getMyDepositSize(email));
     }

@@ -13,14 +13,13 @@ public class RedissonConfig {
 
     @Value("${spring.redisson.config.address}")
     private String address;
-    @Value("${spring.data.redis.password}")
+    @Value("${spring.redisson.config.password}")
     private String password;
 
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
         config.useSingleServer().setAddress(address);
-        config.useSingleServer().setPassword(password);
         return Redisson.create(config);
     }
 }
