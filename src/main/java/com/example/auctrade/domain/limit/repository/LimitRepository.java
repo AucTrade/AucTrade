@@ -11,4 +11,5 @@ public interface LimitRepository extends JpaRepository<Limits, Long> {
 	List<Limits> findByStatusTrue();
 	int findAmountById(long id);
 	int findLimitById(long id);
+	List<Limits> findAllBySaleUserId(Long saleUserId);
 }

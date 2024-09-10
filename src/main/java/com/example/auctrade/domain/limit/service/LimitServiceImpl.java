@@ -56,4 +56,12 @@ public class LimitServiceImpl implements LimitService {
 		Limits limit = limitRepository.findById(id).orElseThrow();
 		limit.end();
 	}
+	@Override
+	@Transactional(readOnly = true)
+	public List<LimitDTO.Get> findByUserId(Long userId) {
+		List<Limits> limits = limitRepository.findAllBySaleUserId(userId);
+		return limits.stream()
+			.map(LimitMapper::toDto)
+			.toList();
+	}
 }
