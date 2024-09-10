@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,7 +47,7 @@ public class Limits {
 	private String introduce;	//한정 판매 상세 설명
 
 	@Column(name = "price", nullable = false)
-	private int price;	//상품 가격
+	private Long price;	//상품 가격
 
 	@Setter
 	@Column(name = "amount", nullable = false)

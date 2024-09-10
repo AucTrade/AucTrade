@@ -9,4 +9,5 @@ public interface LimitService {
 	List<LimitDTO.Get> findAll();
 	LimitDTO.Get findById(Long id);
 	void endLimit(Long id);
+	List<LimitDTO.Get> findByUserId(Long userId);
 }

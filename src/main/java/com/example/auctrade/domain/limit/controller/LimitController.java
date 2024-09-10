@@ -38,4 +38,9 @@ public class LimitController {
 		LimitDTO.Get limitDTO = limitService.findById(limitId);
 		return ResponseEntity.ok(limitDTO);
 	}
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<List<LimitDTO.Get>> getUserLimits(@PathVariable Long userId) {
+		List<LimitDTO.Get> userLimits = limitService.findByUserId(userId);
+		return ResponseEntity.ok(userLimits);
+	}
 }

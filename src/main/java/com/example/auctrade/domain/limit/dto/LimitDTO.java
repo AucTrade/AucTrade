@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import com.example.auctrade.global.valid.LimitValidationGroups;
 import com.example.auctrade.global.valid.PurchaseValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ public class LimitDTO {
 		private String introduce;
 
 		@Min(value = 0, message = "가격은 최소 0원 이상입니다.", groups = LimitValidationGroups.PriceMinGroup.class)
-		private int price;
+		private Long price;
 
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
 		private LocalDateTime saleDate;
@@ -51,7 +50,7 @@ public class LimitDTO {
 	public static class Get {
 		private String title;
 		private String introduce;
-		private int price;
+		private Long price;
 		private LocalDateTime saleDate;
 		private int limit;
 		private String productName;
