@@ -85,8 +85,7 @@ public class AuctionServiceImpl implements AuctionService {
      */
     @Override
     public int getLastPageNum(String email, int size) {
-
-        int totalCount = (int) auctionRepository.count();
+        int totalCount = (int) auctionRepository.countBySaleUsername(email);
         return  totalCount/size + ((totalCount%size == 0) ? 0 : 1);
     }
 
@@ -96,7 +95,7 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     /**
-     * 경매 리스트 전체 조회
+     * 경매 리스트 예치금을 넣을 수 있는 경매 리스트 조회
      * @return 아직 실행 되지 않은 모든 경매 정보
      */
     // 즉 여기서 아직 시작되지 않은 경매를 반환시키는 중
@@ -105,8 +104,6 @@ public class AuctionServiceImpl implements AuctionService {
         List<Auction> auctions = auctionRepository.findByStartedFalse(pageable).stream().toList();
         List<Auction> unStartedAuctions = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-
-        log.info("아직 시작하지 않은 경매들: {}", auctions.stream().map(Auction::getTitle).toList());
 
         for (Auction auction : auctions) {
             log.info("조회되는 경매 제목: {}", auction.getTitle());

@@ -49,6 +49,7 @@ public class LimitDTO {
 	@Getter
 	@Builder
 	public static class Get {
+		private Long id;
 		private String title;
 		private String introduce;
 		private int price;

@@ -26,11 +26,9 @@ public class DepositServiceImpl implements DepositService {
 
     private boolean createDeposit(String key, String email, String startAt, DepositDTO.Create dto) {
         RScoredSortedSet<String> depositSet = redissonClient.getScoredSortedSet(key);
-        Boolean result = depositSet.add(dto.getDeposit(), email);
+        boolean result = depositSet.add(dto.getDeposit(), email);
 
-        if (result == null) {
-            return false;
-        } else if (result) {
+        if (result) {
             // 신규 등록
             depositLogRepository.save(new DepositLog(dto, startAt, email));
         } else {
@@ -47,11 +45,9 @@ public class DepositServiceImpl implements DepositService {
 
     private boolean updateDeposit(String key, String email, String startAt, DepositDTO.Create dto, int maxPersonnel) {
         RScoredSortedSet<String> depositSet = redissonClient.getScoredSortedSet(key);
-        Boolean result = depositSet.add(dto.getDeposit(), email);
+        boolean result = depositSet.add(dto.getDeposit(), email);
 
-        if (result == null) {
-            return false;
-        } else if (result) {
+        if (result) {
             // 최대 인원 초과 시, 가장 낮은 예치금 제거
             depositSet.removeRangeByRank(maxPersonnel - 1, depositSet.size());
             depositLogRepository.save(new DepositLog(dto, startAt, email));

@@ -18,57 +18,49 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auctions")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
 public class AuctionController {
 
     private final AuctionTotalService auctionTotalService;
 
-//    @GetMapping("")
-//    public ResponseEntity<List<AuctionDTO.GetList>> getAuctions(
-//            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
-//        return ResponseEntity.ok(auctionTotalService.getBeforeStartAuctions(page, size));
-//    }
+    @GetMapping("/my/auctions")
+    public ResponseEntity<AuctionDTO.GetPage> getAllMyAuction(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(defaultValue = "all") String status,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-
-    @GetMapping("/my-auctions")
-    public ResponseEntity<AuctionDTO.AfterStartList> getMyAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionTotalService.getMyAuctionPage(page, size, userDetails.getUsername()));
+        return ResponseEntity.ok(auctionTotalService.getMyAuctionPage(page, size, status, userDetails.getUsername()));
     }
 
-    // 개설한 경매방 반환
-    @GetMapping("/my-opening-auctions")
-    public ResponseEntity<AuctionDTO.OpeningAuctionsList> getMyOpeningAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionTotalService.getMyOpeningAuctionPage(page, size, userDetails.getUsername()));
-    }
-
-    @PostMapping(value = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/auctions", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AuctionDTO.Result> createAuction(@RequestPart(value = "request") AuctionDTO.Create auctionDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         return ResponseEntity.ok(auctionTotalService.createAuction(auctionDTO, imgFiles, userDetails.getUsername()));
     }
 
-    @GetMapping("/enter/{auctionId}")
+    @GetMapping("/auctions/enter/{auctionId}")
     public ResponseEntity<AuctionDTO.Enter> getAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionTotalService.enterAuction(auctionId, userDetails.getUsername()));
     }
 
-    @PostMapping("/deposits")
+    @PostMapping("/auctions/deposits")
     public ResponseEntity<DepositDTO.Result> depositAuction(@RequestBody DepositDTO.Create requestDto, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionTotalService.depositPrice(requestDto, userDetails.getUsername()));
     }
-    @GetMapping("/deposits")
-    public ResponseEntity<List<AuctionDTO.BeforeStart>> getDepositAuctions(@RequestParam(defaultValue = "1") int page,
-                                                                           @RequestParam(defaultValue = "9") int size) {
+
+    @GetMapping("/auctions/deposits")
+    public ResponseEntity<List<AuctionDTO.BeforeStart>> getDepositAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
         return ResponseEntity.ok(auctionTotalService.getBeforeStartPage(page, size));
     }
 
-    @GetMapping("/bids/{auctionId}")
+    @GetMapping("/auctions/bids/{auctionId}")
     public ResponseEntity<BidDTO.Get> getAuction(@PathVariable Long auctionId) {
         return ResponseEntity.ok(auctionTotalService.getBidInfo(auctionId));
     }
 
-    @PostMapping("/bids")
+    @PostMapping("/auctions/bids")
     public ResponseEntity<BidDTO.Result> bidAuction(@RequestBody BidDTO.Create auctionDTO) {
         return ResponseEntity.ok(auctionTotalService.bidPrice(auctionDTO));
     }

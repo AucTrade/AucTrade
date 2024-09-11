@@ -32,4 +32,6 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     LocalDateTime findStartAtById(@Param("id") Long id);
 
     long count();
+
+    long countBySaleUsername(String saleUsername);
 }

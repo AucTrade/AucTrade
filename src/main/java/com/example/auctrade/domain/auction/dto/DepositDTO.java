@@ -9,6 +9,7 @@ import lombok.Getter;
 
 public class DepositDTO {
     private DepositDTO(){}
+
     @Getter
     @Builder
     public static class Create{
@@ -22,15 +23,16 @@ public class DepositDTO {
     @Getter
     @AllArgsConstructor
     public static class Get{
-        private String id;
+        private final String id;
     }
 
     @Getter
     @AllArgsConstructor
     public static class List{
-        private Long deposit;
-        private Integer currentPersonnel;
+        private final Long deposit;
+        private final Integer currentPersonnel;
     }
+
     @Getter
     @AllArgsConstructor
     public static class Result{

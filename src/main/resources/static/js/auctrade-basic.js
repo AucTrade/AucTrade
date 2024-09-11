@@ -1,9 +1,13 @@
 
     var username;
     $(document).ready(function () {
-        $("#header").load("/header #header", function() {getUsernameFromCookie('Authorization');});
+        $("#header").load("/header #header", function() {makeHeaderTab();});
         $("#footer").load("/footer #footer");
     });
+
+     function makeHeaderTab(cookieName) {
+            document.querySelector('#mytab-username').innerHTML = getUsernameFromCookie('Authorization');
+     }
 
     function getUsernameFromCookie(cookieName) {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith(cookieName + '='));
@@ -17,8 +21,7 @@
         const base64Url = tokenVal.replace('Bearer ', '').split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`).join(''));
-        username = JSON.parse(jsonPayload).sub
-        document.querySelector('#mytab-username').innerHTML = username;
+        return JSON.parse(jsonPayload).sub
     }
 
     function getAjaxRequest(requestUrl) {

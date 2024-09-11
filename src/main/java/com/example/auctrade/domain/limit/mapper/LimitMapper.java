@@ -9,6 +9,7 @@ public class LimitMapper {
 	// Entity -> DTO (Create)
 	public static LimitDTO.Get toDto(Limits limits) {
 		return (limits == null) ? null : LimitDTO.Get.builder()
+			.id(limits.getId())
 			.title(limits.getTitle())
 			.introduce(limits.getIntroduce())
 			.price(limits.getPrice())

@@ -62,12 +62,6 @@ public class AuctionDTO {
         private String productName;
         private String productDetail;
         private String productCategory;
-
-        public void updateProduct(ProductDTO.Get product){
-            this.productName = product.getName();
-            this.productDetail = product.getDetail();
-            this.productCategory = product.getCategoryName();
-        }
     }
 
     @Getter
@@ -87,23 +81,6 @@ public class AuctionDTO {
 
     @Getter
     @Builder
-    public static class My {
-        private Long id;
-        private String title;
-        private String introduce;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime startDate;
-        private String finishDate;
-        private Integer maxPersonnel;
-        private Integer curPersonnel;
-        private Long productId;
-        private Long price;
-        private String productCategory;
-        private String thumbnail;
-    }
-
-    @Getter
-    @Builder
     public static class GetList {
         private Long id;
         private String title;
@@ -112,22 +89,30 @@ public class AuctionDTO {
         private LocalDateTime startDate;
         private String finishDate;
         private Integer maxPersonnel;
-        private Integer minimumPrice;
+        private Integer curPersonnel;
+        private Long minimumPrice;
         private Long productId;
         private Long price;
+        private String productCategory;
+        private String thumbnail;
+        private Boolean isStarted;
+
+        public void updateProductInfo(String productCategory, String thumbnail){
+            this.productCategory = productCategory;
+            this.thumbnail = thumbnail;
+        }
+        public void updateMinimumPrice(Long minimumPrice){
+            this.minimumPrice = minimumPrice;
+        }
+        public void updateCurPersonnel(Integer curPersonnel){
+            this.curPersonnel = curPersonnel;
+        }
     }
 
     @Getter
     @AllArgsConstructor
-    public static class AfterStartList {
-        private final List<My> auctions;
-        private final Long maxPage;
-    }
-
-    @Getter
-    @AllArgsConstructor // 레코드 사용 가능
-    public static class OpeningAuctionsList {
-        private final List<My> auctions;
+    public static class GetPage {
+        private final List<GetList> auctions;
         private final Long maxPage;
     }
 
@@ -136,6 +121,7 @@ public class AuctionDTO {
     public static class Result{
         private Boolean isSuccess;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -149,7 +135,7 @@ public class AuctionDTO {
         private Integer currentPersonnel;
         private String thumbnail;
         private Integer maxPersonnel;
-        private Integer minimumPrice;
+        private Long minimumPrice;
         private Long price;
         private String productCategory;
     }

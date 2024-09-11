@@ -1,6 +1,5 @@
 package com.example.auctrade.domain.auction.dto;
 
-import com.example.auctrade.domain.auction.document.BidLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,13 +17,9 @@ public class BidDTO {
     @Getter
     @Builder
     public static class Get{
-        private Long auctionId;
-        private String username;
-        private Long price;
-
-        public void updatePrice(long price){
-            this.price = price;
-        }
+        private final Long auctionId;
+        private final String username;
+        private final Long price;
     }
 
     @Getter
