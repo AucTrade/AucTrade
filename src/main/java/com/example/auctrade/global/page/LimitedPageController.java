@@ -6,11 +6,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(value = "/limited")
+@RequestMapping(value = "/limits")
 public class LimitedPageController {
     @GetMapping("")
     public String productList() {
         return "limitedSaleList";
+    }
+
+    @GetMapping("/details")
+    public String limitedDetail(){
+        return "limitedDetail";
     }
 
 }

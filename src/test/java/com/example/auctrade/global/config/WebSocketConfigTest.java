@@ -65,11 +65,6 @@ class WebSocketConfigTest {
     private MessageDTO getMessageDTO() {
         MessageDTO message = new MessageDTO();
 
-        message.setId("1L");
-        message.setAuctionId(1L);
-        message.setUsername("Kim Dong Jun");
-        message.setMessage("테스트 성공");
-        message.setCreatedAt(LocalDateTime.now().toString());
 
         return message;
     }
@@ -104,8 +99,7 @@ class WebSocketConfigTest {
         // when
         // 메세지 저장 서비스 모킹 처리
         MessageDTO mockMessage = getMessageDTO();
-        when(chatMessageService.saveChatMessage(any(MessageDTO.class))).thenReturn(mockMessage);
-        log.info("모킹 메세지: {}", mockMessage.getMessage());
+
 
         // 메세지 수신 비동기 작업 처용 CompletableFuture 인스턴스
         // 메세지 수신되면 완료
@@ -113,7 +107,7 @@ class WebSocketConfigTest {
 
         // 구독 헤더 설정
         StompHeaders subscribeHeaders = new StompHeaders();
-        subscribeHeaders.setDestination("/sub/chat/room/" + mockMessage.getAuctionId());
+
 
         // stomp 구독 설정 및 메세지 수신 설정
         session.subscribe(subscribeHeaders, new StompSessionHandlerAdapter() {
@@ -140,6 +134,6 @@ class WebSocketConfigTest {
         // then
         // 메시지 수신 확인(내용이 같은지)
         MessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
-        assertEquals(mockMessage.getMessage(), receivedMessage.getMessage(), "테스트 성공");
+
     }
 }

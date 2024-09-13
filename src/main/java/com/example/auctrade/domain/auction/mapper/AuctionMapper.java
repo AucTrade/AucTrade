@@ -53,12 +53,8 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.AfterStartList toMyAuctionPage(List<AuctionDTO.My> auctions, long lastPage) {
-        return new AuctionDTO.AfterStartList(auctions, lastPage);
-    }
-
-    public static AuctionDTO.OpeningAuctionsList toOpeningAuctionPage(List<AuctionDTO.My> auctions, long lastPage) {
-        return new AuctionDTO.OpeningAuctionsList(auctions, lastPage);
+    public static AuctionDTO.GetPage toMyAuctionPage(List<AuctionDTO.GetList> auctions, long lastPage) {
+        return new AuctionDTO.GetPage(auctions, lastPage);
     }
 
     public static AuctionDTO.GetList toGetListDto(Auction auction) {
@@ -70,21 +66,8 @@ public class AuctionMapper {
                 .maxPersonnel(auction.getPersonnel())
                 .productId(auction.getProductId())
                 .price((long) auction.getMinimumPrice())
-                .minimumPrice(auction.getMinimumPrice())
-                .build();
-    }
-    public static AuctionDTO.My toMyDto(AuctionDTO.GetList auctions, String categoryName, String fileUrl, int curPersonnel, long minDeposit) {
-        return (auctions == null) ? null : AuctionDTO.My.builder()
-                .id(auctions.getId())
-                .title(auctions.getTitle())
-                .introduce(auctions.getIntroduce())
-                .startDate(auctions.getStartDate())
-                .productCategory(categoryName)
-                .thumbnail(fileUrl)
-                .curPersonnel(curPersonnel)
-                .maxPersonnel(auctions.getMaxPersonnel())
-                .productId(auctions.getProductId())
-                .price(minDeposit)
+                .isStarted(auction.isStarted())
+                .minimumPrice((long) auction.getMinimumPrice())
                 .build();
     }
 
@@ -99,7 +82,7 @@ public class AuctionMapper {
                 .thumbnail(thumbnail)
                 .maxPersonnel(auction.getMaxPersonnel())
                 .price((long) auction.getMinimumPrice())
-                .minimumPrice(auction.getMinimumPrice())
+                .minimumPrice((long) auction.getMinimumPrice())
                 .productCategory(categoryName)
                 .build();
     }

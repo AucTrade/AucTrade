@@ -96,7 +96,6 @@ public class Auction {
             this.start();
             return true;
         }
-
         return false;
     }
 

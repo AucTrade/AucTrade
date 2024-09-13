@@ -11,9 +11,7 @@ import java.util.List;
 public interface AuctionTotalService {
     AuctionDTO.Result createAuction(AuctionDTO.Create request, MultipartFile[] files, String email) throws IOException;
 
-    AuctionDTO.AfterStartList getMyAuctionPage(int page, int size, String email);
-
-    AuctionDTO.OpeningAuctionsList getMyOpeningAuctionPage(int page, int size, String email);
+    AuctionDTO.GetPage getMyAuctionPage(int page, int size, String status, String email);
 
     AuctionDTO.Enter enterAuction(Long id, String email);
 

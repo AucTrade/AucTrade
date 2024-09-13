@@ -26,6 +26,10 @@ public class MainPageController {
     public String myPage() {
         return "myPage";
     }
+    @GetMapping("/myProduct")
+    public String myProduct() {
+        return "myProduct";
+    }
 
     @GetMapping("/error")
     public String error() {

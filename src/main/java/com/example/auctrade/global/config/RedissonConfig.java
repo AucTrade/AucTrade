@@ -14,7 +14,7 @@ public class RedissonConfig {
 
     @Value("${spring.redisson.config.address}")
     private String address;
-    @Value("${spring.data.redis.password}")
+    @Value("${spring.redisson.config.password}")
     private String password;
 
     @Bean
@@ -22,7 +22,6 @@ public class RedissonConfig {
         Config config = new Config();
         config.setCodec(new StringCodec());
         config.useSingleServer().setAddress(address);
-        config.useSingleServer().setPassword(password);
         return Redisson.create(config);
     }
 }

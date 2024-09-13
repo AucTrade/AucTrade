@@ -1,19 +1,19 @@
 package com.example.auctrade.domain.limit.controller;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.limit.service.LimitService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/limits")
@@ -27,8 +27,8 @@ public class LimitController {
 		return ResponseEntity.ok(limitDTOS);
 	}
 
-	@PostMapping
-	public ResponseEntity<LimitDTO.Get> createLimit(@RequestBody LimitDTO.Create limitDTO){
+	@PostMapping(value = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	public ResponseEntity<LimitDTO.Get> createLimit(@RequestPart(value = "request") LimitDTO.Create limitDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails){
 		LimitDTO.Get saveLimit = limitService.save(limitDTO);
 		return ResponseEntity.ok(saveLimit);
 	}
