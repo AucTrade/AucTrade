@@ -4,6 +4,8 @@ import com.example.auctrade.domain.limit.entity.Limits;
 import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.user.entity.User;
 
+import java.time.format.DateTimeFormatter;
+
 public class LimitMapper {
 
 	// Entity -> DTO (Create)
@@ -37,12 +39,4 @@ public class LimitMapper {
 			.build();
 	}
 
-	// DTO -> Entity (Purchase)
-	public static Limits toPurchaseEntity(LimitDTO.Purchase purchaseDTO, Limits limits) {
-		if (purchaseDTO == null || limits == null) {
-			return null;
-		}
-		limits.decrease(purchaseDTO.getQuantity());
-		return limits;
-	}
 }

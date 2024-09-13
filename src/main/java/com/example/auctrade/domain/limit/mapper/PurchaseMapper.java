@@ -14,7 +14,7 @@ public class PurchaseMapper {
 		}
 
 		return Purchase.builder()
-			.price((long) limits.getPrice())
+			.price(limits.getPrice())
 			.isFinished(false) // 초기값: 결제가 완료되지 않은 상태
 			.quantity(purchaseDTO.getQuantity())
 			.limit(limits)
@@ -30,7 +30,7 @@ public class PurchaseMapper {
 
 		return PurchaseDTO.Get.builder()
 			.id(purchase.getId())
-			.price((long) limits.getPrice())
+			.price(limits.getPrice())
 			.date(purchase.getDate()) // 결제가 완료되면 서버에서 자동으로 설정된 date 반환
 			.quantity(purchase.getQuantity())
 			.isFinished(purchase.getIsFinished())
