@@ -2,9 +2,14 @@ package com.example.auctrade.domain.limit.service;
 
 import java.util.List;
 
+import com.example.auctrade.domain.user.repository.UserRepository;
 import org.redisson.api.RBucket;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 	private final RedissonClient redissonClient;
 	private final LimitRepository limitRepository;
 	private final PurchaseRepository purchaseRepository;
+	private final UserRepository userRepository;
 
 	@Override
 	@Transactional
@@ -123,13 +129,30 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}
 	@Override
 	@Transactional(readOnly = true)
-	public List<PurchaseDTO.Get> findPurchasesByUserId(Long userId) {
+	public List<PurchaseDTO.Get> findPurchasesByUserId(String email) {
 		// 구매 내역을 PurchaseRepository를 통해 조회
-		List<Purchase> purchases = purchaseRepository.findByBuyerId(userId);
+		List<Purchase> purchases = purchaseRepository.findByBuyerId(userRepository.findByEmail(email).orElseThrow().getId());
 
 		// Purchase 엔티티 리스트를 PurchaseDTO.Get로 변환하여 반환
 		return purchases.stream()
 			.map(purchase -> PurchaseMapper.toDto(purchase, purchase.getLimit()))
 			.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PurchaseDTO.GetPage findPurchasePages(String email, int page, int size) {
+
+		Page<Purchase> purchases = purchaseRepository.findByBuyerId(userRepository.findByEmail(email).orElseThrow().getId(),
+				toPageable(page, size, "date"));
+
+		List<PurchaseDTO.Get> dtos = purchases.get().map(purchase -> PurchaseMapper.toDto(purchase, purchase.getLimit()))
+				.toList();
+
+		return PurchaseMapper.toDtoPage(dtos, purchases.getTotalPages());
+	}
+
+	private Pageable toPageable(int page, int size, String target){
+		return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
 	}
 }

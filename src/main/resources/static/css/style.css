@@ -110,7 +110,7 @@ a.room-card:hover { color: black; text-decoration: none; border : 1px solid blac
 
 a.profile-card:link { color: black; text-decoration: none;}
 a.profile-card:visited { color: black; text-decoration: none;}
-a.profile-card:hover { color: black; text-decoration: none; opacity: .5; background-color: black;}
+a.profile-card:hover { color: black; text-decoration: none; opacity: .5;}
 
 
 /* [0] */

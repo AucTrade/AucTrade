@@ -15,14 +15,14 @@
 <div class="container">
     <div class="container" style="height: 30px"></div>
     <div class="container">
-        <div class="row text-center"><h2>종료된 경매방</h2></div>
+        <div class="row text-center"><h2>구매 목록</h2></div>
     </div>
     <div class="container px-4 pt-3" id="custom-cards">
         <div class="container" style="height: 10px"></div>
         <div class="row justify-content-between">
-            <div class="col-4" id="pageButton" style="height: 50px"></div>
+            <div class="col-4 ps-4" id="pageButton" style="height: 50px"></div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 g-2" id="auctionList"></div>
+        <div class="row row-cols-1 row-cols-md-2 g-2" id="purchaseList"></div>
         <div class="container" style="height: 10px"></div>
         <div id="pagination"></div>
     </div>
@@ -36,45 +36,46 @@
     const size = Number((params["size"] == null) ? 4 : params["size"]);
 
     $(document).ready(function(){
-        loadAuctions();
+        loadPurchases();
     });
 
-    function loadAuctions(){
-        getAjaxRequest(`/api/my/auctions?page=${page}&size=${size}&status=closed`)
+    function loadPurchases(){
+        getAjaxRequest(`/api/purchases/my?page=${page}&size=${size}`)
         .then(result => {
             if(result == null) return;
 
             if(result.maxPage == 0){
-            document.querySelector('#auctionList').innerHTML = "예치금을 넣은 경매가 없습니다.";
+            document.querySelector('#purchaseList').innerHTML = "구매한 상품이 없습니다.";
             return;
             }
-
+            alert(result.maxPage);
             if (result.maxPage < page) return;
 
             document.querySelector('#pageButton').innerHTML = makePageButtonHTML(page, result.maxPage);
-            document.querySelector('#auctionList').innerHTML += makeAuctionListHTML(result.auctions);
+            document.querySelector('#limitedList').innerHTML += makePurchaseListHTML(result.auctions);
             document.querySelector('#pagination').innerHTML = makePaginationHTML(page, result.maxPage);
         }).catch(error => {console.error('오류 발생:', error);});
-    } //loadAuctions
+    }
 
     function makePageButtonHTML(pageNum, maxPage){
         return `<div class="col-4" style="height: 50px">
-                    <button class="btn btn-outline-primary" onclick="window.location.href='/users/auctions/end-list?page=${page-1}&size=${size}&status=closed';"
+                    <button class="btn btn-outline-primary" onclick="window.location.href='/api/purchases/my?page=${page-1}&size=${size}';"
                         ${(pageNum == 1) ? "disabled" : ""}> < </button>
-                    <button class="btn btn-outline-primary" onclick="window.location.href='/users/auctions/end-list?page=${page+1}&size=${size}&status=closed';"
+                    <button class="btn btn-outline-primary" onclick="window.location.href='/api/purchases/my?page=${page+1}&size=${size}';"
                         ${(pageNum == maxPage) ? "disabled" : ""}> > </button>
                 </div>`;
     }
 
-    function makeAuctionListHTML(data){
+    function makePurchaseListHTML(data){
         var newHtml = '';
+        var nowDate = new Date();
         data.forEach((element, index) => {
-             newHtml += makeAuctionCard(element, index);
+             newHtml += makePurchaseCard(element, index, (new Date(element.startDate) - nowDate));
         });
         return newHtml;
     }
 
-    function makeAuctionCard(element, index){
+    function makePurchaseCard(element, index){
         return `<div class="col-6">
                 <div class="card m-2">
                     <div class="row g-0">
@@ -82,20 +83,27 @@
                             <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
                         </div>
                         <div class="col-md-9">
-                            <div class="card-body px-3" style="background-color:#E3E0E0; height: 120px;">
-                                <div class="row fs-4 bold ps-2" style="height: 30px; ">
-                                ${element.title}</div>
+                            <div class="card-body px-3" style="background-color: #E3E0E0; height: 120px;">
+                                <div class="row" style="height: 30px; ">
+                                    <div class="col-8 fs-5 bold ps-2 text-truncate">${element.title}</div>
+                                    <div class="col-4">
+                                        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                            <button type="button" class="btn btn-outline-primary btn-sm me-1"><i class="bi bi-box-arrow-in-right"></i></button>
+                                            <button type="button" class="btn btn-outline-success btn-sm me-1"><i class="bi bi-caret-right-fill"></i></button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm me-1"><i class="bi bi-x-lg"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
                                 <div class="row" style="height: 30px;">
                                     <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
                                     <div class="col-6">
                                     <div class="row text-primary">
-                                    <b>인원 : ${element.curPersonnel} / ${element.maxPersonnel}</b></div>
+                                    <b>수량 : ${element.quantity} </b></div>
                                     </div>
                                 </div>
                                 <div class="row" style="height: 30px;">
-                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
-                                     <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                                    <button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.date}</button></div>
                                 </div>
                             </div>
                         </div>
@@ -108,16 +116,16 @@
         var newHtml = `<nav aria-label="...">
                         <ul class="pagination justify-content-center">
                             <li class="page-item ${(page == 1) ? "disabled" : ""}">
-                                <a class="page-link" href="/users/auctions/end-list?page=${page-1}&size=${size}&status=closed" tabindex="-1">Previous</a>
+                                <a class="page-link" href="/api/purchases/my?page?page=${page-1}&size=${size}" tabindex="-1">Previous</a>
                             </li>`;
 
         for (i = 1; i <= maxPage; i++) {
             newHtml += `<li class="page-item ${(page == i) ? 'active' : ''}">
-            <a class="page-link" href="/users/auctions/end-list?page=${i}&size=${size}&status=closed">${i}</a></li>`;
+            <a class="page-link" href="/api/purchases/my?page=${i}&size=${size}">${i}</a></li>`;
         }
 
         newHtml += `<li class="page-item ${(page == maxPage) ? "disabled" : ""}">
-                        <a class="page-link" href="/users/auctions/end-list?page=${page+1}&size=${size}&status=closed">Next</a>
+                        <a class="page-link" href="/api/purchases/my?page=${page+1}&size=${size}">Next</a>
                     </li></ul></nav>`;
         return newHtml;
     }

@@ -41,4 +41,9 @@ public class MyPageController {
     public String myLimitedList() {
         return "createLimitedList";
     }
+
+    @GetMapping(value = "/purchases/my-list")
+    public String myPurchaseList() {
+        return "buyPurchaseList";
+    }
 }

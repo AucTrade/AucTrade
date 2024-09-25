@@ -1,6 +1,7 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -17,7 +18,10 @@ public interface AuctionService {
 
     List<AuctionDTO.GetList> getMyAuctions(List<Long> ids);
 
-    List<AuctionDTO.GetList> getMyOpeningAuctions(Pageable pageable, String email);
+    AuctionDTO.GetPage getMyOpeningAuctions(Pageable pageable, String email);
+
+    AuctionDTO.GetPage getMyEndedAuctions(Pageable pageable, String email);
+
 
     List<AuctionDTO.GetList> getDepositList(Pageable pageable);
 

@@ -27,7 +27,7 @@ public interface AuctionTotalService {
 
     void processBids(long id);
 
-    void startAuction(Long id);
+    AuctionDTO.Result startAuction(Long id, String email);
 
-    void endAuction(Long id);
+    AuctionDTO.Result endAuction(Long id, String email);
 }

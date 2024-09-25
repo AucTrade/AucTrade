@@ -64,6 +64,16 @@ public class AuctionController {
     public ResponseEntity<BidDTO.Result> bidAuction(@RequestBody BidDTO.Create auctionDTO) {
         return ResponseEntity.ok(auctionTotalService.bidPrice(auctionDTO));
     }
+    @PostMapping(value = "/auctions/{auctionId}/start")
+    public ResponseEntity<AuctionDTO.Result> startAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails){
+
+        return ResponseEntity.ok(auctionTotalService.startAuction(auctionId, userDetails.getUsername()));
+    }
+
+    @PostMapping(value = "/auctions/{auctionId}/end")
+    public ResponseEntity<AuctionDTO.Result> endAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails){
+        return ResponseEntity.ok(auctionTotalService.endAuction(auctionId, userDetails.getUsername()));
+    }
 
     @Scheduled(fixedRate = 1000)
     public void processAllBids() {

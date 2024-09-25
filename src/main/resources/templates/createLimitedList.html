@@ -182,7 +182,7 @@
     });
 
     function loadLimits(){
-        getAjaxRequest(`/api/my/limits?page=${page}&size=${size}`)
+        getAjaxRequest(`/api/limits?page=${page}&size=${size}`)
         .then(result => {
             if(result == null) return;
 

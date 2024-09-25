@@ -1,6 +1,7 @@
 package com.example.auctrade.domain.limit.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ public class PurchaseDTO {
 	@AllArgsConstructor
 	public static class Create {
 		private int quantity;
-		private Long userId;
+		private Long limitId;
 	}
 
 	@Getter
@@ -26,5 +27,13 @@ public class PurchaseDTO {
 		private Boolean isFinished;
 		private String buyerEmail;
 		private String limitTitle;
+	}
+
+	@Getter
+	@Builder
+	@AllArgsConstructor
+	public static class GetPage {
+		private final List<PurchaseDTO.Get> purchases;
+		private final Long maxPage;
 	}
 }

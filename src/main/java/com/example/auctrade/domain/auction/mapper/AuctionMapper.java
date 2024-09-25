@@ -53,7 +53,7 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.GetPage toMyAuctionPage(List<AuctionDTO.GetList> auctions, long lastPage) {
+    public static AuctionDTO.GetPage toMyAuctionPage(List<AuctionDTO.GetList> auctions, int lastPage) {
         return new AuctionDTO.GetPage(auctions, lastPage);
     }
 
@@ -67,6 +67,7 @@ public class AuctionMapper {
                 .productId(auction.getProductId())
                 .price((long) auction.getMinimumPrice())
                 .isStarted(auction.isStarted())
+                .isEnded(auction.isEnded())
                 .minimumPrice((long) auction.getMinimumPrice())
                 .build();
     }
