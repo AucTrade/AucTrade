@@ -1,7 +1,9 @@
 package com.example.auctrade.domain.limit.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.global.valid.LimitValidationGroups;
 import com.example.auctrade.global.valid.PurchaseValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -69,5 +71,12 @@ public class LimitDTO {
 
 		@Min(value = 1, message = "구매 수량은 최소 1개 이상이어야 합니다.", groups = PurchaseValidationGroups.QuantityMinGroup.class)
 		private int quantity;
+	}
+
+	@Getter
+	@AllArgsConstructor
+	public static class GetPage {
+		private final List<LimitDTO.Get> limits;
+		private final Long maxPage;
 	}
 }

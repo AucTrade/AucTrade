@@ -18,4 +18,6 @@ public class LimitedPageController {
         return "limitedDetail";
     }
 
+
+
 }

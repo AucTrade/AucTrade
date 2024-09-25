@@ -2,6 +2,12 @@ package com.example.auctrade.domain.limit.service;
 
 import java.util.List;
 
+import com.example.auctrade.domain.auction.dto.AuctionDTO;
+import com.example.auctrade.domain.auction.mapper.AuctionMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,5 +69,21 @@ public class LimitServiceImpl implements LimitService {
 		return limits.stream()
 			.map(LimitMapper::toDto)
 			.toList();
+	}
+
+	@Override
+	public LimitDTO.GetPage getMyLimitedPage(int page, int size, String status, String email){
+		if(status.equals("all")) return getAllMyLimits(page, size, email);
+
+		return getAllMyLimits(page, size, email);
+
+	}
+
+	private LimitDTO.GetPage getAllMyLimits(int page, int size, String email){
+		Page<Limits> limits = limitRepository.findBySaleUserId(userRepository.findByEmail(email).get().getId(),toPageable(page, size,"saleDate"));
+		return new LimitDTO.GetPage(limits.getContent().stream().map(LimitMapper::toDto).toList(), (long) limits.getTotalPages());
+	}
+	private Pageable toPageable(int page, int size, String target){
+		return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
 	}
 }

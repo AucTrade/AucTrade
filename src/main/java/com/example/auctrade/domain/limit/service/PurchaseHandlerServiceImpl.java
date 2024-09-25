@@ -26,10 +26,10 @@ public class PurchaseHandlerServiceImpl implements PurchaseHandlerService {
 	private final PurchaseRepository purchaseRepository;
 
 	@Override
-	public LimitDTO.Get purchase(long limitId, PurchaseDTO.Create purchaseDTO) {
+	public LimitDTO.Get purchase(long limitId, PurchaseDTO.Create purchaseDTO, String email) {
 		// Limits와 User를 데이터베이스에서 조회
 		Limits limit = limitRepository.findById(limitId).orElseThrow();
-		User user = userRepository.findById(purchaseDTO.getUserId()).orElseThrow();
+		User user = userRepository.findByEmail(email).orElseThrow();
 
 		// 사용자 구매 대기열에 추가
 		queueService.addToQueue(user.getId());

@@ -5,6 +5,8 @@ import com.example.auctrade.domain.limit.entity.Limits;
 import com.example.auctrade.domain.limit.entity.Purchase;
 import com.example.auctrade.domain.user.entity.User;
 
+import java.util.List;
+
 public class PurchaseMapper {
 
 	// DTO -> Entity (Create)
@@ -38,4 +40,14 @@ public class PurchaseMapper {
 			.limitTitle(purchase.getLimit().getTitle())
 			.build();
 	}
+
+	// Entity -> DTO (Get)
+	public static PurchaseDTO.GetPage toDtoPage(List<PurchaseDTO.Get> purchases, long maxPage) {
+
+		return PurchaseDTO.GetPage.builder()
+				.purchases(purchases)
+				.maxPage(maxPage)
+				.build();
+	}
+
 }
