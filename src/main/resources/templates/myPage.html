@@ -20,7 +20,7 @@
                 <h5 class="modal-title text-white">포인트 충전</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="api/my/points" id="rechargeFrom">
+            <form method="post" action="/api/points/recharge" id="rechargeFrom">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="recharge" class="col-form-label">충전 금액</label>
@@ -42,11 +42,11 @@
                 <h5 class="modal-title text-white">포인트 환전</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="api/my/points" id="exchangeForm">
+            <form method="post" action="/api/points/refund" id="exchangeForm">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="exchange" class="col-form-label">환전 금액</label>
-                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="exchange" name="exchange" placeholder="환전할 금액">
+                        <label for="refund" class="col-form-label">환전 금액</label>
+                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="refund" name="refund" placeholder="환전할 금액">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -104,5 +104,6 @@
     $(document).ready(function(){
         document.querySelector('#my-page-username').innerHTML = getUsernameFromCookie('Authorization');
     });
+
 </script>
 </html>

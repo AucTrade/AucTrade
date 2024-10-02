@@ -52,4 +52,9 @@ public class User {
         this.postcode = postcode;
         this.point = 1000; // 기본값 설정
     }
+
+    public boolean addPoint(long point){
+        this.point += (int) point;
+        return true;
+    }
 }
