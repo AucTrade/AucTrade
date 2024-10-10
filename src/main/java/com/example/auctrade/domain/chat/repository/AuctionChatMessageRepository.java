@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChatMessageRepository extends MongoRepository<AuctionChatMessage, String> {
+public interface AuctionChatMessageRepository extends MongoRepository<AuctionChatMessage, String> {
     // 경매 아이디 기반 해당 모든 채팅 로그 전부 조회
     List<AuctionChatMessage> findAllByAuctionId(String auctionId);
 

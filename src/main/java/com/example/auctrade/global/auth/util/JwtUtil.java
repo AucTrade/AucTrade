@@ -12,6 +12,8 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 @Component
@@ -72,6 +74,9 @@ public class JwtUtil {
     }
 
     public String extractToken(String tokenValue) {
+        if (StringUtils.hasText(tokenValue) && tokenValue.contains("%20")) {
+            tokenValue = URLDecoder.decode(tokenValue, StandardCharsets.UTF_8).trim();
+        }
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
 //            log.info("추출 최종 확인");
             return tokenValue.substring(7);
@@ -96,7 +101,12 @@ public class JwtUtil {
      * @return 유효성 여부
      */
     public boolean validateToken(String token) {
-        return !getClaims(token).isEmpty();
+        try {
+            return !getClaims(token).isEmpty();
+        }catch (JwtException e){
+            log.error("Invalid JWT token: {}", e.getMessage()); // 예외 메시지 로그 출력
+            return false; // 예외 발생 시 false 반환
+        }
     }
 
     private Claims getClaims(String token){

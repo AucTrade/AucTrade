@@ -1,9 +1,9 @@
 package com.example.auctrade.domain.chat.service;
 
 import com.example.auctrade.domain.chat.document.AuctionChatMessage;
-import com.example.auctrade.domain.chat.dto.MessageDTO;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
 import com.example.auctrade.domain.chat.factory.ChatMessageFactory;
-import com.example.auctrade.domain.chat.repository.ChatMessageRepository;
+import com.example.auctrade.domain.chat.repository.AuctionChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ChatMessageServiceImpl implements ChatMessageService {
+public class AuctionChatMessageServiceImpl implements AuctionChatMessageService {
 
-    private final ChatMessageRepository chatMessageRepository;
+    private final AuctionChatMessageRepository chatMessageRepository;
     private final ChatMessageFactory<AuctionChatMessage> chatMessageFactory;
 
     /**
@@ -25,10 +25,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
      * @return 저장된 메시지 정보 반환
      */
     @Override
-    public MessageDTO.Get saveChatMessage(MessageDTO.Create requestDto) {
+    public AuctionMessageDTO.Get saveChatMessage(AuctionMessageDTO.Create requestDto) {
         AuctionChatMessage auctionChatMessage =
                 chatMessageFactory.orderChatMessage(requestDto.getUsername(), requestDto.getMessage(), requestDto.getAuctionId());
-        return new MessageDTO.Get(chatMessageRepository.save(auctionChatMessage));
+        return new AuctionMessageDTO.Get(chatMessageRepository.save(auctionChatMessage));
     }
 
     /**
@@ -37,9 +37,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
      * @return 저장된 경매 메시지 리스트
      */
     @Override
-    public List<MessageDTO.Get> findLog(String auctionId) {
+    public List<AuctionMessageDTO.Get> findLog(String auctionId) {
         return chatMessageRepository.
-                findAllByAuctionId(auctionId).stream().map(MessageDTO.Get::new).toList();
+                findAllByAuctionId(auctionId).stream().map(AuctionMessageDTO.Get::new).toList();
     }
 
     /**
@@ -48,8 +48,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
      * @return 저장된 경매 입찰 메시지 리스트
      */
     @Override
-    public List<MessageDTO.Get> findAuctionLog(String auctionId) {
+    public List<AuctionMessageDTO.Get> findAuctionLog(String auctionId) {
         return chatMessageRepository.
-                findAllByAuctionIdAndBidTrue(auctionId).stream().map(MessageDTO.Get::new).toList();
+                findAllByAuctionIdAndBidTrue(auctionId).stream().map(AuctionMessageDTO.Get::new).toList();
     }
 }
