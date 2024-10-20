@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 
-public class MessageDTO {
+public class AuctionMessageDTO {
     @Getter
     @Setter
     @AllArgsConstructor

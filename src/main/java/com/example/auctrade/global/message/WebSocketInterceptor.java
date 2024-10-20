@@ -38,7 +38,11 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
+        if (accessor != null) {
+            log.info("STOMP Command: {}", accessor.getCommand());
+            log.info("Headers: {}", accessor.toNativeHeaderMap());
+            log.info("Payload: {}", new String((byte[]) message.getPayload()));
+        }
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             setAuthenticate(accessor);
         }

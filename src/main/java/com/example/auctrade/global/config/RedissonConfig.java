@@ -14,8 +14,8 @@ public class RedissonConfig {
 
     @Value("${spring.redisson.config.address}")
     private String address;
-    @Value("${spring.redisson.config.password}")
-    private String password;
+    // @Value("${spring.redisson.config.password}")
+    // private String password;
 
     @Bean
     public RedissonClient redissonClient(){
