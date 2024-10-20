@@ -21,9 +21,7 @@ public class TradeHandlerServiceImpl implements TradeHandlerService {
 
 	private final TradeQueueService queueService;
 	private final TradeService tradeService;
-	private final LimitRepository limitRepository;
 	private final AuctionRepository auctionRepository;
-	private final UserRepository userRepository;
 
 	@Override
 	public TradeDTO.Get handleTrade(TradeDTO.Create tradeDTO) {

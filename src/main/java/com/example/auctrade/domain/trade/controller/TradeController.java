@@ -18,18 +18,18 @@ import com.example.auctrade.domain.trade.service.TradeService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/purchases")
+@RequestMapping("/api/trades")
 @RequiredArgsConstructor
 public class TradeController {
 	private final TradeHandlerService tradeHandlerService;
 	private final TradeService tradeService;
-	@PostMapping("/{limitId}")
-	public ResponseEntity<TradeDTO.Get> purchase(@PathVariable Long limitId, @RequestBody TradeDTO.Create purchaseDTO){
+	@PostMapping
+	public ResponseEntity<TradeDTO.Get> trade(@RequestBody TradeDTO.Create purchaseDTO){
 		TradeDTO.Get tradeDTO = tradeHandlerService.handleTrade(purchaseDTO);
 		return ResponseEntity.ok(tradeDTO);
 	}
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<TradeDTO.Get>> getUserPurchases(@PathVariable Long userId) {
+	public ResponseEntity<List<TradeDTO.Get>> getUserTrade(@PathVariable Long userId) {
 		List<TradeDTO.Get> purchaseList = tradeService.findTradesByUserId(userId);
 		return ResponseEntity.ok(purchaseList);
 	}
