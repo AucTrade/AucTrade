@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @RequiredArgsConstructor
-public class ChatRoomDTO implements Serializable {
+public class AuctionChatRoomDTO implements Serializable {
     private  String id;
     private  String title;
     private int count;
@@ -19,13 +19,13 @@ public class ChatRoomDTO implements Serializable {
     private Set<WebSocketSession> sessions = new HashSet<>();
 
     @Builder
-    public ChatRoomDTO(String id, int count, String createdTime, String title){
+    public AuctionChatRoomDTO(String id, int count, String createdTime, String title){
         this.id = id;
         this.count = count;
         this.createdTime = createdTime;
         this.title = title;
     }
-    public ChatRoomDTO(String title){
+    public AuctionChatRoomDTO(String title){
         this.title = title;
     }
     public void updateCount(int count){

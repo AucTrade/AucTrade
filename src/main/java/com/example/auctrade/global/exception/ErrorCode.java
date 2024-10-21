@@ -18,6 +18,7 @@ public enum ErrorCode {
     WRONG_TIME_FORMAT(BAD_REQUEST, "잘못된 시간형식입니다"),
     WRONG_PLAN_DATE(BAD_REQUEST, "과거날짜로 플랜을 작성할 수는 없습니다"),
     WRONG_DEPOSIT(BAD_REQUEST, "최소 예치금 보다 낮을 수 없습니다."),
+    TRADE_PROCESS_FAILED(BAD_REQUEST, "거래 처리에 실패했습니다."),
 
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
@@ -42,12 +43,16 @@ public enum ErrorCode {
     POST_IMAGE_NOT_FOUND(NOT_FOUND, "해당 게시글의 이미지를 찾을 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
     USER_ID_MISMATCH(NOT_FOUND, "데이터베이스의 사용자 식별자와 불일치한 사용자 정보입니다."),
+    LIMIT_NOT_FOUND(NOT_FOUND, "해당 한정 판매 정보를 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "이미 존재하는 닉네임입니다."),
     USER_ALREADY_LOGGED_IN(CONFLICT, "이미 로그인된 사용자입니다."),
     REDIS_INTERNAL_ERROR(CONFLICT, "레디스의 내부 정보와 차이가 있습니다."),
+    INSUFFICIENT_STOCK(CONFLICT, "재고가 부족합니다."),
+    USER_LIMIT_EXCEEDED(CONFLICT, "구매 한도를 초과했습니다."),
+    AUCTION_NOT_ENDED(CONFLICT, "경매가 아직 종료되지 않았습니다."),
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");

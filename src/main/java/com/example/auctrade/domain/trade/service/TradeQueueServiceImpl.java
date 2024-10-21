@@ -1,4 +1,4 @@
-package com.example.auctrade.domain.limit.service;
+package com.example.auctrade.domain.trade.service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PurchaseQueueServiceImpl implements PurchaseQueueService {
+public class TradeQueueServiceImpl implements TradeQueueService {
 
 	private final RedissonClient redissonClient;
 

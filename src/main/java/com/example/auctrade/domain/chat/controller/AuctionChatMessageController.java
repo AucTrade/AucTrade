@@ -1,7 +1,7 @@
 package com.example.auctrade.domain.chat.controller;
 
-import com.example.auctrade.domain.chat.dto.MessageDTO;
-import com.example.auctrade.domain.chat.service.ChatMessageServiceImpl;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
+import com.example.auctrade.domain.chat.service.AuctionChatMessageServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,25 +15,25 @@ import static com.example.auctrade.global.constant.Constants.CHAT_AUCTION_DESTIN
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class ChatMessageController {
+public class AuctionChatMessageController {
 
     private final SimpMessageSendingOperations sendingOperations;
-    private final ChatMessageServiceImpl chatMessageService;
+    private final AuctionChatMessageServiceImpl chatMessageService;
 
     @MessageMapping(value = "/chat/enter")
-    public void enter(MessageDTO.Create message, Principal principal){
+    public void enter(AuctionMessageDTO.Create message, Principal principal){
         log.info("{} 채팅방 입장", principal.getName());
         message.setUsername(principal.getName());
         message.setMessage(principal.getName() + " 님이 채팅방에 입장하였습니다.");
 
-        MessageDTO.Get responseDto = chatMessageService.saveChatMessage(message);
+        AuctionMessageDTO.Get responseDto = chatMessageService.saveChatMessage(message);
         if( responseDto != null)
             sendingOperations.convertAndSend(CHAT_AUCTION_DESTINATION + message.getAuctionId(), responseDto);
     }
 
 
     @MessageMapping(value = "/chat/message")
-    public void message(MessageDTO.Create message, Principal principal){
+    public void message(AuctionMessageDTO.Create message, Principal principal){
         log.info("{} 메세지 전송: {}", principal.getName(), message.getMessage());
         message.setUsername(principal.getName());
 

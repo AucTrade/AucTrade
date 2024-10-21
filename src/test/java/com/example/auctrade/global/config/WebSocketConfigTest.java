@@ -1,7 +1,7 @@
 package com.example.auctrade.global.config;
 
-import com.example.auctrade.domain.chat.dto.MessageDTO;
-import com.example.auctrade.domain.chat.service.ChatMessageService;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
+import com.example.auctrade.domain.chat.service.AuctionChatMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,14 +19,12 @@ import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 // 서버 포트번호 랜덤 설정, @LocalServerPort 기반 할당
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -42,7 +40,7 @@ class WebSocketConfigTest {
 
     // 채팅 메세지 서비스 모킹 처리
     @MockBean
-    private ChatMessageService chatMessageService;
+    private AuctionChatMessageService chatMessageService;
 
     // 향후 인증을 구현할 때를 대비한 코드
 //    private StompHeaders stompHeaders;
@@ -62,8 +60,8 @@ class WebSocketConfigTest {
     }
 
     // 메세지 임의 설정 메소드
-    private MessageDTO getMessageDTO() {
-        MessageDTO message = new MessageDTO();
+    private AuctionMessageDTO getMessageDTO() {
+        AuctionMessageDTO message = new AuctionMessageDTO();
 
 
         return message;
@@ -98,12 +96,12 @@ class WebSocketConfigTest {
 
         // when
         // 메세지 저장 서비스 모킹 처리
-        MessageDTO mockMessage = getMessageDTO();
+        AuctionMessageDTO mockMessage = getMessageDTO();
 
 
         // 메세지 수신 비동기 작업 처용 CompletableFuture 인스턴스
         // 메세지 수신되면 완료
-        CompletableFuture<MessageDTO> future = new CompletableFuture<>();
+        CompletableFuture<AuctionMessageDTO> future = new CompletableFuture<>();
 
         // 구독 헤더 설정
         StompHeaders subscribeHeaders = new StompHeaders();
@@ -114,14 +112,14 @@ class WebSocketConfigTest {
             // 페이로드 역직렬화
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return MessageDTO.class;
+                return AuctionMessageDTO.class;
             }
 
             // 메세지 get
             // CompletableFuture 인스턴스 메세지 수신 완료 처리
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                future.complete((MessageDTO) payload);
+                future.complete((AuctionMessageDTO) payload);
             }
         });
 
@@ -133,7 +131,7 @@ class WebSocketConfigTest {
 
         // then
         // 메시지 수신 확인(내용이 같은지)
-        MessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
+        AuctionMessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
 
     }
 }
