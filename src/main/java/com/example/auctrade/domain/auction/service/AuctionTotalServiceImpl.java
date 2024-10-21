@@ -56,17 +56,17 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
      * 예치금을 넣은 경매방 리스트 조회
      * @param page 요청할 page 인덱스
      * @param size page 사이즈
-     * @param status load 할 경매 상태
      * @param email 경매에 예치금을 넣은 회원 이메일
      * @return 예치금을 넣은 경매방 리스트
      */
     @Override
     public AuctionDTO.GetPage getMyAuctionPage(int page, int size, String status, String email){
-        if(status.equals("all")) return getAllMyAuctions(page, size, email);
-        else if(status.equals("open")) return getOpeningMyAuctions(page, size, email);
-
+        if(status.equals("open")){
+            return getOpeningMyAuctions(page, size, email);
+        }else if(status.equals("closed")){
+            return getClosedMyAuctions(page, size, email);
+        }
         return getAllMyAuctions(page, size, email);
-
     }
 
     @Override
@@ -131,20 +131,28 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
     }
 
     @Override
-    public void startAuction(Long id) {
+    public AuctionDTO.Result startAuction(Long id, String email) {
+        if(!auctionService.findById(id).getSaleUserEmail().equals(email))
+            return AuctionMapper.toResultDto(false);
+
         auctionService.startAuction(id);
+        return AuctionMapper.toResultDto(true);
     }
 
     @Override
-    public void endAuction(Long id) {
+    public AuctionDTO.Result endAuction(Long id, String email) {
+        if(!auctionService.findById(id).getSaleUserEmail().equals(email))
+            return AuctionMapper.toResultDto(false);
+
         auctionService.endAuction(id);
+        return AuctionMapper.toResultDto(true);
     }
 
     private AuctionDTO.GetPage getOpeningMyAuctions(int page, int size, String email){
-        List<AuctionDTO.GetList> auctions = auctionService.getMyOpeningAuctions(
+        AuctionDTO.GetPage auctions = auctionService.getMyOpeningAuctions(
                 this.toPageable(page, size, "startDate"), email);
 
-        List<AuctionDTO.GetList> result = auctions.stream()
+        List<AuctionDTO.GetList> result = auctions.getAuctions().stream()
                 .map(data -> {
                     data.updateProductInfo(productService.get(data.getProductId()).getCategoryName(),
                             fileService.getThumbnail(data.getProductId()).getFilePath());
@@ -153,7 +161,23 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
                     return data;
                 }).toList();
 
-        return AuctionMapper.toMyAuctionPage(result, depositService.getMyDepositSize(email));
+        return AuctionMapper.toMyAuctionPage(result, auctions.getMaxPage());
+    }
+
+    private AuctionDTO.GetPage getClosedMyAuctions(int page, int size, String email){
+        AuctionDTO.GetPage auctions = auctionService.getMyEndedAuctions(
+                this.toPageable(page, size, "startDate"), email);
+
+        List<AuctionDTO.GetList> result = auctions.getAuctions().stream()
+                .map(data -> {
+                    data.updateProductInfo(productService.get(data.getProductId()).getCategoryName(),
+                            fileService.getThumbnail(data.getProductId()).getFilePath());
+                    data.updateCurPersonnel(depositService.getCurrentPersonnel(data.getId()));
+                    data.updateMinimumPrice(getBidInfo(data.getId()).getPrice());
+                    return data;
+                }).toList();
+
+        return AuctionMapper.toMyAuctionPage(result, auctions.getMaxPage());
     }
 
     private AuctionDTO.GetPage getAllMyAuctions(int page, int size, String email){
@@ -169,7 +193,7 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
                             return data;
                         }).toList();
 
-        return AuctionMapper.toMyAuctionPage(result, depositService.getMyDepositSize(email));
+        return AuctionMapper.toMyAuctionPage(result, auctions.size());
     }
 
     private Pageable toPageable(int page, int size, String target){

@@ -96,6 +96,7 @@ public class AuctionDTO {
         private String productCategory;
         private String thumbnail;
         private Boolean isStarted;
+        private Boolean isEnded;
 
         public void updateProductInfo(String productCategory, String thumbnail){
             this.productCategory = productCategory;
@@ -113,7 +114,7 @@ public class AuctionDTO {
     @AllArgsConstructor
     public static class GetPage {
         private final List<GetList> auctions;
-        private final Long maxPage;
+        private final int maxPage;
     }
 
     @Getter

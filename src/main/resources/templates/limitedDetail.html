@@ -39,9 +39,17 @@
             <div class="row mb-1 text-primary" id="price"></div>
             <div class="row mb-1 dongle-regular" id="limit"></div>
             <div class="row mb-1" >
-                <div class="col-8 dongle-regular" id="saleInfo"></div>
+                <div class="dongle-regular" id="saleInfo"></div>
+            </div>
+            <div class="row mb-1" >
+                <div class="col-8">
+                    <div class="input-group">
+                        <label for="count" class="col-form-label">수량 : &nbsp;&nbsp;</label>
+                        <input type="number" class="form-control dongle-regular fs-4 form-control-sm" id="count" name="count" value="1" min="1">
+                    </div>
+                </div>
                 <div class="col-4">
-                    <button class="btn btn-outline-success" type="button">구매하기</button>
+                    <button class="btn btn-outline-success" type="button" id="btn-buy">구매하기</button>
                 </div>
             </div>
             <div class="container border-bottom mb-3" style="height: 10px;"></div>
@@ -84,7 +92,7 @@
         document.querySelector('#productCategory').innerHTML =`<button class="btn btn-primary category-btn category-button-text" disabled>${result.productCategory}</button>`;
         var start = result.saleDate.split('T');
         //var end = result.finishDate.split('T');
-        document.querySelector('#period').innerHTML = `${start[0]} ${start[1].slice(0, -3)} ~ `;
+        document.querySelector('#period').innerHTML = ` ${start[0]} ${start[1].slice(0, -3)} `;
     }
 
     function loadImg(urls) {
@@ -117,6 +125,24 @@
      }
        document.querySelector('#img-view').innerHTML = htm;
     }
+
+    $("#btn-buy").on("click", function(e){
+       const quantity = document.getElementById("count").value;
+       const limitId = getUrlParams()["limitId"];
+
+       $.ajax({
+            url : `/api/purchases/${limitId}`,
+            type : 'post',
+            data: JSON.stringify({limitId: limitId, quantity: quantity}),
+            contentType: "application/json; charset=UTF-8",
+            success : function (result) {
+                location.href = "/users/purchases/my-list";
+            },
+            error : function (request, status, error) {
+                console.log(error);
+            }
+       });
+    });
 
 </script>
 </html>

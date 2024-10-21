@@ -47,7 +47,19 @@
                     error: function(error) {reject(error);}
                 });
             });
-        }
+    }
+
+    function postPathAjaxRequest(requestUrl) {
+         return new Promise((resolve, reject) => {
+              $.ajax({
+                     url: requestUrl,
+                     method: 'POST',
+                     contentType: "application/json; charset=UTF-8",
+                     success: function(data) {resolve(data);},
+                     error: function(error) {reject(error);}
+              });
+         });
+    }
 
     function formAjaxRequest(requestUrl, formData) {
         return new Promise((resolve, reject) => {

@@ -8,6 +8,7 @@ import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,8 +62,15 @@ public class AuctionServiceImpl implements AuctionService {
 
     // 내가 개설한 것들 가지고 오기
     @Override
-    public List<AuctionDTO.GetList> getMyOpeningAuctions(Pageable pageable, String email) {
-        return auctionRepository.findBySaleUsernameAndEndedFalse(email, pageable).stream().map(AuctionMapper::toGetListDto).toList();
+    public AuctionDTO.GetPage getMyOpeningAuctions(Pageable pageable, String email) {
+        Page<Auction> auctions = auctionRepository.findBySaleUsernameAndEndedFalse(email, pageable);
+        return new AuctionDTO.GetPage(auctions.get().map(AuctionMapper::toGetListDto).toList(), auctions.getTotalPages());
+    }
+
+    @Override
+    public AuctionDTO.GetPage getMyEndedAuctions(Pageable pageable, String email) {
+        Page<Auction> auctions = auctionRepository.findBySaleUsernameAndEndedTrue(email, pageable);
+        return new AuctionDTO.GetPage(auctions.get().map(AuctionMapper::toGetListDto).toList(), auctions.getTotalPages());
     }
 
     @Override

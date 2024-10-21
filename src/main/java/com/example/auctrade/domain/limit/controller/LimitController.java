@@ -1,6 +1,5 @@
 package com.example.auctrade.domain.limit.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.MediaType;
@@ -43,4 +42,14 @@ public class LimitController {
 		List<LimitDTO.Get> userLimits = limitService.findByUserId(userId);
 		return ResponseEntity.ok(userLimits);
 	}
+	@GetMapping("/my/limits")
+	public ResponseEntity<LimitDTO.GetPage> getAllMyLimits(
+			@RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "9") int size,
+			@RequestParam(defaultValue = "all") String status,
+			@AuthenticationPrincipal UserDetails userDetails) {
+
+		return ResponseEntity.ok(limitService.getMyLimitedPage(page, size, status, userDetails.getUsername()));
+	}
+
 }

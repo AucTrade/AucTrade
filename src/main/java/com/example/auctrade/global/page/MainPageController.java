@@ -19,7 +19,7 @@ public class MainPageController {
 
     @GetMapping("/")
     public String main() {
-        return "auctionBeforeStartList";
+        return "limitedSaleList";
     }
 
     @GetMapping("/mypage")
