@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "pointExchangeLog")
+@Table(name = "pointLog")
 @EntityListeners(AuditingEntityListener.class)
-public class PointExchangeLog {
+public class Point {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,23 +24,23 @@ public class PointExchangeLog {
     @Column(name = "user_id", nullable = false)
     private String userId; // 포인트를 가지고 있는 유저 email
 
-    @Column(name = "point")
-    private Long point; // 포인트 변동사항
+    @Column(name = "amount")
+    private Long amount; // 포인트 변동사항
 
-    @Column(name = "account", nullable = false)
+    @Column(name = "account")
     private String account; // 포인트 환전 계좌
 
     @CreatedDate
     @Column(name = "created", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt; // 포인트 충전일
-
+    private LocalDateTime createdAt; // 포인트 거래일
+    
     @Builder
-    public static PointExchangeLog createPointLog(String userId, long point, String account) {
-        PointExchangeLog pointExchangeLog = new PointExchangeLog();
-        pointExchangeLog.userId = userId;
-        pointExchangeLog.point = point;
-        pointExchangeLog.account = account;
-        return pointExchangeLog;
+    public static Point createPointLog(String userId, long amount, String account) {
+        Point point = new Point();
+        point.userId = userId;
+        point.amount = amount;
+        point.account = account;
+        return point;
     }
 }

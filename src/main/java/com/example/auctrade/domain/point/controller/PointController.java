@@ -24,7 +24,7 @@ public class PointController {
     }
 
     @GetMapping("/points/refund")
-    public ResponseEntity<PointDTO.Result> refundPoint(@RequestBody PointDTO.Refund pointDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<PointDTO.Result> refundPoint(@RequestBody PointDTO.Exchange pointDTO, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(pointService.createPointExchangeLog(pointDTO, userDetails.getUsername()));
     }
 }

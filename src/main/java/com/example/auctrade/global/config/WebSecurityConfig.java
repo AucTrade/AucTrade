@@ -80,7 +80,6 @@ public class WebSecurityConfig {
                 formLogin
                         .loginPage("/login")
                         .loginProcessingUrl("/api/users/login")
-                        // 로그인 처리 후 성공 시 URL alwaysUse를 false로 작성해 다른곳에서 요청이 들어왔을때 항상 같은곳으로 가면안된다.
                         .defaultSuccessUrl("/limits",false)
                         .failureUrl("/login")
                         .permitAll()

@@ -17,9 +17,9 @@ public class PointDTO {
 
     @Getter
     @AllArgsConstructor
-    public static class Refund {
+    public static class Exchange {
         @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Long refund;
+        private Long exchange;
     }
 
     @Getter
