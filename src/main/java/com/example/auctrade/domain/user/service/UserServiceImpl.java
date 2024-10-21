@@ -80,6 +80,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean updatePoint(Long point, String email) {
+        return findUserByEmail(email).addPoint(point);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));

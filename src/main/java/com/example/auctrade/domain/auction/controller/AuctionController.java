@@ -66,7 +66,6 @@ public class AuctionController {
     }
     @PostMapping(value = "/auctions/{auctionId}/start")
     public ResponseEntity<AuctionDTO.Result> startAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails){
-
         return ResponseEntity.ok(auctionTotalService.startAuction(auctionId, userDetails.getUsername()));
     }
 
