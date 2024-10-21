@@ -50,6 +50,10 @@ public class CustomHandshakeHandler implements HandshakeHandler {
                     }
                 }
             }
+            if (cookies == null || cookies.isEmpty()) {
+                log.error("No cookies found in request headers!");
+                return false;
+            }
         } catch (Exception ex) {
             log.error("오류 발생: {}", ex.getMessage(), ex);
         }

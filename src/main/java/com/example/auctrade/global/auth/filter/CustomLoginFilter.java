@@ -45,6 +45,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("로그인 단계 진입");
         try {
             UserDTO.Login requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDTO.Login.class);
+            log.info("로그인 시도 - 이메일: {}, 비밀번호: {}", requestDto.getEmail(), requestDto.getPassword());
+
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(

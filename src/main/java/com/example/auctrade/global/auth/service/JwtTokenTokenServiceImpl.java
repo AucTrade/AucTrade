@@ -28,7 +28,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
     private final UserService userService;
-    private final long ACCESS_TOKEN_EAT = 30 * 1000L; // 1H
+    private final long ACCESS_TOKEN_EAT = 60 * 60 * 1000L; // 1H
     private final long REFRESH_TOKEN_EAT = 7 * 24 * 60 * 60 * 1000L; // 7D
 
     /**

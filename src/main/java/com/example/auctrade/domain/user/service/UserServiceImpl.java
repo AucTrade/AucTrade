@@ -10,7 +10,8 @@ import com.example.auctrade.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,15 +20,14 @@ import org.springframework.stereotype.Service;
 
 import static com.example.auctrade.global.constant.Constants.REDIS_REFRESH_KEY;
 
-
 @Slf4j
 @Service
 @Transactional
 @AllArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedissonClient redissonClient;
 
     /**
      * 회원가입
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService{
         userRepository.save(UserMapper.CreateDTOToEntity(userDto, passwordEncoder.encode(userDto.getPassword())));
         return UserMapper.CreateResultDTO(true);
     }
-    
+
     /**
      * DB 내부 유저 정보 반환
      * @param email 대상 이메일
@@ -58,30 +58,34 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public UserDTO.Result logoutUser(String email) {
-        Boolean isDelete = redisTemplate.delete(REDIS_REFRESH_KEY+email);
+        // RBucket 사용하여 Redis에서 데이터 삭제
+        RBucket<String> refreshTokenBucket = redissonClient.getBucket(REDIS_REFRESH_KEY + email);
+        boolean isDeleted = refreshTokenBucket.delete();
 
-        if (isDelete == null || !isDelete)
+        if (!isDeleted) {
             throw new InternalAuthenticationServiceException(ErrorCode.REDIS_INTERNAL_ERROR.getMessage());
+        }
 
         return new UserDTO.Result(true);
     }
+
     /**
      * 이메일 존재 여부
      * @param email 대상 이메일
      * @return 해당 이메일 존재 여부
      */
     @Override
-    public boolean existUserEmail(String email){
+    public boolean existUserEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));
+            .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));
     }
 
-    private User findUserByEmail(String email){
+    private User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
