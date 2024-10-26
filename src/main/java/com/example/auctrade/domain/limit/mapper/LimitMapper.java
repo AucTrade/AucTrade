@@ -38,5 +38,13 @@ public class LimitMapper {
 			.saleUser(saleUser)
 			.build();
 	}
-
+	// DTO -> Trade DTO (LimitTradeRequest 생성)
+	public static LimitDTO.LimitTradeRequest toTradeDto(LimitDTO.Purchase purchaseDto, Long buyerId, Long limitId) {
+		return LimitDTO.LimitTradeRequest.builder()
+			.quantity(purchaseDto.getQuantity())
+			.buyer(buyerId)
+			.postId(limitId)
+			.isAuction(false) // Limit 거래이므로 false로 설정
+			.build();
+	}
 }

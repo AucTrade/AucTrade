@@ -9,7 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.auctrade.domain.limit.dto.LimitDTO;
+import com.example.auctrade.domain.limit.service.LimitQueueService;
 import com.example.auctrade.domain.limit.service.LimitService;
+import com.example.auctrade.domain.trade.dto.TradeDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class LimitController {
 	private final LimitService limitService;
+	private final LimitQueueService queueService;
 
 	@GetMapping
 	public ResponseEntity<List<LimitDTO.Get>> getLimits(){
@@ -50,6 +53,13 @@ public class LimitController {
 			@AuthenticationPrincipal UserDetails userDetails) {
 
 		return ResponseEntity.ok(limitService.getMyLimitedPage(page, size, status, userDetails.getUsername()));
+	}
+
+	@PostMapping("/{limitId}/purchase")
+	public ResponseEntity<?> purchaseLimit(@PathVariable Long limitId, @RequestBody LimitDTO.Purchase purchaseDto, @AuthenticationPrincipal UserDetails userDetails) {
+		boolean result = queueService.processLimitPurchase(purchaseDto, limitId, userDetails.getUsername());
+
+		return ResponseEntity.ok(result);
 	}
 
 }

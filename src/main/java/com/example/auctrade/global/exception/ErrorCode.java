@@ -19,6 +19,7 @@ public enum ErrorCode {
     WRONG_PLAN_DATE(BAD_REQUEST, "과거날짜로 플랜을 작성할 수는 없습니다"),
     WRONG_DEPOSIT(BAD_REQUEST, "최소 예치금 보다 낮을 수 없습니다."),
     TRADE_PROCESS_FAILED(BAD_REQUEST, "거래 처리에 실패했습니다."),
+    PURCHASE_FAILED(BAD_REQUEST, "구매 처리에 실패했습니다."),
 
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자

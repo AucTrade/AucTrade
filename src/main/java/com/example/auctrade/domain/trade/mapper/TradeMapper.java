@@ -2,6 +2,7 @@ package com.example.auctrade.domain.trade.mapper;
 
 import java.time.LocalDateTime;
 
+import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.trade.dto.TradeDTO;
 import com.example.auctrade.domain.trade.entity.Trade;
 
@@ -35,4 +36,14 @@ public class TradeMapper {
 			.isFinished(true)  // 거래 완료로 설정
 			.build();
 	}
+
+	public static TradeDTO.Create toCreateDto(LimitDTO.LimitTradeRequest limitTradeRequest) {
+		return (limitTradeRequest == null) ? null : TradeDTO.Create.builder()
+			.quantity(limitTradeRequest.getQuantity())
+			.buyer(limitTradeRequest.getBuyer())
+			.postId(limitTradeRequest.getPostId())
+			.isAuction(limitTradeRequest.getIsAuction())
+			.build();
+	}
+
 }
