@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
+import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.limit.entity.Limits;
 import com.example.auctrade.domain.limit.repository.LimitRepository;
 import com.example.auctrade.domain.trade.dto.TradeDTO;
@@ -42,22 +43,31 @@ public class TradeServiceImpl implements TradeService {
 			.map(trade -> TradeMapper.toGetDto(trade))
 			.collect(Collectors.toList());
 	}
+
 	@Override
 	@Transactional
-	public TradeDTO.Get processTrade(TradeDTO.Create tradeDTO) {
-		boolean success;
-
-		// 한정 판매와 경매 구분
-		if (tradeDTO.getIsAuction()) {
-			success = validateAuctionTrade(tradeDTO); // 경매 검증 및 처리
-		} else {
-			success = validateLimitTrade(tradeDTO); // 한정 판매 검증 및 처리
-		}
+	public boolean processLimitTrade(LimitDTO.LimitTradeRequest limitTradeRequest){
+		TradeDTO.Create tradeDTO = TradeMapper.toCreateDto(limitTradeRequest);
+		boolean success = validateLimitTrade(tradeDTO);
 
 		// 검증 통과 시 거래 내역 저장
 		if (success) {
-			Trade tradeEntity = saveTrade(tradeDTO);
-			return TradeMapper.toGetDto(tradeEntity);
+			Trade tradeEntity = TradeMapper.toEntity(tradeDTO, calculatePrice(tradeDTO));
+			tradeRepository.save(tradeEntity);
+			return success;
+		} else {
+			throw new CustomException(ErrorCode.TRADE_PROCESS_FAILED);
+		}
+	}
+	@Override
+	@Transactional
+	public boolean processAuctionTrade(TradeDTO.Create tradeDTO){
+		boolean success = validateAuctionTrade(tradeDTO);
+		// 검증 통과 시 거래 내역 저장
+		if (success) {
+			Trade tradeEntity = TradeMapper.toEntity(tradeDTO, calculatePrice(tradeDTO));
+			tradeRepository.save(tradeEntity);
+			return success;
 		} else {
 			throw new CustomException(ErrorCode.TRADE_PROCESS_FAILED);
 		}
@@ -99,22 +109,6 @@ public class TradeServiceImpl implements TradeService {
 		return true; // 검증 성공
 	}
 
-	// 거래 내역 저장
-	private Trade saveTrade(TradeDTO.Create tradeDTO) {
-		Trade tradeEntity = Trade.builder()
-			.postId(tradeDTO.getPostId())
-			.buyer(tradeDTO.getBuyer())
-			.quantity(tradeDTO.getQuantity())
-			.price(calculatePrice(tradeDTO))
-			.isAuction(tradeDTO.getIsAuction())
-			.tradeDate(LocalDateTime.now())
-			.isFinished(true)
-			.build();
-
-		tradeRepository.save(tradeEntity);
-
-		return tradeEntity;
-	}
 	// Lua 스크립트를 사용한 한정 판매 검증 (재고 및 구매 한도)
 	private Long executeLuaScriptForLimit(Long postId, int quantity, Long buyerId) {
 		String luaScript =

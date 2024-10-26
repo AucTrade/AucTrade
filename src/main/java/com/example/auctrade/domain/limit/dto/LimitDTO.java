@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class LimitDTO {
 
@@ -65,12 +66,20 @@ public class LimitDTO {
 
 	@Getter
 	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
 	public static class Purchase {
-		@NotBlank(message = "판매자의 이메일을 입력해 주세요.", groups = PurchaseValidationGroups.SaleUserEmailBlankGroup.class)
-		private String saleUserEmail;
+		private int quantity; // 거래 수량
+	}
 
-		@Min(value = 1, message = "구매 수량은 최소 1개 이상이어야 합니다.", groups = PurchaseValidationGroups.QuantityMinGroup.class)
-		private int quantity;
+	@Getter
+	@Builder
+	@AllArgsConstructor
+	public static class LimitTradeRequest {
+		private int quantity; // 거래 수량
+		private Long buyer; // 구매 회원 ID
+		private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
+		private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
 	}
 
 	@Getter
