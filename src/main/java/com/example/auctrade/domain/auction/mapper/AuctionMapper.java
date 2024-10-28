@@ -14,13 +14,12 @@ public class AuctionMapper {
         return (auction == null) ? null : AuctionDTO.Get.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
-                .introduce(auction.getIntroduce())
-                .maxPersonnel(auction.getPersonnel())
-                .saleUserEmail(auction.getSaleUsername())
-                .startDate(auction.getStartDate())
+                .introduce(auction.getDescription())
+                .maxPersonnel(auction.getMaxParticipants())
+                .saleUserEmail(auction.getSellerEmail())
+                .startDate(auction.getStartTime())
                 .minimumPrice(auction.getMinimumPrice())
-                .minimumPrice(auction.getPrice())
-                .finishDate(auction.getFinishDate())
+                .finishDate(auction.getEndTime())
                 .productId(auction.getProductId())
                 .build();
     }
@@ -42,14 +41,13 @@ public class AuctionMapper {
     public static Auction toEntity(AuctionDTO.Create auctionDTO, long productId, String saleUsername) {
         return (auctionDTO == null) ? null :Auction.builder()
                 .title(auctionDTO.getTitle())
-                .introduce(auctionDTO.getIntroduce())
-                .personnel(auctionDTO.getMaxPersonnel())
+                .description(auctionDTO.getIntroduce())
+                .maxParticipants(auctionDTO.getMaxPersonnel())
                 .productId(productId)
-                .saleUsername(saleUsername)
-                .startDate(auctionDTO.getStartDate())
+                .sellerEmail(saleUsername)
+                .startTime(auctionDTO.getStartDate())
                 .minimumPrice(auctionDTO.getMinimumPrice())
-                .price(auctionDTO.getMinimumPrice())
-                .finishDate(auctionDTO.getFinishDate())
+                .endTime(auctionDTO.getFinishDate())
                 .build();
     }
 
@@ -61,30 +59,39 @@ public class AuctionMapper {
         return (auction == null) ? null : AuctionDTO.GetList.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
-                .introduce(auction.getIntroduce())
-                .startDate(auction.getStartDate())
-                .maxPersonnel(auction.getPersonnel())
+                .introduce(auction.getDescription())
+                .startDate(auction.getStartTime())
+                .maxPersonnel(auction.getMaxParticipants())
                 .productId(auction.getProductId())
-                .price((long) auction.getMinimumPrice())
-                .isStarted(auction.isStarted())
-                .isEnded(auction.isEnded())
-                .minimumPrice((long) auction.getMinimumPrice())
+                .price(auction.getMinimumPrice())
+                .minimumPrice(auction.getMinimumPrice())
                 .build();
     }
 
-    public static AuctionDTO.BeforeStart toBeforeStartDto(AuctionDTO.GetList auction, DepositDTO.List deposit, String categoryName, String thumbnail) {
+    public static AuctionDTO.BeforeStart toBeforeStartDto(AuctionDTO.GetList auction, DepositDTO.GetList deposit, String categoryName, String thumbnail) {
         return (auction == null) ? null : AuctionDTO.BeforeStart.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .startDate(auction.getStartDate())
                 .minDeposit(deposit.getDeposit())
-                .currentPersonnel(deposit.getCurrentPersonnel())
+                .currentPersonnel(deposit.getNowParticipation())
                 .thumbnail(thumbnail)
                 .maxPersonnel(auction.getMaxPersonnel())
-                .price((long) auction.getMinimumPrice())
-                .minimumPrice((long) auction.getMinimumPrice())
+                .price(auction.getMinimumPrice())
+                .minimumPrice(auction.getMinimumPrice())
                 .productCategory(categoryName)
+                .build();
+    }
+
+    public static DepositDTO.Create toDepositDto(AuctionDTO.PutDeposit requestDto, String email, int minPrice, int maxParticipation, String startTime){
+        return (requestDto == null) ? null : DepositDTO.Create.builder()
+                .auctionId(requestDto.getAuctionId())
+                .email(email)
+                .deposit(requestDto.getDeposit())
+                .minPrice(minPrice)
+                .maxParticipation(maxParticipation)
+                .startTime(startTime)
                 .build();
     }
 

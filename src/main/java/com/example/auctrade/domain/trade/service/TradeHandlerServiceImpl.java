@@ -73,9 +73,9 @@ public class TradeHandlerServiceImpl implements TradeHandlerService {
 	private void verifyAuctionEnd(Long auctionId) {
 		Auction auction = auctionRepository.findById(auctionId)
 			.orElseThrow(() -> new IllegalStateException("Auction not found."));
-		if (!auction.isEnded()) {
-			throw new IllegalStateException("Auction is not yet ended. Payment can only be made after auction ends.");
-		}
+//		if (!auction.isEnded()) {
+//			throw new IllegalStateException("Auction is not yet ended. Payment can only be made after auction ends.");
+//		}
 	}
 
 

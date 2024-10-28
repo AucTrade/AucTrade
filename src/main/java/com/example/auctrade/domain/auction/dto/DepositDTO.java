@@ -13,11 +13,12 @@ public class DepositDTO {
     @Getter
     @Builder
     public static class Create{
-        @NotBlank(message = "경매 ID가 없습니다.", groups = MessageValidationGroups.AuctionIdBlankGroup.class)
         private Long auctionId;
-
-        @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
-        private Long deposit;
+        private Integer deposit;
+        private int minPrice;
+        private int maxParticipation;
+        private String startTime;
+        private String email;
     }
 
     @Getter
@@ -28,9 +29,9 @@ public class DepositDTO {
 
     @Getter
     @AllArgsConstructor
-    public static class List{
-        private final Long deposit;
-        private final Integer currentPersonnel;
+    public static class GetList{
+        private final Integer deposit;
+        private final Integer nowParticipation;
     }
 
     @Getter

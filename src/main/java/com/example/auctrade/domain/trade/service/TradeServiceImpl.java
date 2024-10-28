@@ -17,8 +17,6 @@ import com.example.auctrade.domain.trade.dto.TradeDTO;
 import com.example.auctrade.domain.trade.entity.Trade;
 import com.example.auctrade.domain.trade.mapper.TradeMapper;
 import com.example.auctrade.domain.trade.repository.TradeRepository;
-import com.example.auctrade.domain.trade.service.TradeService;
-import com.example.auctrade.domain.user.entity.User;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 
@@ -90,9 +88,9 @@ public class TradeServiceImpl implements TradeService {
 		// 경매 종료 여부 확인
 		Auction auction = getAuction(tradeDTO.getPostId());
 
-		if (!auction.isEnded()) {
-			throw new CustomException(ErrorCode.AUCTION_NOT_ENDED);
-		}
+//		if (!auction.isEnded()) {
+//			throw new CustomException(ErrorCode.AUCTION_NOT_ENDED);
+//		}
 
 		// 낙찰자 확인 & 낙찰가 확인
 		// Auction entity에 추가 안할건지 확인
@@ -231,7 +229,7 @@ public class TradeServiceImpl implements TradeService {
 		if (tradeDTO.getIsAuction()) {
 			// 경매의 경우, 경매 ID에 따른 가격을 조회하거나 경매 로직에 따라 처리
 			Auction auction = getAuction(tradeDTO.getPostId());
-			return (long)auction.getPrice(); // 경매에서 최종 낙찰된 가격 반환
+			return (long)auction.getFinalPrice(); // 경매에서 최종 낙찰된 가격 반환
 		} else {
 			// 한정 판매일 경우 수량에 따른 가격 계산
 			Limits limit = getLimit(tradeDTO.getPostId());

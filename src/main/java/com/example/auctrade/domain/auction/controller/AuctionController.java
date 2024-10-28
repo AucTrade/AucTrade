@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,7 @@ public class AuctionController {
             @RequestParam(defaultValue = "all") String status,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        return ResponseEntity.ok(auctionTotalService.getMyAuctionPage(page, size, status, userDetails.getUsername()));
+        return ResponseEntity.ok(auctionTotalService.getMyAuctionsByStatus(page, size, status, userDetails.getUsername()));
     }
 
     @PostMapping(value = "/auctions", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -42,17 +41,17 @@ public class AuctionController {
 
     @GetMapping("/auctions/enter/{auctionId}")
     public ResponseEntity<AuctionDTO.Enter> getAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionTotalService.enterAuction(auctionId, userDetails.getUsername()));
+        return ResponseEntity.ok(auctionTotalService.getAuctionInfo(auctionId, userDetails.getUsername()));
     }
 
     @PostMapping("/auctions/deposits")
-    public ResponseEntity<DepositDTO.Result> depositAuction(@RequestBody DepositDTO.Create requestDto, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionTotalService.depositPrice(requestDto, userDetails.getUsername()));
+    public ResponseEntity<DepositDTO.Result> depositAuction(@RequestBody AuctionDTO.PutDeposit requestDto, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(auctionTotalService.registerDeposit(requestDto, userDetails.getUsername()));
     }
 
     @GetMapping("/auctions/deposits")
     public ResponseEntity<List<AuctionDTO.BeforeStart>> getDepositAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
-        return ResponseEntity.ok(auctionTotalService.getBeforeStartPage(page, size));
+        return ResponseEntity.ok(auctionTotalService.getNotStartedAuctions(page, size));
     }
 
     @GetMapping("/auctions/bids/{auctionId}")
@@ -62,20 +61,6 @@ public class AuctionController {
 
     @PostMapping("/auctions/bids")
     public ResponseEntity<BidDTO.Result> bidAuction(@RequestBody BidDTO.Create auctionDTO) {
-        return ResponseEntity.ok(auctionTotalService.bidPrice(auctionDTO));
-    }
-    @PostMapping(value = "/auctions/{auctionId}/start")
-    public ResponseEntity<AuctionDTO.Result> startAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails){
-        return ResponseEntity.ok(auctionTotalService.startAuction(auctionId, userDetails.getUsername()));
-    }
-
-    @PostMapping(value = "/auctions/{auctionId}/end")
-    public ResponseEntity<AuctionDTO.Result> endAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails){
-        return ResponseEntity.ok(auctionTotalService.endAuction(auctionId, userDetails.getUsername()));
-    }
-
-    @Scheduled(fixedRate = 1000)
-    public void processAllBids() {
-        auctionTotalService.findAllActiveAuctionIds().forEach(auctionTotalService::processBids);
+        return ResponseEntity.ok(auctionTotalService.placeBid(auctionDTO));
     }
 }

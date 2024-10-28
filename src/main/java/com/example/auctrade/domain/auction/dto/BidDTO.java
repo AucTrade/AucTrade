@@ -12,14 +12,14 @@ public class BidDTO {
     public static class Create{
         private Long auctionId;
         private String username;
-        private Long price;
+        private Integer price;
     }
     @Getter
     @Builder
     public static class Get{
         private final Long auctionId;
         private final String username;
-        private final Long price;
+        private final Integer price;
     }
 
     @Getter
@@ -27,7 +27,7 @@ public class BidDTO {
     public static class Result{
         private final Long auctionId;
         private final String username;
-        private final Long price;
+        private final Integer price;
         private final Boolean isSuccess;
     }
 
@@ -37,6 +37,6 @@ public class BidDTO {
         private final String id;
         private final Long auctionId;
         private final String username;
-        private final Long price;
+        private final Integer price;
     }
 }

@@ -1,10 +1,11 @@
 package com.example.auctrade.domain.auction.mapper;
 
 import com.example.auctrade.domain.auction.document.BidLog;
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.dto.BidDTO;
 
 public class BidMapper {
+    private BidMapper(){}
+
     public static BidDTO.Result toBidResultDto(BidDTO.Create bidDto, boolean isSuccess) {
         return (bidDto == null) ? null : BidDTO.Result.builder()
                 .auctionId(bidDto.getAuctionId())
@@ -26,6 +27,14 @@ public class BidMapper {
                 .auctionId(bidEntity.getAuctionId())
                 .username(bidEntity.getUsername())
                 .price(bidEntity.getPrice())
+                .build();
+    }
+
+    public static BidLog toBidLogEntity(BidDTO.Create bidDto){
+        return (bidDto == null) ? null : BidLog.builder()
+                .auctionId(bidDto.getAuctionId())
+                .price(bidDto.getPrice())
+                .username(bidDto.getUsername())
                 .build();
     }
 }

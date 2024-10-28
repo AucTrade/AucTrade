@@ -65,7 +65,10 @@ public class LimitServiceImpl implements LimitService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<LimitDTO.Get> findByUserId(Long userId) {
-		List<Limits> limits = limitRepository.findAllBySaleUserId(userId);
+//		List<Limits> limits = limitRepository.findAllBySaleUserId(userId);
+
+		List<Limits> limits = limitRepository.findAll();
+
 		return limits.stream()
 			.map(LimitMapper::toDto)
 			.toList();
@@ -80,9 +83,12 @@ public class LimitServiceImpl implements LimitService {
 	}
 
 	private LimitDTO.GetPage getAllMyLimits(int page, int size, String email){
-		Page<Limits> limits = limitRepository.findBySaleUserId(userRepository.findByEmail(email).get().getId(),toPageable(page, size,"saleDate"));
-		return new LimitDTO.GetPage(limits.getContent().stream().map(LimitMapper::toDto).toList(), (long) limits.getTotalPages());
+		List<Limits> limits = limitRepository.findAll();
+//		Page<Limits> limits = limitRepository.findBySaleUserId(userRepository.findByEmail(email).get().getId(),toPageable(page, size,"saleDate"));
+//		return new LimitDTO.GetPage(limits.getContent().stream().map(LimitMapper::toDto).toList(), (long) limits.getTotalPages());
+		return new LimitDTO.GetPage(limits.stream().map(LimitMapper::toDto).toList(),3L);
 	}
+
 	private Pageable toPageable(int page, int size, String target){
 		return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
 	}

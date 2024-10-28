@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BidLogRepository  extends MongoRepository<BidLog, String> {
     List<BidLog> findAllByAuctionId(Long auctionId);
+    List<BidLog> findAllByUsername(String username);
 }

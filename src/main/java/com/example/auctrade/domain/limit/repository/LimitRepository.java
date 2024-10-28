@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 import com.example.auctrade.domain.limit.entity.Limits;
 @Repository
 public interface LimitRepository extends JpaRepository<Limits, Long> {
-	List<Limits> findByStatusTrue();
+//	List<Limits> findByStatusTrue();
 	int findAmountById(long id);
 	int findLimitById(long id);
-	List<Limits> findAllBySaleUserId(Long saleUserId);
-	Page<Limits> findBySaleUserId(Long saleUserId, Pageable pageable);
-
+//	List<Limits> findAllBySaleUserId(Long saleUserId);
+//	Page<Limits> findBySaleUserId(Long saleUserId, Pageable pageable);
 }

@@ -7,16 +7,20 @@ import java.util.List;
 
 public interface DepositService {
 
-    DepositDTO.List getDeposit(Long auctionId, int maxPersonnel);
+    DepositDTO.GetList getDeposit(Long auctionId, int maxParticipation);
 
-    Long getMinDeposit(Long auctionId, int maxPersonnel);
+    Integer getMinDeposit(Long auctionId, int maxParticipation);
 
     List<Long> getMyAuctions(Pageable pageable, String email);
 
-    DepositDTO.Result depositPrice(DepositDTO.Create requestDto, String email, int maxPersonnel, String startDate);
+    DepositDTO.Result registerDeposit(DepositDTO.Create request);
 
-    Integer getCurrentPersonnel(Long auctionId);
+    Integer getNowParticipation(Long auctionId);
 
     Long getMyDepositSize(String email);
+
+    void removeMyDepositLog(String email);
+
+    DepositDTO.Result cancelDeposit(Long auctionId, String email);
 
 }

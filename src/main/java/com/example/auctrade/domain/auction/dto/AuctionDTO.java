@@ -1,7 +1,7 @@
 package com.example.auctrade.domain.auction.dto;
 
-import com.example.auctrade.domain.product.dto.ProductDTO;
 import com.example.auctrade.global.valid.AuctionValidationGroups;
+import com.example.auctrade.global.valid.MessageValidationGroups;
 import com.example.auctrade.global.valid.ProductValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
@@ -48,6 +48,18 @@ public class AuctionDTO {
     }
 
     @Getter
+    @AllArgsConstructor
+    public static class PutDeposit {
+
+        @NotBlank(message = "경매 ID가 없습니다.", groups = MessageValidationGroups.AuctionIdBlankGroup.class)
+        private Long auctionId;
+
+        @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
+        private Integer deposit;
+    }
+
+
+    @Getter
     @Builder
     public static class Get {
         private Long id;
@@ -71,7 +83,7 @@ public class AuctionDTO {
         private String introduce;
         private LocalDateTime startDate;
         private LocalDateTime finishDate;
-        private Long minimumPrice;
+        private Integer minimumPrice;
         private String saleUserEmail;
         private String productName;
         private String productDetail;
@@ -90,9 +102,9 @@ public class AuctionDTO {
         private String finishDate;
         private Integer maxPersonnel;
         private Integer curPersonnel;
-        private Long minimumPrice;
+        private Integer minimumPrice;
         private Long productId;
-        private Long price;
+        private Integer price;
         private String productCategory;
         private String thumbnail;
         private Boolean isStarted;
@@ -102,7 +114,7 @@ public class AuctionDTO {
             this.productCategory = productCategory;
             this.thumbnail = thumbnail;
         }
-        public void updateMinimumPrice(Long minimumPrice){
+        public void updateMinimumPrice(Integer minimumPrice){
             this.minimumPrice = minimumPrice;
         }
         public void updateCurPersonnel(Integer curPersonnel){
@@ -132,12 +144,12 @@ public class AuctionDTO {
         private String introduce;
         private LocalDateTime startDate;
         private LocalDateTime finishDate;
-        private Long minDeposit;
+        private Integer minDeposit;
         private Integer currentPersonnel;
         private String thumbnail;
         private Integer maxPersonnel;
-        private Long minimumPrice;
-        private Long price;
+        private Integer minimumPrice;
+        private Integer price;
         private String productCategory;
     }
 }

@@ -10,6 +10,8 @@ import java.util.List;
 public interface DepositLogRepository extends MongoRepository<DepositLog, String> {
     List<DepositLog> findAllByAuctionId(String auctionId);
 
+    List<DepositLog> findAllByUsername(String username);
+
     List<DepositLog> findAllByAuctionIdAndUsername(Long auctionId, String username);
 
     @Query(value = "{ 'username': ?0 }", fields = "{ 'auctionId': 1, '_id': 0 }")

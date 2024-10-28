@@ -11,23 +11,15 @@ import java.util.List;
 public interface AuctionTotalService {
     AuctionDTO.Result createAuction(AuctionDTO.Create request, MultipartFile[] files, String email) throws IOException;
 
-    AuctionDTO.GetPage getMyAuctionPage(int page, int size, String status, String email);
+    AuctionDTO.GetPage getMyAuctionsByStatus(int page, int size, String status, String email);
 
-    AuctionDTO.Enter enterAuction(Long id, String email);
+    AuctionDTO.Enter getAuctionInfo(Long id, String email);
 
-    BidDTO.Result bidPrice(BidDTO.Create request);
+    BidDTO.Result placeBid(BidDTO.Create request);
 
-    DepositDTO.Result depositPrice(DepositDTO.Create requestDto, String email);
+    DepositDTO.Result registerDeposit(AuctionDTO.PutDeposit requestDto, String email);
 
-    List<AuctionDTO.BeforeStart> getBeforeStartPage(int page, int size);
-
-    List<Long> findAllActiveAuctionIds();
+    List<AuctionDTO.BeforeStart> getNotStartedAuctions(int page, int size);
 
     BidDTO.Get getBidInfo(Long auctionId);
-
-    void processBids(long id);
-
-    AuctionDTO.Result startAuction(Long id, String email);
-
-    AuctionDTO.Result endAuction(Long id, String email);
 }
