@@ -4,16 +4,24 @@ import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
+import com.example.auctrade.domain.product.mapper.ProductMapper;
+import com.example.auctrade.domain.product.service.FileService;
+import com.example.auctrade.domain.product.service.ProductService;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,27 +31,33 @@ import java.util.List;
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository auctionRepository;
+    private final ProductService productService;
+    private final FileService fileService;
+    private final DepositService depositService;
+    private static final String SORT_DEFAULT = "startTime";
+
 
     /**
      * 경매 등록
      * @param request 등록할 경매 정보
-     * @param productId 등록한 물품 ID
      * @param saleUsername 등록한 유저 email
      * @return 생성된 경매 ID
      */
     @Override
-    public Long createAuction(AuctionDTO.Create request, long productId, String saleUsername) {
-        return auctionRepository.save(AuctionMapper.toEntity(request, productId, saleUsername)).getId();
-    }
+    public AuctionDTO.Result createAuction(AuctionDTO.Create request, MultipartFile[] files, String saleUsername) {
+        try {
+            long productId = productService.create(ProductMapper.toDTO(request, saleUsername));
 
-    /**
-     * 경매 정보 페이지 조회
-     * @param pageable 조회할 페이지 정보
-     * @return 페이징한 모든 상태의 경매 정보
-     */
-    @Override
-    public List<AuctionDTO.GetList> getAuctions(Pageable pageable) {
-        return auctionRepository.findAll(pageable).stream().map(AuctionMapper::toGetListDto).toList();
+            if(Boolean.FALSE.equals(fileService.uploadFile(files, productId)))
+                throw new CustomException(ErrorCode.WRONG_MULTIPARTFILE);
+
+            auctionRepository.save(AuctionMapper.toEntity(request, productId, saleUsername));
+            return AuctionMapper.toResultDto(true);
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return AuctionMapper.toResultDto(false);
+        }
     }
 
     /**
@@ -52,67 +66,116 @@ public class AuctionServiceImpl implements AuctionService {
      * @return 조회한 경매 정보
      */
     @Override
-    public AuctionDTO.Get getAuctionById(long id) {
-        return AuctionMapper.toGetDto(findAuction(id));
+    public AuctionDTO.Enter getAuctionById(long id) {
+        Auction auction = findAuction(id);
+        return AuctionMapper.toEnterDto(auction, productService.get(auction.getProductId()), fileService.getFiles(id));
     }
 
 
     /**
-     * 시작하기 전 경매 리스트 조회
-     * @param pageable 조회할 페이지 정보
-     * @return 아직 실행 되지 않은 모든 경매 정보
+     * 아직 시작하지 않은 경매 리스트를 반환
+     * @param page 현재 페이지 인덱스
+     * @param size 리스트 사이즈
+     * @return 경매 리스트
      */
     @Override
-    public List<AuctionDTO.GetList> getNotStartedAuctions(Pageable pageable) {
-        Page<Auction> auctions = auctionRepository.findNotStartedAuctions(LocalDateTime.now(), pageable);
-        return auctions.get().map(AuctionMapper::toGetListDto).toList();
+    public List<AuctionDTO.BeforeStart> getNotStartedAuctions(int page, int size) {
+        Page<Auction> auctions = auctionRepository.findNotStartedAuctions(LocalDateTime.now(), toPageable(page, size, "createdAt"));
+        List<AuctionDTO.BeforeStart> result = new ArrayList<>();
+        for(Auction auction : auctions.getContent()){
+            result.add(AuctionMapper.toBeforeStartDto(
+                    auction,
+                    depositService.getDepositInfo(auction.getId()),
+                    productService.get(auction.getProductId()).getCategoryName(),
+                    fileService.getThumbnail(auction.getProductId()).getFilePath()));
+        }
+        return result;
     }
 
     /**
-     * 시작하기 전 리스트 조회
-     * @param pageable 조회할 페이지 정보
+     * 시작하기 전 내가 작성한 리스트 조회
+     * @param page 현재 페이지 인덱스
+     * @param size 리스트 사이즈
      * @param email 조회할 경매 판매자 이메일
      * @return 종료된 해당 경매 정보
      */
     @Override
-    public AuctionDTO.GetPage getMyNotStartedAuctions(Pageable pageable, String email) {
-        Page<Auction> auctions = auctionRepository.findNotStartedAuctionsBySeller(LocalDateTime.now(), email, pageable);
-        return new AuctionDTO.GetPage(auctions.get().map(AuctionMapper::toGetListDto).toList(), auctions.getTotalPages());
+    public AuctionDTO.GetPage getMyNotStartedAuctions(int page, int size, String email) {
+        Page<Auction> auctions = auctionRepository.findNotStartedAuctionsBySeller(LocalDateTime.now(), email, toPageable(page, size, "createdAt"));
+
+        List<AuctionDTO.GetList> result = new ArrayList<>();
+        for(Auction auction : auctions.getContent()){
+            result.add(AuctionMapper.toGetListDto(auction,
+                    depositService.getNowParticipation(auction.getId()),
+                    productService.get(auction.getProductId()).getCategoryName(),
+                    fileService.getThumbnail(auction.getProductId()).getFilePath()
+            ));
+        }
+        return AuctionMapper.toGetPageDto(result, auctions.getTotalPages());
     }
 
     /**
      * 경매 리스트 조회
-     * @param pageable 조회할 페이지 정보
+     * @param page 현재 페이지 인덱스
+     * @param size 리스트 사이즈
      * @param email 조회할 경매 판매자 이메일
      * @return 진행 중인 해당 경매 정보
      */
     @Override
-    public List<AuctionDTO.GetList> getAllMyAuctions(Pageable pageable, String email) {
-        return auctionRepository.findBySellerEmail(email, pageable).get().map(AuctionMapper::toGetListDto).toList();
+    public AuctionDTO.GetPage getAllMyAuctions(int page, int size, String email) {
+        Page<Auction> auctions = auctionRepository.findBySellerEmail(email, toPageable(page, size, SORT_DEFAULT));
+        List<AuctionDTO.GetList> result = new ArrayList<>();
+
+        for(Auction auction : auctions.getContent()){
+            result.add(AuctionMapper.toGetListDto(auction,
+                    depositService.getNowParticipation(auction.getId()),
+                    productService.get(auction.getProductId()).getCategoryName(),
+                    fileService.getThumbnail(auction.getProductId()).getFilePath()
+            ));
+        }
+        return AuctionMapper.toGetPageDto(result, auctions.getTotalPages());
     }
 
     /**
      * 진행 중인 경매 리스트 조회
-     * @param pageable 조회할 페이지 정보
+     * @param page 현재 페이지 인덱스
+     * @param size 리스트 사이즈
      * @param email 조회할 경매 판매자 이메일
      * @return 진행 중인 해당 경매 정보
      */
     @Override
-    public AuctionDTO.GetPage getMyActiveAuctions(Pageable pageable, String email) {
-        Page<Auction> auctions = auctionRepository.findActivateAuctionsBySeller(LocalDateTime.now(), email, pageable);
-        return new AuctionDTO.GetPage(auctions.get().map(AuctionMapper::toGetListDto).toList(), auctions.getTotalPages());
+    public AuctionDTO.GetPage getMyActiveAuctions(int page, int size, String email) {
+        Page<Auction> auctions = auctionRepository.findActivateAuctionsBySeller(LocalDateTime.now(), email, toPageable(page, size, SORT_DEFAULT));
+        List<AuctionDTO.GetList> result = new ArrayList<>();
+        for(Auction auction : auctions.getContent()){
+            result.add(AuctionMapper.toGetListDto(auction,
+                    depositService.getNowParticipation(auction.getId()),
+                    productService.get(auction.getProductId()).getCategoryName(),
+                    fileService.getThumbnail(auction.getProductId()).getFilePath()
+                    ));
+        }
+        return AuctionMapper.toGetPageDto(result, auctions.getTotalPages());
     }
 
     /**
      * 종료된 경매 리스트 조회
-     * @param pageable 조회할 페이지 정보
+     * @param page 현재 페이지 인덱스
+     * @param size 리스트 사이즈
      * @param email 조회할 경매 판매자 이메일
      * @return 종료된 해당 경매 정보
      */
     @Override
-    public AuctionDTO.GetPage getMyEndedAuctions(Pageable pageable, String email) {
-        Page<Auction> auctions = auctionRepository.findEndAuctionsBySeller(LocalDateTime.now(), email, pageable);
-        return new AuctionDTO.GetPage(auctions.get().map(AuctionMapper::toGetListDto).toList(), auctions.getTotalPages());
+    public AuctionDTO.GetPage getMyEndedAuctions(int page, int size, String email) {
+        Page<Auction> auctions = auctionRepository.findEndAuctionsBySeller(LocalDateTime.now(), email, toPageable(page, size, SORT_DEFAULT));
+        List<AuctionDTO.GetList> result = new ArrayList<>();
+        for(Auction auction : auctions.getContent()){
+            result.add(AuctionMapper.toGetListDto(auction,
+                    depositService.getNowParticipation(auction.getId()),
+                    productService.get(auction.getProductId()).getCategoryName(),
+                    fileService.getThumbnail(auction.getProductId()).getFilePath()
+            ));
+        }
+        return AuctionMapper.toGetPageDto(result, auctions.getTotalPages());
     }
 
     /**
@@ -147,5 +210,9 @@ public class AuctionServiceImpl implements AuctionService {
 
     private Auction findAuction(Long id){
         return auctionRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.AUCTION_NOT_FOUND));
+    }
+
+    private Pageable toPageable(int page, int size, String target){
+        return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
     }
 }

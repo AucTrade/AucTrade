@@ -110,10 +110,6 @@ public class AuctionDTO {
         private Boolean isStarted;
         private Boolean isEnded;
 
-        public void updateProductInfo(String productCategory, String thumbnail){
-            this.productCategory = productCategory;
-            this.thumbnail = thumbnail;
-        }
         public void updateMinimumPrice(Integer minimumPrice){
             this.minimumPrice = minimumPrice;
         }

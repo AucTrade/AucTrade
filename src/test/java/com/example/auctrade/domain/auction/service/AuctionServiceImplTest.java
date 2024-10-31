@@ -1,17 +1,16 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.auction.entity.Auction;
-import com.example.auctrade.domain.auction.repository.AuctionRepository;
+import com.example.auctrade.domain.product.dto.ProductCategoryDTO;
+import com.example.auctrade.domain.product.service.ProductCategoryService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,46 +25,22 @@ import java.util.List;
 class AuctionServiceImplTest {
     @Autowired
     AuctionService auctionService;
-
     @Autowired
-    AuctionRepository auctionRepository;
-
-    List<Auction> dataList = new ArrayList<>();
-
+    ProductCategoryService productCategoryService;
+    List<MultipartFile[]> mockFiles = new ArrayList<>();
 
     @BeforeAll
     void createData(){
+        productCategoryService.create(new ProductCategoryDTO("잡화"));
 
-        for(int i = 0 ; i < 10; i++){
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime startTime;
-            LocalDateTime endTime;
-
-            if (i < 4) {
-                // 0, 1, 2, 3: 시작하지 않은 경매
-                startTime = now.plusDays(2);
-                endTime = startTime.plusDays(1);
-            } else if (i < 9) {
-                // 4, 5, 6, 7, 8: 진행 중인 경매
-                startTime = now.minusDays(1);
-                endTime = now.plusDays(1);
-            } else {
-                // 9: 이미 끝난 경매
-                startTime = now.minusDays(2);
-                endTime = now.minusDays(1);
-            }
-
-            dataList.add(auctionRepository.save(Auction.builder()
-                    .title("제목" + i)
-                    .description("내용" + i)
-                    .startTime(startTime)
-                    .endTime(endTime)
-                    .maxParticipants(50 + i)
-                    .minimumPrice(1000 + i)
-                    .productId(i)
-                    .sellerEmail("test" + (i % 3) + "@test.com")
-                    .build()));
-        }
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", // 파라미터 이름
+                "testfile.png", // 파일 이름
+                "image/png", // 파일 타입
+                "Hello World".getBytes() // 파일 내용
+        );
+        
+        mockFiles.add(new MultipartFile[]{mockFile});
     }
 
     @AfterAll
@@ -73,81 +48,244 @@ class AuctionServiceImplTest {
     }
 
     @Test
-    @DisplayName("경매 page 조회 기능 TEST")
-    void getAuctions() {
-        List<AuctionDTO.GetList> result = auctionService.getAuctions(toPageable(1,4,"createdAt"));
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals("제목9",result.get(0).getTitle());
-
-        List<AuctionDTO.GetList> result2 = auctionService.getAuctions(toPageable(2,4,"createdAt"));
-        Assertions.assertNotNull(result2);
-        Assertions.assertEquals("제목5",result2.get(0).getTitle());
-
-    }
-
-    @Test
     @DisplayName("경매 id 조회 기능 TEST")
     void getAuctionById() {
-        Auction target = dataList.get(0);
-        AuctionDTO.Get result = auctionService.getAuctionById(target.getId());
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(target.getId(), result.getId());
+        AuctionDTO.Create request = new AuctionDTO.Create("제목1",
+                "내용", startTime, endTime,50 ,1000, "제품1" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test@test.com");
+
+        AuctionDTO.GetPage data = auctionService.getAllMyAuctions(1, 10, "test@test.com");
+        Assertions.assertNotEquals(0, data.getAuctions().size());
+        
+        AuctionDTO.Enter result = auctionService.getAuctionById(data.getAuctions().get(0).getId());
+        Assertions.assertEquals("제목1", result.getTitle());
+        Assertions.assertEquals("제품1", result.getProductName());
+        Assertions.assertEquals("잡화", result.getProductCategory());
     }
 
     @Test
     @DisplayName("시작전 경매 확인")
     void getNotStartedAuctions() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
-        List<AuctionDTO.GetList> result = auctionService.getNotStartedAuctions(toPageable(1,10,"createdAt"));
+        AuctionDTO.Create request = new AuctionDTO.Create("제목2",
+                "내용", startTime, endTime,50 ,1000, "제품2" ,"상세",1L);
 
-        Assertions.assertEquals(4, result.size());
+        auctionService.createAuction(request, mockFiles.get(0),"test2@test.com");
+
+        request = new AuctionDTO.Create("제목3",
+                "내용", startTime, endTime,50 ,1000, "제품3" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test2@test.com");
+
+        List<AuctionDTO.BeforeStart> result = auctionService.getNotStartedAuctions(1,10);
+        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals("제목3", result.get(0).getTitle());
+        Assertions.assertEquals("제목2", result.get(1).getTitle());
     }
     @Test
     @DisplayName("내가 생성한 모든 경매 확인")
     void getAllMyAuctions() {
-        List<AuctionDTO.GetList> result = auctionService.getAllMyAuctions(toPageable(1,10,"createdAt"), "test1@test.com");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
-        Assertions.assertEquals(3, result.size());
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,50 ,1000, "제품1" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test3@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,50 ,1000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test3@test.com");
+
+        startTime = now.minusDays(2);
+        endTime = now.minusDays(1);
+
+        request = new AuctionDTO.Create("끝난 경매",
+                "내용", startTime, endTime,50 ,1000, "제품3" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test3@test.com");
+
+        AuctionDTO.GetPage result = auctionService.getAllMyAuctions(1,10,"test3@test.com");
+        Assertions.assertEquals(3, result.getAuctions().size());
+        Assertions.assertEquals("시작하기전 경매", result.getAuctions().get(0).getTitle());
+        Assertions.assertEquals("진행중 경매", result.getAuctions().get(1).getTitle());
+        Assertions.assertEquals("끝난 경매", result.getAuctions().get(2).getTitle());
     }
 
     @Test
     @DisplayName("내가 생성한 경매 중 시작하지 않은 리스트 확인")
     void getMyNotStartedAuctions() {
-        AuctionDTO.GetPage result = auctionService.getMyNotStartedAuctions(toPageable(1,10,"createdAt"), "test0@test.com");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
-        Assertions.assertEquals(2, result.getAuctions().size());
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,50 ,1000, "제품1" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test4@test.com");
+
+        request = new AuctionDTO.Create("시작하기전 경매2",
+                "내용", startTime, endTime,50 ,1000, "제품2" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test5@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,50 ,1000, "제품3" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test4@test.com");
+
+        startTime = now.minusDays(2);
+        endTime = now.minusDays(1);
+
+        request = new AuctionDTO.Create("끝난 경매",
+                "내용", startTime, endTime,50 ,1000, "제품4" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test4@test.com");
+
+
+        AuctionDTO.GetPage result = auctionService.getMyNotStartedAuctions(1,10, "test4@test.com");
+        Assertions.assertEquals(1, result.getAuctions().size());
+        Assertions.assertEquals("시작하기전 경매", result.getAuctions().get(0).getTitle());
     }
 
     @Test
     @DisplayName("내가 생성한 경매 중 진행중인 리스트 확인")
     void getMyActiveAuctions() {
-        AuctionDTO.GetPage result = auctionService.getMyActiveAuctions(toPageable(1,10,"createdAt"), "test0@test.com");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,50 ,1000, "제품1" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test6@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,50 ,1000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test6@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매2",
+                "내용", startTime, endTime,50 ,1000, "제품3" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test7@test.com");
+
+
+        startTime = now.minusDays(2);
+        endTime = now.minusDays(1);
+
+        request = new AuctionDTO.Create("끝난 경매",
+                "내용", startTime, endTime,50 ,1000, "제품4" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test6@test.com");
+
+        AuctionDTO.GetPage result = auctionService.getMyActiveAuctions(1,10,"test6@test.com");
         Assertions.assertEquals(1, result.getAuctions().size());
+        Assertions.assertEquals("진행중 경매", result.getAuctions().get(0).getTitle());
     }
 
     @Test
     @DisplayName("내가 생성한 경매 중 종료된 리스트 확인")
     void getMyEndedAuctions() {
-        AuctionDTO.GetPage result = auctionService.getMyEndedAuctions(toPageable(1,10,"createdAt"), "test0@test.com");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
 
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,50 ,1000, "제품1" ,"상세",1L);
+
+        auctionService.createAuction(request, mockFiles.get(0),"test8@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,50 ,1000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test8@test.com");
+
+        startTime = now.minusDays(2);
+        endTime = now.minusDays(1);
+
+        request = new AuctionDTO.Create("끝난 경매",
+                "내용", startTime, endTime,50 ,1000, "제품3" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test9@test.com");
+
+        request = new AuctionDTO.Create("끝난 경매2",
+                "내용", startTime, endTime,50 ,1000, "제품4" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test8@test.com");
+
+        AuctionDTO.GetPage result = auctionService.getMyEndedAuctions(1,10, "test8@test.com");
         Assertions.assertEquals(1, result.getAuctions().size());
+        Assertions.assertEquals("끝난 경매2", result.getAuctions().get(0).getTitle());
+
     }
 
     @Test
     @DisplayName("경매 최대 인원 조회")
     void getMaxParticipation() {
-        Assertions.assertEquals(53, auctionService.getMaxParticipation(dataList.get(3).getId()));
-        Assertions.assertEquals(55, auctionService.getMaxParticipation(dataList.get(5).getId()));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
+
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,30 ,1000, "제품1" ,"상세",1L);
+
+
+        auctionService.createAuction(request, mockFiles.get(0),"test10@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,20 ,1000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test11@test.com");
+
+        AuctionDTO.GetPage data1 = auctionService.getAllMyAuctions(1, 10, "test10@test.com");
+        Assertions.assertEquals(30, auctionService.getMaxParticipation(data1.getAuctions().get(0).getId()));
+
+        AuctionDTO.GetPage data2 = auctionService.getAllMyAuctions(1, 10, "test11@test.com");
+        Assertions.assertEquals(20, auctionService.getMaxParticipation(data2.getAuctions().get(0).getId()));
     }
 
     @Test
     @DisplayName("경매 최소 입찰금 조회")
     void getMinimumPrice() {
-        Assertions.assertEquals(1003, auctionService.getMinimumPrice(dataList.get(3).getId()));
-        Assertions.assertEquals(1005, auctionService.getMinimumPrice(dataList.get(5).getId()));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = now.plusDays(2);
+        LocalDateTime endTime = startTime.plusDays(1);
+
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime, endTime,30 ,3000, "제품1" ,"상세",1L);
+
+
+        auctionService.createAuction(request, mockFiles.get(0),"test12@test.com");
+
+        startTime = now.minusDays(1);
+        endTime = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime, endTime,20 ,2000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test13@test.com");
+
+        AuctionDTO.GetPage data1 = auctionService.getAllMyAuctions(1, 10, "test12@test.com");
+        Assertions.assertEquals(3000, auctionService.getMinimumPrice(data1.getAuctions().get(0).getId()));
+
+        AuctionDTO.GetPage data2 = auctionService.getAllMyAuctions(1, 10, "test13@test.com");
+        Assertions.assertEquals(2000, auctionService.getMinimumPrice(data2.getAuctions().get(0).getId()));
     }
 
     @Test
@@ -155,15 +293,29 @@ class AuctionServiceImplTest {
     void getStartAt() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-        String time1 = dataList.get(3).getStartTime().format(formatter);
-        Assertions.assertEquals(time1, auctionService.getStartAt(dataList.get(3).getId()).substring(0, 23));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime1 = now.plusDays(2);
+        LocalDateTime endTime1 = startTime1.plusDays(1);
 
-        String time2 = dataList.get(5).getEndTime().format(formatter);
-        Assertions.assertNotEquals(time2, auctionService.getStartAt(dataList.get(5).getId()).substring(0, 23));
-    }
+        AuctionDTO.Create request = new AuctionDTO.Create("시작하기전 경매",
+                "내용", startTime1, endTime1,30 ,3000, "제품1" ,"상세",1L);
 
 
-    private Pageable toPageable(int page, int size, String target){
-        return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
+        auctionService.createAuction(request, mockFiles.get(0),"test14@test.com");
+
+        LocalDateTime startTime2 = now.minusDays(1);
+        LocalDateTime endTime2 = now.plusDays(1);
+
+        request = new AuctionDTO.Create("진행중 경매",
+                "내용", startTime2, endTime2,20 ,2000, "제품2" ,"상세",1L);
+        auctionService.createAuction(request, mockFiles.get(0),"test15@test.com");
+
+
+        String time1 = startTime1.format(formatter);
+        AuctionDTO.GetPage data1 = auctionService.getAllMyAuctions(1, 10, "test14@test.com");
+        Assertions.assertEquals(time1, auctionService.getStartAt(data1.getAuctions().get(0).getId()).substring(0, 23));
+
+        String time2 = endTime1.format(formatter);
+        Assertions.assertNotEquals(time2, auctionService.getStartAt(data1.getAuctions().get(0).getId()).substring(0, 23));
     }
 }

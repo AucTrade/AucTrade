@@ -24,16 +24,16 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDto(AuctionDTO.Get auction, ProductDTO.Get product, List<String> files) {
+    public static AuctionDTO.Enter toEnterDto(Auction auction, ProductDTO.Get product, List<String> files) {
         return (auction == null) ? null : AuctionDTO.Enter.builder()
                 .title(auction.getTitle())
-                .introduce(auction.getIntroduce())
+                .introduce(auction.getDescription())
                 .productName(product.getName())
                 .productDetail(product.getDetail())
                 .productCategory(product.getCategoryName())
-                .saleUserEmail(auction.getSaleUserEmail())
-                .startDate(auction.getStartDate())
-                .finishDate(auction.getFinishDate())
+                .saleUserEmail(auction.getSellerEmail())
+                .startDate(auction.getStartTime())
+                .finishDate(auction.getEndTime())
                 .files(files)
                 .build();
     }
@@ -55,7 +55,7 @@ public class AuctionMapper {
         return new AuctionDTO.GetPage(auctions, lastPage);
     }
 
-    public static AuctionDTO.GetList toGetListDto(Auction auction) {
+    public static AuctionDTO.GetList toGetListDto(Auction auction, int getNowParticipation, String categoryName, String thumbnail) {
         return (auction == null) ? null : AuctionDTO.GetList.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
@@ -65,24 +65,32 @@ public class AuctionMapper {
                 .productId(auction.getProductId())
                 .price(auction.getMinimumPrice())
                 .minimumPrice(auction.getMinimumPrice())
+                .curPersonnel(getNowParticipation)
+                .productCategory(categoryName)
+                .thumbnail(thumbnail)
                 .build();
     }
 
-    public static AuctionDTO.BeforeStart toBeforeStartDto(AuctionDTO.GetList auction, DepositDTO.GetList deposit, String categoryName, String thumbnail) {
+    public static AuctionDTO.BeforeStart toBeforeStartDto(Auction auction, DepositDTO.GetList deposit, String categoryName, String thumbnail) {
         return (auction == null) ? null : AuctionDTO.BeforeStart.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
-                .introduce(auction.getIntroduce())
-                .startDate(auction.getStartDate())
+                .introduce(auction.getDescription())
+                .startDate(auction.getStartTime())
                 .minDeposit(deposit.getDeposit())
                 .currentPersonnel(deposit.getNowParticipation())
                 .thumbnail(thumbnail)
-                .maxPersonnel(auction.getMaxPersonnel())
+                .maxPersonnel(auction.getMaxParticipants())
                 .price(auction.getMinimumPrice())
                 .minimumPrice(auction.getMinimumPrice())
                 .productCategory(categoryName)
                 .build();
     }
+
+    public static AuctionDTO.GetPage toGetPageDto(List<AuctionDTO.GetList> auctions, int lastPage) {
+        return new AuctionDTO.GetPage(auctions, lastPage);
+    }
+
 
     public static DepositDTO.Create toDepositDto(AuctionDTO.PutDeposit requestDto, String email){
         return (requestDto == null) ? null : DepositDTO.Create.builder()

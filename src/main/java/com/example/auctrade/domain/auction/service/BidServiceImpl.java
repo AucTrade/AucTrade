@@ -20,7 +20,7 @@ import static com.example.auctrade.global.constant.Constants.REDIS_BID_KEY;
 @RequiredArgsConstructor
 @Slf4j
 public class BidServiceImpl implements BidService {
-
+    private final DepositService depositService;
     private final BidLogRepository bidLogRepository;
     private final RedissonClient redissonClient;
 
@@ -52,7 +52,9 @@ public class BidServiceImpl implements BidService {
     }
 
     private boolean processBid(long auctionId, long price, String email) {
-        if (getBidPrice(auctionId) >= price) return false;
+
+        if(getBidPrice(auctionId) >= price) return false;
+        if(depositService.getMyDepositByAuctionId(auctionId,email) < price) return false;
         try {
             RMap<String, String> auctionBids = redissonClient.getMap(REDIS_BID_KEY + auctionId);
             auctionBids.put(BID_USER_KEY, email);

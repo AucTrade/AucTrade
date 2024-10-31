@@ -16,6 +16,10 @@ public class DepositDTO {
         private Long auctionId;
         private Integer deposit;
         private String email;
+        private int minimumPrice;
+        private String startAt;
+        private int maxParticipation;
+
     }
 
     @Getter

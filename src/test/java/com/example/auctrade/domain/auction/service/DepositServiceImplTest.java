@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -130,10 +129,14 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("경매 예치금 등록시 유저 포인트가 부족한 경우 TEST")
     void registerUnderUserPointDeposit() {
+        Auction target = auctions.get(0);
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(0).getId())
+                .auctionId(target.getId())
                 .deposit(2000)
                 .email(buyerList.get(0).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -143,12 +146,16 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("경매 예치금 정상 등록 TEST")
     void successRegisterDeposit() {
+        Auction target = auctions.get(0);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(1).getEmail());
-        System.out.println(beforePoint);
+
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(0).getId())
+                .auctionId(target.getId())
                 .deposit(3000)
                 .email(buyerList.get(1).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertTrue(result.getSuccess());
@@ -158,11 +165,16 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("경매 예치금 최저 입찰가 보다 낮은 금액 등록 TEST")
     void registerUnderMinDeposit() {
+        Auction target = auctions.get(1);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(2).getEmail());
+
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
                 .auctionId(auctions.get(1).getId())
                 .deposit(10)
                 .email(buyerList.get(2).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -172,11 +184,16 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("이미 진행중인 경매 예치금 등록 TEST")
     void registerDepositAlreadyStart() {
+        Auction target = auctions.get(11);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(3).getEmail());
+
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(11).getId())
+                .auctionId(target.getId())
                 .deposit(3000)
                 .email(buyerList.get(3).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -186,11 +203,16 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("이미 끝난 경매 예치금 등록 TEST")
     void registerDepositAlreadyEnd() {
+        Auction target = auctions.get(12);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(4).getEmail());
+
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(12).getId())
+                .auctionId(target.getId())
                 .deposit(3000)
                 .email(buyerList.get(4).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -200,20 +222,28 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("최대 참여 인원수를 채운 경매 예치금 등록 TEST")
     void registerMaxParticipationDeposit() {
+        Auction target = auctions.get(2);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(8).getEmail());
+
         for(int i = 0 ; i < MAX_PARTICIPATION_NUM ; i++) {
 
             depositService.registerDeposit(DepositDTO.Create.builder()
-                    .auctionId(auctions.get(2).getId())
+                    .auctionId(target.getId())
                     .deposit(3000)
                     .email(buyerList.get(5+i).getEmail())
+                    .maxParticipation(target.getMaxParticipants())
+                    .startAt(target.getStartTime().toString())
+                    .minimumPrice(target.getMinimumPrice())
                     .build());
         }
         // 최저 예치금 보다 낮은 금액 등록 시도
         DepositDTO.Result result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(2).getId())
+                .auctionId(target.getId())
                 .deposit(2000)
                 .email(buyerList.get(8).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -221,9 +251,12 @@ class DepositServiceImplTest {
 
         // 같은 금액 등록 시도
         result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(2).getId())
+                .auctionId(target.getId())
                 .deposit(3000)
                 .email(buyerList.get(8).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertFalse(result.getSuccess());
@@ -231,9 +264,12 @@ class DepositServiceImplTest {
 
         // 높은 금액 등록 시도
         result = depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(2).getId())
+                .auctionId(target.getId())
                 .deposit(4000)
                 .email(buyerList.get(8).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         Assertions.assertTrue(result.getSuccess());
@@ -243,67 +279,99 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("경매 최소가 가져오기 TEST")
     void getDeposit() {
+        Auction target = auctions.get(3);
+
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(3).getId())
+                .auctionId(target.getId())
                 .deposit(5000)
                 .email(buyerList.get(9).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(3).getId())
+                .auctionId(target.getId())
                 .deposit(4000)
                 .email(buyerList.get(10).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
-        Integer result = depositService.getMinDeposit(auctions.get(3).getId());
+        Integer result = depositService.getMinDeposit(target.getId());
         Assertions.assertEquals(4000, result);
     }
 
     @Test
     @DisplayName("특정 회원이 예치금 등록한 옥션 리스트 가져오기 TEST")
     void getMyAuctions() {
+        Auction target = auctions.get(4);
+
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(4).getId())
+                .auctionId(target.getId())
                 .deposit(5000)
                 .email(buyerList.get(11).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
+
         List<Long> result = depositService.getMyAuctions(toPageable(1,10, "startAt"), buyerList.get(11).getEmail());
-        Assertions.assertEquals(auctions.get(4).getId(), result.get(0));
+        Assertions.assertEquals(target.getId(), result.get(0));
     }
 
     @Test
     @DisplayName("특정 경매의 예치금 인원 수 가져오기 TEST")
     void getNowParticipation() {
+        Auction target = auctions.get(5);
+
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(5).getId())
+                .auctionId(target.getId())
                 .deposit(4000)
                 .email(buyerList.get(12).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(5).getId())
+                .auctionId(target.getId())
                 .deposit(3000)
                 .email(buyerList.get(13).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
-        Integer result = depositService.getNowParticipation(auctions.get(5).getId());
+        Integer result = depositService.getNowParticipation(target.getId());
         Assertions.assertEquals(2, result);
     }
 
     @Test
     @DisplayName("특정 회원의 예치금 경매 수 확인")
     void getMyDepositSize() {
+        Auction target = auctions.get(6);
+
         depositService.registerDeposit(DepositDTO.Create.builder()
                 .auctionId(auctions.get(6).getId())
                 .deposit(5000)
                 .email(buyerList.get(14).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
+        target = auctions.get(7);
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(7).getId())
+                .auctionId(target.getId())
                 .deposit(5000)
                 .email(buyerList.get(14).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
+
         Long result = depositService.getMyDepositSize(buyerList.get(14).getEmail());
         Assertions.assertEquals(2L, result);
     }
@@ -311,38 +379,65 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("예치금 등록 취소")
     void cancelDeposit() {
+        Auction target = auctions.get(8);
         int beforePoint = userRepository.findPointByEmail(buyerList.get(15).getEmail());
 
         depositService.registerDeposit(DepositDTO.Create.builder()
-                .auctionId(auctions.get(8).getId())
+                .auctionId(target.getId())
                 .deposit(5000)
                 .email(buyerList.get(15).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
                 .build());
 
-        Assertions.assertFalse(depositService.cancelDeposit(auctions.get(8).getId(), buyerList.get(0).getEmail()).getSuccess());
+        Assertions.assertFalse(depositService.cancelDeposit(target.getId(), buyerList.get(0).getEmail()).getSuccess());
         Assertions.assertEquals((beforePoint-5000), userRepository.findPointByEmail(buyerList.get(15).getEmail()));
-        Assertions.assertTrue(depositService.cancelDeposit(auctions.get(8).getId(), buyerList.get(15).getEmail()).getSuccess());
+        Assertions.assertTrue(depositService.cancelDeposit(target.getId(), buyerList.get(15).getEmail()).getSuccess());
         Assertions.assertEquals((beforePoint), userRepository.findPointByEmail(buyerList.get(15).getEmail()));
-        Assertions.assertFalse(depositService.cancelDeposit(auctions.get(8).getId(), buyerList.get(15).getEmail()).getSuccess());
+        Assertions.assertFalse(depositService.cancelDeposit(target.getId(), buyerList.get(15).getEmail()).getSuccess());
+    }
+
+    @Test
+    @DisplayName("예치금 금액 확인 TEST")
+    void getMyDepositByAuctionId() {
+        Auction target = auctions.get(9);
+
+        depositService.registerDeposit(DepositDTO.Create.builder()
+                .auctionId(target.getId())
+                .deposit(5000)
+                .email(buyerList.get(16).getEmail())
+                .maxParticipation(target.getMaxParticipants())
+                .startAt(target.getStartTime().toString())
+                .minimumPrice(target.getMinimumPrice())
+                .build());
+
+        Assertions.assertEquals(5000, depositService.getMyDepositByAuctionId(target.getId(),buyerList.get(16).getEmail()));
+        Assertions.assertEquals(-1, depositService.getMyDepositByAuctionId(target.getId(),buyerList.get(17).getEmail()));
+
     }
 
     @Test
     @DisplayName("예치금 동시 입찰 ")
     void multiDepositRequest() throws InterruptedException{
+        Auction target = auctions.get(10);
         int maxParticipants = 3;
 
         ExecutorService executor = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(10);  // 동시 요청 개수 설정
         List<Boolean> results = new ArrayList<>();  // 성공 여부 확인 리스트
 
-        for (int i = 16; i < 26; i++) {
+        for (int i = 20; i < 30; i++) {
             int finalI = i;
             executor.submit(() -> {
                 try {
                     boolean success = depositService.registerDeposit(DepositDTO.Create.builder()
-                            .auctionId(auctions.get(9).getId())
+                            .auctionId(target.getId())
                             .deposit(2000)
                             .email(buyerList.get(finalI).getEmail())
+                            .maxParticipation(target.getMaxParticipants())
+                            .startAt(target.getStartTime().toString())
+                            .minimumPrice(target.getMinimumPrice())
                             .build()).getSuccess();
                     synchronized (results) {
                         results.add(success);
@@ -358,7 +453,7 @@ class DepositServiceImplTest {
 
         long successfulDeposits = results.stream().filter(Boolean::booleanValue).count();
         Assertions.assertEquals(maxParticipants, successfulDeposits, "성공한 예치금 등록 요청 수는 최대 인원수와 같아야 합니다.");
-        Assertions.assertEquals(maxParticipants, depositService.getNowParticipation(auctions.get(9).getId()), "성공한 예치금 등록 요청 수는 최대 인원수와 같아야 합니다.");
+        Assertions.assertEquals(maxParticipants, depositService.getNowParticipation(target.getId()), "성공한 예치금 등록 요청 수는 최대 인원수와 같아야 합니다.");
     }
 
     private Pageable toPageable(int page, int size, String target){

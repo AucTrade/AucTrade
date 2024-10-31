@@ -12,10 +12,8 @@ import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.auctrade.global.constant.Constants.REDIS_DEPOSIT_KEY;
@@ -28,7 +26,6 @@ public class DepositServiceImpl implements DepositService {
     private final RedissonClient redissonClient;
     private final DepositLogRepository depositLogRepository;
     private final UserService userService;
-    private final AuctionService auctionService;
 
 
     private boolean createDeposit(RScoredSortedSet<String> depositSet , DepositDTO.Create dto, int maxParticipation){
@@ -90,12 +87,7 @@ public class DepositServiceImpl implements DepositService {
     @Override
     public Integer getMinDeposit(Long auctionId) {
         RScoredSortedSet<String> depositSet = redissonClient.getScoredSortedSet(REDIS_DEPOSIT_KEY + auctionId);
-        int size = depositSet.size();
-        int maxParticipation = auctionService.getMaxParticipation(auctionId);
-        int idx = (size <= maxParticipation) ? 0 : size - maxParticipation;
-
-        ArrayList<String> range = (ArrayList<String>) depositSet.valueRange(idx, idx);
-        return range.isEmpty() ? 0 : depositSet.getScore(range.get(0)).intValue();
+        return depositSet.isEmpty() ? 0 : depositSet.getScore(depositSet.first()).intValue();
     }
 
     /**
@@ -110,11 +102,10 @@ public class DepositServiceImpl implements DepositService {
             return DepositMapper.toResultDto(false);
         }
 
-        if (request.getDeposit() < auctionService.getMinimumPrice(request.getAuctionId()))
+        if (request.getDeposit() < request.getMinimumPrice())
             return DepositMapper.toResultDto(false);
 
-        String startAt = auctionService.getStartAt(request.getAuctionId());
-        if(LocalDateTime.parse(startAt, DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
+        if(LocalDateTime.parse(request.getStartAt(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             return DepositMapper.toResultDto(false);
 
         String key = REDIS_DEPOSIT_KEY + request.getAuctionId();
@@ -122,7 +113,7 @@ public class DepositServiceImpl implements DepositService {
         lock.lock();
         try {
             return DepositMapper
-                    .toResultDto(updateDeposit(key, request, auctionService.getMaxParticipation(request.getAuctionId())));
+                    .toResultDto(updateDeposit(key, request, request.getMaxParticipation()));
 
         }catch (Exception e){
             log.error(e.getMessage());
@@ -173,6 +164,18 @@ public class DepositServiceImpl implements DepositService {
         for(DepositLog log : logs){
             depositLogRepository.delete(log);
         }
+    }
+
+    /**
+     * 특정 회원의 해당 경매 예치금 확인
+     * @param auctionId 대상 경매 ID
+     * @param email 대상 이메일
+     */
+    @Override
+    public int getMyDepositByAuctionId(Long auctionId, String email) {
+        RScoredSortedSet<String> depositSet = redissonClient.getScoredSortedSet(REDIS_DEPOSIT_KEY + auctionId);
+        Double res = depositSet.getScore(email);
+        return  (res == null) ? -1 : res.intValue();
     }
 
     /**

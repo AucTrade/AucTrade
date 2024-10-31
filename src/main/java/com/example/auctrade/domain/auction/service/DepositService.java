@@ -21,6 +21,8 @@ public interface DepositService {
 
     void removeMyDepositLog(String email);
 
+    int getMyDepositByAuctionId(Long auctionId, String email);
+
     DepositDTO.Result cancelDeposit(Long auctionId, String email);
 
 }
