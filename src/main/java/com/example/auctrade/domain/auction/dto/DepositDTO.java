@@ -15,9 +15,6 @@ public class DepositDTO {
     public static class Create{
         private Long auctionId;
         private Integer deposit;
-        private int minPrice;
-        private int maxParticipation;
-        private String startTime;
         private String email;
     }
 

@@ -2,6 +2,7 @@ package com.example.auctrade.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,7 +42,7 @@ public class User {
 
     @Column(name = "point")
     private int point;
-
+    @Builder
     public User(String email, String password, String phone, String address, LocalDate birth, UserRoleEnum role, String postcode) {
         this.email = email;
         this.password = password;
@@ -53,8 +54,14 @@ public class User {
         this.point = 1000; // 기본값 설정
     }
 
-    public boolean addPoint(long point){
-        this.point += (int) point;
+    public boolean addPoint(int point){
+        this.point += point;
+        return true;
+    }
+
+    public boolean subPoint(int point){
+        if(this.point - point < 0) return false;
+        this.point -= point;
         return true;
     }
 }

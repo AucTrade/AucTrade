@@ -25,7 +25,7 @@ public class Point {
     private String userId; // 포인트를 가지고 있는 유저 email
 
     @Column(name = "amount")
-    private Long amount; // 포인트 변동사항
+    private Integer amount; // 포인트 변동사항
 
     @Column(name = "account")
     private String account; // 포인트 환전 계좌
@@ -36,7 +36,7 @@ public class Point {
     private LocalDateTime createdAt; // 포인트 거래일
     
     @Builder
-    public static Point createPointLog(String userId, long amount, String account) {
+    public static Point createPointLog(String userId, int amount, String account) {
         Point point = new Point();
         point.userId = userId;
         point.amount = amount;

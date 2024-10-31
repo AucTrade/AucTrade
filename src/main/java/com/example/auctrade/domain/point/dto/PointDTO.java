@@ -12,21 +12,21 @@ public class PointDTO {
     @AllArgsConstructor
     public static class Recharge {
         @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Long recharge;
+        private Integer recharge;
     }
 
     @Getter
     @AllArgsConstructor
     public static class Exchange {
         @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Long exchange;
+        private Integer exchange;
     }
 
     @Getter
     @AllArgsConstructor
     public static class Remittance {
         @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Long point;
+        private Integer point;
         @NotBlank
         private String account;
     }
@@ -34,7 +34,7 @@ public class PointDTO {
     @Getter
     @AllArgsConstructor
     public static class Result {
-        private Long points;
+        private Integer points;
         private Boolean isSuccess;
     }
 }

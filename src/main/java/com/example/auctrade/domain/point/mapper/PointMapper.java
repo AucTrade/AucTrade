@@ -23,7 +23,7 @@ public class PointMapper {
 
 
     public static PointDTO.Result toResultDTO(Point entity) {
-        return (entity == null) ? new PointDTO.Result(0L, false) : new PointDTO.Result(entity.getAmount(), true);
+        return (entity == null) ? new PointDTO.Result(0, false) : new PointDTO.Result(entity.getAmount(), true);
     }
 }
 

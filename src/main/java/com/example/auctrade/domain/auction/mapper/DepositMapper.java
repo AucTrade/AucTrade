@@ -16,7 +16,6 @@ public class DepositMapper {
         return (request == null) ? null : DepositLog.builder()
                 .auctionId(request.getAuctionId())
                 .deposit(request.getDeposit())
-                .startAt(request.getStartTime())
                 .username(request.getEmail())
                 .build();
     }

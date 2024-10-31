@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface DepositService {
 
-    DepositDTO.GetList getDeposit(Long auctionId, int maxParticipation);
+    DepositDTO.GetList getDepositInfo(Long auctionId);
 
-    Integer getMinDeposit(Long auctionId, int maxParticipation);
+    Integer getMinDeposit(Long auctionId);
 
     List<Long> getMyAuctions(Pageable pageable, String email);
 

@@ -80,8 +80,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updatePoint(Long point, String email) {
+    public boolean addPoint(Integer point, String email) {
         return findUserByEmail(email).addPoint(point);
+    }
+
+    @Override
+    public boolean subPoint(Integer point, String email) {
+        return findUserByEmail(email).subPoint(point);
+    }
+
+    @Override
+    public int getPoint(String email) {
+        return userRepository.findPointByEmail(email);
     }
 
     @Override

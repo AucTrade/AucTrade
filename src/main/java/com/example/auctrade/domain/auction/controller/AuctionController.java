@@ -3,7 +3,9 @@ package com.example.auctrade.domain.auction.controller;
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.domain.auction.dto.BidDTO;
 import com.example.auctrade.domain.auction.dto.DepositDTO;
+import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.service.AuctionTotalService;
+import com.example.auctrade.domain.auction.service.DepositService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,6 +25,7 @@ import java.util.List;
 public class AuctionController {
 
     private final AuctionTotalService auctionTotalService;
+    private final DepositService depositService;
 
     @GetMapping("/my/auctions")
     public ResponseEntity<AuctionDTO.GetPage> getAllMyAuction(
@@ -46,7 +49,7 @@ public class AuctionController {
 
     @PostMapping("/auctions/deposits")
     public ResponseEntity<DepositDTO.Result> depositAuction(@RequestBody AuctionDTO.PutDeposit requestDto, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionTotalService.registerDeposit(requestDto, userDetails.getUsername()));
+        return ResponseEntity.ok(depositService.registerDeposit(AuctionMapper.toDepositDto(requestDto, userDetails.getUsername())));
     }
 
     @GetMapping("/auctions/deposits")

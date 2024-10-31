@@ -84,14 +84,11 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static DepositDTO.Create toDepositDto(AuctionDTO.PutDeposit requestDto, String email, int minPrice, int maxParticipation, String startTime){
+    public static DepositDTO.Create toDepositDto(AuctionDTO.PutDeposit requestDto, String email){
         return (requestDto == null) ? null : DepositDTO.Create.builder()
                 .auctionId(requestDto.getAuctionId())
                 .email(email)
                 .deposit(requestDto.getDeposit())
-                .minPrice(minPrice)
-                .maxParticipation(maxParticipation)
-                .startTime(startTime)
                 .build();
     }
 

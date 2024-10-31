@@ -9,5 +9,7 @@ public interface UserService extends UserDetailsService {
     UserDTO.Info getUserInfo(String email);
     UserDTO.Result logoutUser(String email);
     boolean existUserEmail(String email);
-    boolean updatePoint(Long point, String email);
+    boolean addPoint(Integer point, String email);
+    boolean subPoint(Integer point, String email);
+    int getPoint(String email);
 }

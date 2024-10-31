@@ -19,7 +19,7 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public PointDTO.Result createPointLog(PointDTO.Recharge request, String email) {
-        if(userService.updatePoint(request.getRecharge(), email))
+        if(userService.addPoint(request.getRecharge(), email))
             return PointMapper.toResultDTO(pointLogRepository.save(PointMapper.rechargeLog(request, email)));
 
         return new PointDTO.Result(request.getRecharge(), false);
@@ -27,7 +27,7 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public PointDTO.Result createPointExchangeLog(PointDTO.Exchange request, String email) {
-        if(userService.updatePoint(-1*request.getExchange(), email))
+        if(userService.subPoint(request.getExchange(), email))
             return PointMapper.toResultDTO(pointLogRepository.save(PointMapper.exchangeLog(request, email)));
 
         return new PointDTO.Result(request.getExchange(), false);

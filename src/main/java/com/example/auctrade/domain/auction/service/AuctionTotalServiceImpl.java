@@ -5,7 +5,6 @@ import com.example.auctrade.domain.auction.dto.BidDTO;
 import com.example.auctrade.domain.auction.dto.DepositDTO;
 import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.mapper.BidMapper;
-import com.example.auctrade.domain.auction.mapper.DepositMapper;
 import com.example.auctrade.domain.product.mapper.ProductMapper;
 import com.example.auctrade.domain.product.service.FileService;
 import com.example.auctrade.domain.product.service.ProductService;
@@ -87,13 +86,7 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
      */
     @Override
     public DepositDTO.Result registerDeposit(AuctionDTO.PutDeposit request, String email) {
-        long auctionId = request.getAuctionId();
-        return depositService.registerDeposit(AuctionMapper
-                .toDepositDto(request,
-                        email,
-                        auctionService.getMinimumPrice(auctionId),
-                        auctionService.getMaxParticipation(auctionId),
-                        auctionService.getStartAt(auctionId)));
+        return depositService.registerDeposit(AuctionMapper.toDepositDto(request, email));
     }
 
     /**
@@ -108,7 +101,7 @@ public class AuctionTotalServiceImpl implements AuctionTotalService{
         for(AuctionDTO.GetList data : auctionService.getNotStartedAuctions(toPageable(page, size, "createdAt"))){
             result.add(AuctionMapper.toBeforeStartDto(
                     data,
-                    depositService.getDeposit(data.getId(), data.getMaxPersonnel()),
+                    depositService.getDepositInfo(data.getId()),
                     productService.get(data.getProductId()).getCategoryName(),
                     fileService.getThumbnail(data.getProductId()).getFilePath()));
         }

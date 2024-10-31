@@ -1,14 +1,12 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.document.BidLog;
-import com.example.auctrade.domain.auction.document.DepositLog;
 import com.example.auctrade.domain.auction.dto.BidDTO;
 import com.example.auctrade.domain.auction.mapper.BidMapper;
 import com.example.auctrade.domain.auction.repository.BidLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
-import org.redisson.api.RList;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
