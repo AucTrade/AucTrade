@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.global.valid.LimitValidationGroups;
+import com.example.auctrade.global.valid.ProductValidationGroups;
 import com.example.auctrade.global.valid.PurchaseValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
@@ -33,19 +34,22 @@ public class LimitDTO {
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
 		private LocalDateTime saleDate;
 
-		@Min(value = 1, message = "제한 수량은 최소 1개 이상이어야 합니다.", groups = LimitValidationGroups.LimitMinGroup.class)
-		private int limit;
+		@Min(value = 1, message = "상품 수량은 최소 1개 이상이어야 합니다.", groups = LimitValidationGroups.LimitMinGroup.class)
+		private int amount;
+
+		@Min(value = 1, message = "인당 제한 수량은 최소 1개 이상이어야 합니다.", groups = LimitValidationGroups.LimitMinGroup.class)
+		private int personalLimit;
 
 		@NotBlank(message = "경매 상품명을 입력해 주세요.", groups = LimitValidationGroups.ProductNameBlankGroup.class)
 		private String productName;
 
 		private String productDetail;
 
-		@NotBlank(message = "상품의 카테고리를 입력해 주세요.", groups = LimitValidationGroups.ProductCategoryBlankGroup.class)
-		private String productCategory;
+		@NotBlank(message = "상품의 카테고리를 입력해 주세요.", groups = ProductValidationGroups.CategoryBlankGroup.class)
+		private long productCategoryId;
 
 		@NotBlank(message = "판매자의 이메일을 입력해 주세요.", groups = LimitValidationGroups.SaleUserEmailBlankGroup.class)
-		private String saleUserEmail;
+		private String seller;
 	}
 
 	@Getter
@@ -56,11 +60,11 @@ public class LimitDTO {
 		private String introduce;
 		private Long price;
 		private LocalDateTime saleDate;
-		private int limit;
+		private int personalLimit;
 		private String productName;
 		private String productDetail;
 		private String productCategory;
-		private String saleUserEmail;
+		private String seller;
 		private LocalDateTime created;
 	}
 
@@ -77,7 +81,8 @@ public class LimitDTO {
 	@AllArgsConstructor
 	public static class LimitTradeRequest {
 		private int quantity; // 거래 수량
-		private Long buyer; // 구매 회원 ID
+		private String buyer; // 구매 회원 ID
+		private String seller; //판매자 ID
 		private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
 		private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
 	}

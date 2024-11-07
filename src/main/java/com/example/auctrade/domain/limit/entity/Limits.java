@@ -61,19 +61,17 @@ public class Limits {
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime created;	//판매 게시글 생성 일자
 
-	@Column(name = "limit_amount")
-	private int limit;	//인당 구매 제한
+	@Column(name = "personal_limit")
+	private int personalLimit;	//인당 구매 제한
 
 	@Column(name = "status", nullable = false)
 	private int status = 0;	//판매 상태 : 판매 예정 0, 판매 중 1, 판매완료 2
 
-	@OneToOne
-	@JoinColumn(name = "product")
-	private Product product;
+	@Column(name = "productId", nullable = false)
+	private Long productId;
 
-	@ManyToOne
-	@JoinColumn(name = "sale_user", nullable = false)
-	private User saleUser; // User 객체 (경매 생성자 및 판매자)
+	@Column(name = "seller", nullable = false)
+	private String seller;
 
 	public void start(){this.status=1;}
 	public void end(){this.status=2;}

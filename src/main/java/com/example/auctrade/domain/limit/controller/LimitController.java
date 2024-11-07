@@ -1,5 +1,6 @@
 package com.example.auctrade.domain.limit.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.MediaType;
@@ -30,9 +31,9 @@ public class LimitController {
 	}
 
 	@PostMapping(value = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<LimitDTO.Get> createLimit(@RequestPart(value = "request") LimitDTO.Create limitDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails){
-		LimitDTO.Get saveLimit = limitService.save(limitDTO);
-		return ResponseEntity.ok(saveLimit);
+	public ResponseEntity<LimitDTO.Get> createLimit(@RequestPart(value = "request") LimitDTO.Create limitDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+		LimitDTO.Get savedLimit = limitService.save(limitDTO, imgFiles, userDetails.getUsername());
+		return ResponseEntity.ok(savedLimit);
 	}
 
 	@GetMapping("/{limitId}")
@@ -41,8 +42,8 @@ public class LimitController {
 		return ResponseEntity.ok(limitDTO);
 	}
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<LimitDTO.Get>> getUserLimits(@PathVariable Long userId) {
-		List<LimitDTO.Get> userLimits = limitService.findByUserId(userId);
+	public ResponseEntity<List<LimitDTO.Get>> getUserLimits( @AuthenticationPrincipal UserDetails userDetails) {
+		List<LimitDTO.Get> userLimits = limitService.findByUserEmail(userDetails.getUsername());
 		return ResponseEntity.ok(userLimits);
 	}
 	@GetMapping("/my/limits")

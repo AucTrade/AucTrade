@@ -20,6 +20,8 @@ import com.example.auctrade.domain.trade.mapper.TradeMapper;
 import com.example.auctrade.domain.trade.repository.TradeRepository;
 import com.example.auctrade.domain.trade.service.TradeService;
 import com.example.auctrade.domain.user.entity.User;
+import com.example.auctrade.domain.user.repository.UserRepository;
+import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 
@@ -33,7 +35,7 @@ public class TradeServiceImpl implements TradeService {
 	private final LimitRepository limitRepository;
 	private final AuctionRepository auctionRepository;
 	private final TradeRepository tradeRepository;
-
+	private final UserService userService;
 	@Override
 	@Transactional(readOnly = true)
 	public List<TradeDTO.Get> findTradesByUserId(Long userId) {
@@ -52,6 +54,17 @@ public class TradeServiceImpl implements TradeService {
 
 		// 검증 통과 시 거래 내역 저장
 		if (success) {
+			long calculatedPrice = calculatePrice(tradeDTO);
+
+			// 구매자의 포인트를 차감
+			if (!userService.updatePointById(-calculatedPrice, tradeDTO.getBuyer())) {
+				throw new CustomException(ErrorCode.POINT_UPDATE_FAILED); // 포인트 업데이트 실패 시 예외 처리
+			}
+
+			// 판매자의 포인트를 추가
+			if (!userService.updatePointById(calculatedPrice, tradeDTO.getSeller())) {
+				throw new CustomException(ErrorCode.POINT_UPDATE_FAILED); // 판매자 포인트 업데이트 실패 시 예외 처리
+			}
 			Trade tradeEntity = TradeMapper.toEntity(tradeDTO, calculatePrice(tradeDTO));
 			tradeRepository.save(tradeEntity);
 			return success;
@@ -84,10 +97,14 @@ public class TradeServiceImpl implements TradeService {
 		}
 
 		if (result >= 0) {
+			// 포인트가 부족한 경우 예외 발생
+			if(calculatePrice(tradeDTO) > userService.getUserPoint(tradeDTO.getBuyer())){
+				throw new CustomException(ErrorCode.INSUFFICIENT_POINTS);
+			}
 			return true; // 검증 통과
-		} else if (Long.valueOf(-1L).equals(result)) {  // 명시적으로 Long 타입으로 비교
+		} else if (Long.valueOf(-1L).equals(result)) {
 			throw new CustomException(ErrorCode.INSUFFICIENT_STOCK); // 재고 부족
-		} else if (Long.valueOf(-2L).equals(result)) {  // 명시적으로 Long 타입으로 비교
+		} else if (Long.valueOf(-2L).equals(result)) {
 			throw new CustomException(ErrorCode.USER_LIMIT_EXCEEDED); // 인당 구매 한도 초과
 		}
 
@@ -177,7 +194,7 @@ public class TradeServiceImpl implements TradeService {
 		// Redis에 값이 없으면 DB에서 사용자의 구매 내역을 조회하고 한도를 계산
 		// Limit 엔티티에서 기본 한도 가져옴
 		Limits limit = getLimit(postId);
-		int baseUserLimit = limit.getLimit();  // Limit 엔티티에서 기본 구매 한도
+		int baseUserLimit = limit.getPersonalLimit(); // Limit 엔티티에서 기본 구매 한도
 
 		// Trade 테이블에서 사용자가 이미 구매한 수량을 조회
 		int totalPurchased = tradeRepository.findTotalPurchasedByBuyerAndPostId(buyerId, postId);

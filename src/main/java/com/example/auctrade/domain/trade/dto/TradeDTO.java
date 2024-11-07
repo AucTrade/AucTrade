@@ -13,7 +13,8 @@ public class TradeDTO {
 	@AllArgsConstructor
 	public static class Create {
 		private int quantity; // 거래 수량
-		private Long buyer; // 구매 회원 ID
+		private String buyer; // 구매 회원 ID
+		private String seller; // 판매자 ID
 		private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
 		private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
 	}
@@ -26,7 +27,7 @@ public class TradeDTO {
 		private int quantity; // 거래 수량
 		private LocalDateTime tradeDate; // 거래일
 		private Boolean isFinished; // 거래 완료 여부
-		private Long buyer; // 구매 회원 ID
+		private String buyer; // 구매 회원 ID
 		private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
 		private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
 	}
