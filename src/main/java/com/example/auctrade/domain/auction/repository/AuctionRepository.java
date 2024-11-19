@@ -15,25 +15,25 @@ import java.util.Optional;
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
-    Page<Auction> findBySellerEmail(String sellerEmail, Pageable pageable);
+    Page<Auction> findByUserId(Long userId, Pageable pageable);
 
-    @Query("SELECT a FROM Auction a WHERE a.startTime <= :currentTime AND a.endTime >= :currentTime AND a.sellerEmail = :sellerEmail")
-    Page<Auction> findActivateAuctionsBySeller(@Param("currentTime") LocalDateTime currentTime,
-                                               @Param("sellerEmail") String sellerEmail,
+    @Query("SELECT a FROM Auction a WHERE a.startAt <= :currentTime AND a.endAt >= :currentTime AND a.userId = :userId")
+    Page<Auction> findActivateAuctionsByUserId(@Param("currentTime") LocalDateTime currentTime,
+                                               @Param("userId") Long userId,
                                                Pageable pageable);
 
-    @Query("SELECT a FROM Auction a WHERE a.endTime < :currentTime AND a.sellerEmail = :sellerEmail")
-    Page<Auction> findEndAuctionsBySeller(@Param("currentTime") LocalDateTime currentTime,
-                                          @Param("sellerEmail") String sellerEmail,
+    @Query("SELECT a FROM Auction a WHERE a.endAt < :currentTime AND a.userId = :userId")
+    Page<Auction> findEndAuctionsByUserId(@Param("currentTime") LocalDateTime currentTime,
+                                          @Param("userId") Long userId,
                                           Pageable pageable);
 
-    @Query("SELECT a FROM Auction a WHERE a.startTime > :currentTime AND a.sellerEmail = :sellerEmail")
-    Page<Auction> findNotStartedAuctionsBySeller(@Param("currentTime") LocalDateTime currentTime,
-                                                 @Param("sellerEmail") String sellerEmail,
-                                                 Pageable pageable);
+    @Query("SELECT a FROM Auction a WHERE a.startAt > :currentTime AND a.userId = :userId")
+    Page<Auction> findAllBeforeStartAuctionsByUserId(@Param("currentTime") LocalDateTime currentTime,
+                                                     @Param("userId") Long userId,
+                                                     Pageable pageable);
 
-    @Query("SELECT a FROM Auction a WHERE a.startTime > :currentTime")
-    Page<Auction> findNotStartedAuctions(@Param("currentTime") LocalDateTime currentTime, Pageable pageable);
+    @Query("SELECT a FROM Auction a WHERE a.startAt > :currentTime")
+    Page<Auction> findBeforeStartAuctions(@Param("currentTime") LocalDateTime currentTime, Pageable pageable);
 
     @Query("SELECT a.minimumPrice FROM Auction a WHERE a.id = :id")
     Optional<Integer> findMinimumPriceById(@Param("id") Long id);
@@ -44,10 +44,9 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     @Query("SELECT a.id FROM Auction a")
     List<Long> findAllAuctionIds();
 
-    @Query("SELECT a.startTime FROM Auction a WHERE a.id = :id")
+    @Query("SELECT a.startAt FROM Auction a WHERE a.id = :id")
     LocalDateTime findStartAtById(@Param("id") Long id);
 
     long count();
 
-    long countBySellerEmail(String sellerEmail);
 }

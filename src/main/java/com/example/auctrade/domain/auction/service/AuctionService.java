@@ -1,26 +1,28 @@
 package com.example.auctrade.domain.auction.service;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import org.springframework.data.domain.Pageable;
+import com.example.auctrade.domain.auction.dto.AuctionDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface AuctionService {
 
-    AuctionDTO.Result createAuction(AuctionDTO.Create request, MultipartFile[] files, String saleUsername);
+    AuctionDto.Result createAuction(AuctionDto.Create request, MultipartFile[] files, String email);
 
-    AuctionDTO.Enter getAuctionById(long id);
+    AuctionDto.Enter getAuctionById(long id);
 
-    List<AuctionDTO.BeforeStart> getNotStartedAuctions(int page, int size);
+    List<AuctionDto.BeforeStart> getAllBeforeStartAuction(int page, int size);
 
-    AuctionDTO.GetPage getAllMyAuctions(int page, int size, String email);
+    AuctionDto.GetPage getAllMyAuctions(int page, int size, String email, String status);
 
-    AuctionDTO.GetPage getMyNotStartedAuctions(int page, int size, String email);
+    AuctionDto.Result placeDeposit(AuctionDto.PutDeposit request, Long auctionId, String email);
 
-    AuctionDTO.GetPage getMyActiveAuctions(int page, int size, String email);
+    AuctionDto.Result cancelDeposit(Long auctionId, String email);
 
-    AuctionDTO.GetPage getMyEndedAuctions(int page, int size, String email);
+    AuctionDto.Result placeBid(AuctionDto.PutBid request, Long auctionId, String email);
+
+    AuctionDto.Result cancelBid(Long auctionId, String email);
 
     int getMaxParticipation(Long id);
 
