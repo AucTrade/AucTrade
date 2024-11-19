@@ -1,23 +1,9 @@
 package com.example.auctrade.domain.product.service;
 
-import com.example.auctrade.domain.product.dto.ProductCategoryDTO;
-import com.example.auctrade.domain.product.entity.ProductCategory;
-import com.example.auctrade.domain.product.repository.ProductCategoryRepository;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.example.auctrade.domain.product.dto.ProductCategoryDto;
 
-@Service
-@Transactional
-@RequiredArgsConstructor
-public class ProductCategoryService {
+public interface ProductCategoryService {
+    ProductCategoryDto.Get create(ProductCategoryDto.Create productCategoryDto);
 
-    private final ProductCategoryRepository productCategoryRepository;
-
-    public ProductCategoryDTO create(ProductCategoryDTO productCategoryDTO) {
-        ProductCategory category = new ProductCategory(productCategoryDTO.getCategory());
-        productCategoryRepository.save(category);
-
-        return productCategoryDTO;
-    }
+    ProductCategoryDto.GetAll getAllCategory();
 }

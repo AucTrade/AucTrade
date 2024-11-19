@@ -9,13 +9,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductDTO {
-    private ProductDTO(){}
+public class ProductDto {
+    private ProductDto(){}
     @Builder
     @Getter
     @AllArgsConstructor
     public static class Create {
-        private String saleUsername;
         private String name;
         private String detail;
         private Long productCategoryId;
@@ -23,6 +22,7 @@ public class ProductDTO {
     @Builder
     @Getter
     public static class Get {
+        private Long productId;
         private String name;
         private String detail;
         private String categoryName;
