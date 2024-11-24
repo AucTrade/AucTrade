@@ -2,6 +2,7 @@ package com.example.auctrade.domain.auction.controller;
 
 import com.example.auctrade.domain.auction.dto.AuctionDto;
 import com.example.auctrade.domain.auction.service.AuctionService;
+import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -11,15 +12,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 @Slf4j
 public class AuctionController {
     private final AuctionService auctionService;
+
+    public AuctionController(AuctionService auctionService){
+        this.auctionService = auctionService;
+    }
 
     @GetMapping("/my/auctions")
     public ResponseEntity<AuctionDto.GetPage> getAllMyAuction(
@@ -27,42 +30,46 @@ public class AuctionController {
             @RequestParam(defaultValue = "9") int size,
             @RequestParam(defaultValue = "all") String status,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok( auctionService.getAllMyAuctions(page, size, userDetails.getUsername(), status));
+        return ResponseEntity.ok(auctionService.getAllMyAuctions(page, size, userDetails.getUsername(), status));
     }
 
     @PostMapping(value = "/auctions", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<AuctionDto.Result> createAuction(@RequestPart(value = "request") AuctionDto.Create auctionDTO, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionService.createAuction(auctionDTO, imgFiles, userDetails.getUsername()));
+    public ResponseEntity<AuctionDto.Result> createAuction(@RequestPart(value = "request") AuctionDto.Create requestDto, @RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(auctionService.createAuction(requestDto, imgFiles, userDetails.getUsername()));
     }
 
-    @GetMapping("/auctions/enter/{auctionId}")
-    public ResponseEntity<AuctionDto.Enter> getAuction(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping(value = "/auctions")
+    public ResponseEntity<List<AuctionDto.BeforeStart>> getBeforeAuctionPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
+        return ResponseEntity.ok(auctionService.getAllBeforeStartAuction(page, size));
+    }
+
+    @GetMapping("/auctions/{auctionId}/enter")
+    public ResponseEntity<AuctionDto.Enter> getAuction(@PathVariable Long auctionId) {
         return ResponseEntity.ok(auctionService.getAuctionById(auctionId));
     }
 
     @PostMapping("/auctions/{auctionId}/deposits")
-    public ResponseEntity<AuctionDto.Result> depositAuction(@RequestBody AuctionDto.PutDeposit requestDto, @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<AuctionDto.Result> placeDeposit(@RequestBody AuctionDto.Deposit requestDto, @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionService.placeDeposit(requestDto, auctionId, userDetails.getUsername()));
     }
 
-    @PutMapping("/auctions/{auctionId}/deposits")
-    public ResponseEntity<AuctionDto.Result> cancelDeposit(@RequestBody AuctionDto.PutDeposit requestDto, @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionService.placeDeposit(requestDto, auctionId, userDetails.getUsername()));
+    @GetMapping("/auctions/{auctionId}/deposits")
+    public ResponseEntity<List<DepositInfoVo>> getDepositAuctions(@PathVariable Long auctionId) {
+        return ResponseEntity.ok(auctionService.getAllDeposit(auctionId));
     }
 
-    @GetMapping("/auctions/deposits")
-    public ResponseEntity<List<AuctionDto.BeforeStart>> getDepositAuctions(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
-        return ResponseEntity.ok(auctionService.getAllBeforeStartAuction(page, size));
+    @DeleteMapping("/auctions/{auctionId}/deposits")
+    public ResponseEntity<AuctionDto.Result> cancelDeposit(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(auctionService.cancelDeposit(auctionId, userDetails.getUsername()));
     }
 
     @PostMapping("/auctions/{auctionId}/bids")
-    public ResponseEntity<AuctionDto.Result> bidAuction(@RequestBody AuctionDto.PutBid requestDto,  @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<AuctionDto.BidResult> bidAuction(@RequestBody AuctionDto.Bid requestDto, @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionService.placeBid(requestDto,auctionId,userDetails.getUsername()));
     }
 
-    @PutMapping("/auctions/{auctionId}/bids")
-    public ResponseEntity<AuctionDto.Result> cancelBid(@RequestBody AuctionDto.PutDeposit requestDto, @PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(auctionService.placeDeposit(requestDto, auctionId, userDetails.getUsername()));
+    @DeleteMapping("/auctions/{auctionId}/bids")
+    public ResponseEntity<AuctionDto.Result> cancelBid(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(auctionService.cancelBid(auctionId, userDetails.getUsername()));
     }
-
 }

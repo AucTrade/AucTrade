@@ -5,14 +5,13 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-@Table(name = "auctions")
+@Table(name = "auction")
 @EntityListeners(AuditingEntityListener.class)
 public class Auction {
 
@@ -48,13 +47,16 @@ public class Auction {
     @Column(name = "end_at", nullable = false)
     private LocalDateTime endAt;
 
+    @Column(name = "is_ended", nullable = false)
+    private Boolean isEnded;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @Builder
-    public Auction(String title, String introduce, Integer maxParticipants, Long productId, Long userId, Integer minimumPrice, LocalDateTime startAt, LocalDateTime endAt){
+    public Auction(String title, String introduce, Integer maxParticipants, Long productId, Long userId, Integer minimumPrice, LocalDateTime startAt, LocalDateTime endAt,Boolean isEnded){
         this.title = title;
         this.introduce = introduce;
         this.maxParticipants = maxParticipants;
@@ -63,5 +65,6 @@ public class Auction {
         this.minimumPrice = minimumPrice;
         this.startAt = startAt;
         this.endAt = endAt;
+        this.isEnded = isEnded;
     }
 }

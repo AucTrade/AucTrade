@@ -2,10 +2,9 @@ package com.example.auctrade.domain.auction.mapper;
 
 import com.example.auctrade.domain.auction.dto.AuctionDto;
 import com.example.auctrade.domain.auction.entity.Auction;
-import com.example.auctrade.domain.auction.entity.vo.BidInfoVo;
-import com.example.auctrade.domain.auction.entity.vo.BidVo;
-import com.example.auctrade.domain.auction.entity.vo.DepositInfoVo;
-import com.example.auctrade.domain.auction.entity.vo.DepositVo;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.bid.vo.BidVo;
+import com.example.auctrade.domain.deposit.vo.DepositVo;
 import com.example.auctrade.domain.product.dto.ProductDto;
 
 import java.util.List;
@@ -54,6 +53,7 @@ public class AuctionMapper {
                 .startAt(auctionDto.getStartAt())
                 .minimumPrice(auctionDto.getMinimumPrice())
                 .endAt(auctionDto.getEndAt())
+                .isEnded(false)
                 .build();
     }
 
@@ -67,6 +67,7 @@ public class AuctionMapper {
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .startAt(auction.getStartAt())
+                .endAt(auction.getEndAt())
                 .maxParticipants(auction.getMaxParticipants())
                 .productId(auction.getProductId())
                 .minimumPrice(auction.getMinimumPrice())
@@ -76,14 +77,14 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDto.BeforeStart toBeforeStartDto(Auction auction, DepositInfoVo deposit, Integer nowParticipants, String categoryName, String thumbnail) {
+    public static AuctionDto.BeforeStart toBeforeStartDto(Auction auction, Integer minDeposit, Integer nowParticipants, String categoryName, String thumbnail) {
         return (auction == null) ? null : AuctionDto.BeforeStart.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .startAt(auction.getStartAt())
                 .endAt(auction.getEndAt())
-                .minDeposit(deposit == null ? -1 : deposit.getAmount())
+                .minDeposit(minDeposit)
                 .nowParticipants(nowParticipants)
                 .thumbnail(thumbnail)
                 .maxParticipants(auction.getMaxParticipants())
@@ -97,17 +98,16 @@ public class AuctionMapper {
     }
 
 
-    public static DepositVo toDepositVo(AuctionDto.PutDeposit requestDto, Integer maxParticipants, Long auctionId, Long userId, String email){
+    public static DepositVo toDepositVo(AuctionDto.Deposit requestDto, Integer maxParticipants, Long auctionId, Long userId){
         return (requestDto == null) ? null : DepositVo.builder()
                 .auctionId(auctionId)
                 .userId(userId)
-                .email(email)
                 .amount(requestDto.getAmount())
                 .maxParticipants(maxParticipants)
                 .build();
     }
 
-    public static BidVo toBidVo(AuctionDto.PutBid requestDto, Long auctionId,Long userId, String email){
+    public static BidVo toBidVo(AuctionDto.Bid requestDto, Long auctionId, Long userId, String email){
         return (requestDto == null) ? null : BidVo.builder()
                 .auctionId(auctionId)
                 .userId(userId)
@@ -124,15 +124,6 @@ public class AuctionMapper {
                 .build();
     }
 
-
-    public static DepositInfoVo toDepositInfoVo(Long auctionId, String email, Integer amount){
-        return DepositInfoVo.builder()
-                .auctionId(auctionId)
-                .email(email == null ? "NONE" : email)
-                .amount(amount == null ? -1 : amount)
-                .build();
-    }
-
     public static ProductDto.Create toProductDto(AuctionDto.Create auctionDto) {
         return (auctionDto == null) ? null : ProductDto.Create.builder()
                 .name(auctionDto.getProductName())
@@ -141,9 +132,11 @@ public class AuctionMapper {
                 .build();
     }
 
-
     public static AuctionDto.Result toResultDto(Long auctionId, Boolean isSuccess) {
         return (isSuccess == null) ? null : new AuctionDto.Result(auctionId, isSuccess);
+    }
+    public static AuctionDto.BidResult toBidResultDto(Long auctionId, Integer amount, Boolean isSuccess) {
+        return (isSuccess == null) ? null : new AuctionDto.BidResult(auctionId, amount, isSuccess);
     }
 }
 

@@ -1,9 +1,9 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.dto.AuctionDto;
+import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface AuctionService {
@@ -16,11 +16,13 @@ public interface AuctionService {
 
     AuctionDto.GetPage getAllMyAuctions(int page, int size, String email, String status);
 
-    AuctionDto.Result placeDeposit(AuctionDto.PutDeposit request, Long auctionId, String email);
+    AuctionDto.Result placeDeposit(AuctionDto.Deposit request, Long auctionId, String email);
+
+    List<DepositInfoVo> getAllDeposit(Long auctionId);
 
     AuctionDto.Result cancelDeposit(Long auctionId, String email);
 
-    AuctionDto.Result placeBid(AuctionDto.PutBid request, Long auctionId, String email);
+    AuctionDto.BidResult placeBid(AuctionDto.Bid request, Long auctionId, String email);
 
     AuctionDto.Result cancelBid(Long auctionId, String email);
 
@@ -29,4 +31,5 @@ public interface AuctionService {
     int getMinimumPrice(Long id);
 
     String getStartAt(Long id);
+
 }

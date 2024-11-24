@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,15 +49,17 @@ public class AuctionDto {
     }
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    public static class PutDeposit {
+    public static class Deposit {
         @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
         private Integer amount;
     }
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    public static class PutBid {
+    public static class Bid {
         @Min(value = 0, message = "비용은 최소 0원 이상입니다.", groups = MessageValidationGroups.MinPriceRangeGroup.class)
         private Integer amount;
     }
@@ -103,15 +106,14 @@ public class AuctionDto {
         private String introduce;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime startAt;
-        private String endAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime endAt;
         private Integer maxParticipants;
         private Integer nowParticipants;
         private Integer minimumPrice;
         private Long productId;
         private String productCategory;
         private String thumbnail;
-        private Boolean isStarted;
-        private Boolean isEnded;
     }
 
     @Getter
@@ -125,6 +127,14 @@ public class AuctionDto {
     @AllArgsConstructor
     public static class Result{
         private Long auctionId;
+        private Boolean isSuccess;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class BidResult{
+        private Long auctionId;
+        private Integer amount;
         private Boolean isSuccess;
     }
 
