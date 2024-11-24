@@ -2,11 +2,10 @@ package com.example.auctrade.domain.chat.service;
 
 import java.util.List;
 
+import com.example.auctrade.domain.chat.mapper.DirectChatMapper;
 import org.springframework.stereotype.Service;
 
-import com.example.auctrade.domain.chat.document.DirectChatMessage;
 import com.example.auctrade.domain.chat.dto.DirectChatMessageDTO;
-import com.example.auctrade.domain.chat.factory.ChatMessageFactory;
 import com.example.auctrade.domain.chat.repository.DirectChatMessageRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,12 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DirectChatMessageServiceImpl implements DirectChatMessageService{
 	private final DirectChatMessageRepository chatMessageRepository;
-	private final ChatMessageFactory<DirectChatMessage> chatMessageFactory;
 	@Override
 	public DirectChatMessageDTO.Get saveChatMessage(DirectChatMessageDTO.Create requestDto) {
-		DirectChatMessage chatMessage =
-			chatMessageFactory.orderChatMessage(requestDto.getUsername(), requestDto.getMessage(), requestDto.getChatRoomId());
-		return new DirectChatMessageDTO.Get(chatMessageRepository.save(chatMessage));
+		return new DirectChatMessageDTO.Get(chatMessageRepository.save(DirectChatMapper.toEntity(requestDto)));
 	}
 
 	@Override

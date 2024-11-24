@@ -2,9 +2,7 @@ package com.example.auctrade.domain.limit.service;
 
 import java.util.List;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.auction.mapper.AuctionMapper;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

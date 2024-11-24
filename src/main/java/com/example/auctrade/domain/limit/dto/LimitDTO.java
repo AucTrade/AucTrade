@@ -3,7 +3,6 @@ package com.example.auctrade.domain.limit.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.global.valid.LimitValidationGroups;
 import com.example.auctrade.global.valid.PurchaseValidationGroups;
 import com.fasterxml.jackson.annotation.JsonFormat;

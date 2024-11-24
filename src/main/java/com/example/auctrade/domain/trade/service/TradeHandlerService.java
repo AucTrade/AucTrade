@@ -1,7 +1,5 @@
 package com.example.auctrade.domain.trade.service;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.trade.dto.TradeDTO;
 
 public interface TradeHandlerService {
