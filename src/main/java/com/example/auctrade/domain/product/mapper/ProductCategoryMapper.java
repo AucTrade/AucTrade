@@ -11,7 +11,7 @@ public class ProductCategoryMapper {
     public static ProductCategoryDto.Get toGetDto(ProductCategory productCategory) {
         return (productCategory == null) ? null : ProductCategoryDto.Get.builder()
                 .categoryId(productCategory.getId())
-                .name(productCategory.getCategoryName())
+                .categoryName(productCategory.getCategoryName())
                 .build();
     }
 
@@ -23,7 +23,7 @@ public class ProductCategoryMapper {
 
     public static ProductCategory toEntity(ProductCategoryDto.Create productCategoryDto) {
         return (productCategoryDto == null) ? null : ProductCategory.builder()
-                .categoryName(productCategoryDto.getName())
+                .categoryName(productCategoryDto.getCategoryName())
                 .build();
     }
 }

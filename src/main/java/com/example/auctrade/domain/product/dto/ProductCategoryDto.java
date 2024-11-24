@@ -5,29 +5,28 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Getter
-@Setter
+
 public class ProductCategoryDto {
 
     private ProductCategoryDto(){}
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class Create {
-
         @NotBlank(message = "카테고리 명을 입력해주세요.", groups = ProductCategoryValidationGroups.NameBlankGroup.class)
-        private String name;
+        private String categoryName;
     }
 
     @Getter
     @Builder
     public static class Get {
         private Long categoryId;
-        private String name;
+        private String categoryName;
     }
 
     @Getter

@@ -7,8 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
+
 public class ProductDto {
     private ProductDto(){}
     @Builder

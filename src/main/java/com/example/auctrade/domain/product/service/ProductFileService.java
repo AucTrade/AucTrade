@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-public interface FileService {
+public interface ProductFileService {
     Boolean uploadFile(MultipartFile[] uploadFiles, Long productId) throws IOException;
 
     List<String> getFiles(Long productId);
