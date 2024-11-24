@@ -51,17 +51,14 @@ public class User {
         this.birth = birth;
         this.role = role;
         this.postcode = postcode;
-        this.point = 1000; // 기본값 설정
+        this.point = 0;
     }
 
-    public boolean addPoint(int point){
+    public void addPoint(int point){
         this.point += point;
-        return true;
     }
 
-    public boolean subPoint(int point){
-        if(this.point - point < 0) return false;
+    public void subPoint(int point){
         this.point -= point;
-        return true;
     }
 }
