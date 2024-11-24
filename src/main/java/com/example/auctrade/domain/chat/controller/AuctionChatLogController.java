@@ -1,8 +1,7 @@
 package com.example.auctrade.domain.chat.controller;
 
-import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
-import com.example.auctrade.domain.chat.service.AuctionChatMessageServiceImpl;
-import lombok.RequiredArgsConstructor;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDto;
+import com.example.auctrade.domain.chat.service.AuctionChatMessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,21 +12,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
-@RequiredArgsConstructor
 public class AuctionChatLogController {
-    private final AuctionChatMessageServiceImpl chatMessageServiceImpl;
-
-    // 채팅 로그 조회
-    @GetMapping("/{auctionId}")
-    private ResponseEntity<List<AuctionMessageDTO.Get>> getChatLogs(@PathVariable Long auctionId) {
-        List<AuctionMessageDTO.Get> log = chatMessageServiceImpl.findLog(auctionId.toString());
-        return ResponseEntity.ok(log);
+    private final AuctionChatMessageService auctionChatMessageService;
+    public AuctionChatLogController(AuctionChatMessageService auctionChatMessageService){
+        this.auctionChatMessageService = auctionChatMessageService;
     }
 
-    // 채팅 로그 중 경매 내역 로그만 조회
-    @GetMapping("/{auctionId}/auction")
-    private ResponseEntity<List<AuctionMessageDTO.Get>> getAuctionLogs(@PathVariable Long auctionId) {
-        List<AuctionMessageDTO.Get> auctionLog = chatMessageServiceImpl.findAuctionLog(auctionId.toString());
-        return ResponseEntity.ok(auctionLog);
+    @GetMapping("/auctions/{auctionId}")
+    private ResponseEntity<List<AuctionMessageDto.Get>> getChatLogs(@PathVariable Long auctionId) {
+        List<AuctionMessageDto.Get> log = auctionChatMessageService.findLog(auctionId);
+        return ResponseEntity.ok(log);
     }
 }

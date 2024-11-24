@@ -1,4 +1,4 @@
-package com.example.auctrade.domain.chat.document;
+package com.example.auctrade.domain.chat.entity;
 
 import lombok.AccessLevel;
 import lombok.Getter;

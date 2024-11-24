@@ -1,6 +1,6 @@
 package com.example.auctrade.global.auth.filter;
 
-import com.example.auctrade.domain.user.dto.UserDTO;
+import com.example.auctrade.domain.user.dto.UserDto;
 import com.example.auctrade.domain.user.entity.UserDetailsImpl;
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import com.example.auctrade.global.auth.service.JwtTokenService;
@@ -9,7 +9,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,7 +34,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     public CustomLoginFilter(JwtTokenService jwtTokenService) {
         this.jwtTokenService = jwtTokenService;
-        setFilterProcessesUrl("/api/users/login"); // 로그인 처리 경로 설정(매우매우 중요)
+        setFilterProcessesUrl("/api/users/login");
         super.setUsernameParameter("email");
     }
 
@@ -44,9 +43,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("로그인 단계 진입");
         try {
-            UserDTO.Login requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDTO.Login.class);
-            log.info("로그인 시도 - 이메일: {}, 비밀번호: {}", requestDto.getEmail(), requestDto.getPassword());
-
+            UserDto.Login requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDto.Login.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -61,8 +58,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult){
-        log.info("로그인 성공 및 JWT 생성");
-
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 

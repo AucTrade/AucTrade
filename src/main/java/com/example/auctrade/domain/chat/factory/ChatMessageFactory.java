@@ -1,6 +1,6 @@
 package com.example.auctrade.domain.chat.factory;
 
-import com.example.auctrade.domain.chat.document.ChatMessage;
+import com.example.auctrade.domain.chat.entity.ChatMessage;
 
 // 팩토리 메소드 패턴 최상위 인터페이스
 public interface ChatMessageFactory<T extends ChatMessage> {

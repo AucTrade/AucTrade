@@ -1,14 +1,14 @@
 package com.example.auctrade.domain.chat.service;
 
-import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDto;
 
 import java.util.List;
 
 public interface AuctionChatMessageService {
 
-    AuctionMessageDTO.Get saveChatMessage(AuctionMessageDTO.Create requestDto);
+    AuctionMessageDto.Get createEnterChatMessage(Long auctionId, String email);
 
-    List<AuctionMessageDTO.Get> findLog(String auctionId);
+    AuctionMessageDto.Get createChatMessage(AuctionMessageDto.Create requestDto, String email);
 
-    List<AuctionMessageDTO.Get> findAuctionLog(String auctionId);
+    List<AuctionMessageDto.Get> findLog(Long auctionId);
 }
