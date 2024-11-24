@@ -1,6 +1,6 @@
 package com.example.auctrade.global.config;
 
-import com.example.auctrade.domain.chat.dto.AuctionMessageDTO;
+import com.example.auctrade.domain.chat.dto.AuctionMessageDto;
 import com.example.auctrade.domain.chat.service.AuctionChatMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,8 +60,8 @@ class WebSocketConfigTest {
     }
 
     // 메세지 임의 설정 메소드
-    private AuctionMessageDTO getMessageDTO() {
-        AuctionMessageDTO message = new AuctionMessageDTO();
+    private AuctionMessageDto.Create getMessageDTO() {
+        AuctionMessageDto.Create message = new AuctionMessageDto.Create(1L,"");
 
 
         return message;
@@ -96,12 +96,12 @@ class WebSocketConfigTest {
 
         // when
         // 메세지 저장 서비스 모킹 처리
-        AuctionMessageDTO mockMessage = getMessageDTO();
+        AuctionMessageDto.Create mockMessage = getMessageDTO();
 
 
         // 메세지 수신 비동기 작업 처용 CompletableFuture 인스턴스
         // 메세지 수신되면 완료
-        CompletableFuture<AuctionMessageDTO> future = new CompletableFuture<>();
+        CompletableFuture<AuctionMessageDto> future = new CompletableFuture<>();
 
         // 구독 헤더 설정
         StompHeaders subscribeHeaders = new StompHeaders();
@@ -112,14 +112,14 @@ class WebSocketConfigTest {
             // 페이로드 역직렬화
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return AuctionMessageDTO.class;
+                return AuctionMessageDto.class;
             }
 
             // 메세지 get
             // CompletableFuture 인스턴스 메세지 수신 완료 처리
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                future.complete((AuctionMessageDTO) payload);
+                future.complete((AuctionMessageDto) payload);
             }
         });
 
@@ -131,7 +131,7 @@ class WebSocketConfigTest {
 
         // then
         // 메시지 수신 확인(내용이 같은지)
-        AuctionMessageDTO receivedMessage = future.get(5, TimeUnit.SECONDS);
+        AuctionMessageDto receivedMessage = future.get(5, TimeUnit.SECONDS);
 
     }
 }
