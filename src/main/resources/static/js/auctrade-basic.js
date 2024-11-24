@@ -1,5 +1,4 @@
 
-    var username;
     $(document).ready(function () {
         $("#header").load("/header #header", function() {makeHeaderTab();});
         $("#footer").load("/footer #footer");

@@ -1,40 +1,35 @@
 package com.example.auctrade.domain.point.dto;
 
-import jakarta.validation.constraints.Min;
+import com.example.auctrade.global.valid.PointValidationGroups;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class PointDTO {
-    private PointDTO(){}
 
+public class PointDto {
+    private PointDto(){}
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    public static class Recharge {
-        @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Integer recharge;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public static class Exchange {
-        @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Integer exchange;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public static class Remittance {
-        @Min(value = 0, message = "포인트는 최소 0 이상입니다.")
-        private Integer point;
-        @NotBlank
+    public static class Create{
+        @NotNull(message = "포인트 량을 입력해주세요.", groups = PointValidationGroups.AmountBlankGroup.class)
+        private Integer amount;
+        @NotBlank(message = "계좌 번호를 입력해주세요.", groups = PointValidationGroups.AccountBlankGroup.class)
         private String account;
     }
 
     @Getter
     @AllArgsConstructor
     public static class Result {
-        private Integer points;
-        private Boolean isSuccess;
+        private final Long pointId;
+        private final Boolean success;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Get {
+        private final Integer amount;
     }
 }

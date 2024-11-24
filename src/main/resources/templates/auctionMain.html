@@ -93,7 +93,7 @@
     function loadAuctions(){
         if(isLastPage) return;
 
-        getAjaxRequest(`/api/auctions/deposits?page=${page}&size=${size}`)
+        getAjaxRequest(`/api/auctions?page=${page}&size=${size}`)
         .then(result => {
             if(result == null) return;
 
@@ -114,11 +114,9 @@
     } //loadAuctions
 
     function makeAuctionListHTML(data){
-        console.log("경매 리스트 데이터: " + data)
 
         var newHtml = '';
         data.forEach((element, index) => {
-            console.log("각 경매 제목: " + element.title)
 
             newHtml += `<div class="auction-item card m-2">
                 <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
@@ -136,13 +134,13 @@
                                     <div class="col-6">
                                         <div class="row">
                                             <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
-                                                <div class="col-6 text-primary"><b>최저 예치금 : ${element.minimumPrice}</b></div>
-                                                <div class="col-6 text-primary"><b>인원 : ${element.currentPersonnel} / ${element.maxPersonnel}</b></div>
+                                                <div class="col-6 text-primary"><b>최소 입찰가 : ${element.minimumPrice}</b></div>
+                                                <div class="col-6 text-primary"><b>인원 : ${element.nowParticipants} / ${element.maxParticipants}</b></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row" style="height: 30px;">
-                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startAt}</button></div>
                                     <div class="col-6"><p>현재 최저 예치금 : ${element.minDeposit}</p></div>
                                 </div>
                             </div>
@@ -158,19 +156,19 @@
         e.preventDefault();
 
         const minPrice = document.querySelector("#minPrice").value;
+        const auctionId = document.querySelector('#auctionId').value;
+
         var obj = new Object();
+        obj.amount = document.querySelector('#deposit').value;
 
-        obj.auctionId = document.querySelector('#auctionId').value;
-        obj.deposit = document.querySelector('#deposit').value;
-
-        if(obj.deposit < minPrice)
+        if(obj.amount < minPrice)
             alert("The maximum number of participants must be more than ${minPrice}.");
         else
-            registDeposit(obj);
+            registDeposit(obj, auctionId);
     });
 
-    function registDeposit(obj){
-        postAjaxRequest('/api/auctions/deposits', obj)
+    function registDeposit(obj, auctionId){
+        postAjaxRequest(`/api/auctions/${auctionId}/deposits`, obj)
         .then(result => {
                $('#depositModal').modal('hide');
                location.reload(true);
