@@ -15,5 +15,6 @@ public interface UserService extends UserDetailsService {
     int getUserPoint(Long userId);
     boolean updatePointById(Long point, Long userId);
     Long getUserIdByEmail(String email);
+    UserDTO.Info getUserInfoById(Long userId);
 
 }

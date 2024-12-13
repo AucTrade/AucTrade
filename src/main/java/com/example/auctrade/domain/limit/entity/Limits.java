@@ -38,7 +38,7 @@ public class Limits {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private long id;	//한정 판매 아이디
+	private Long id;	//한정 판매 아이디
 
 	@Column(name = "title", nullable = false)
 	private String title;	//한정 판매글 제목
@@ -51,7 +51,7 @@ public class Limits {
 
 	@Setter
 	@Column(name = "amount", nullable = false)
-	private int amount;	//상품 수량
+	private Integer amount;	//상품 수량
 
 	@Column(name = "sale_date", nullable = false)
 	private LocalDateTime saleDate;	//판매 일자
@@ -62,16 +62,16 @@ public class Limits {
 	private LocalDateTime created;	//판매 게시글 생성 일자
 
 	@Column(name = "personal_limit")
-	private int personalLimit;	//인당 구매 제한
+	private Integer personalLimit;	//인당 구매 제한
 
 	@Column(name = "status", nullable = false)
-	private int status = 0;	//판매 상태 : 판매 예정 0, 판매 중 1, 판매완료 2
+	private Integer status = 0;	//판매 상태 : 판매 예정 0, 판매 중 1, 판매완료 2
 
 	@Column(name = "productId", nullable = false)
 	private Long productId;
 
-	@Column(name = "seller", nullable = false)
-	private String seller;
+	@Column(name = "sellerId", nullable = false)
+	private Long sellerId;
 
 	public void start(){this.status=1;}
 	public void end(){this.status=2;}

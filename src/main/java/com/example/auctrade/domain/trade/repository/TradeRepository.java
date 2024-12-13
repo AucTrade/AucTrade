@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.example.auctrade.domain.trade.entity.Trade;
 
 public interface TradeRepository extends JpaRepository<Trade, Long> {
-	List<Trade> findByBuyer(Long buyerId);
+	List<Trade> findByBuyer(String buyer);
 
 	// TradeRepository.java
 	@Query("SELECT SUM(t.quantity) FROM Trade t WHERE t.buyer = :buyerId AND t.postId = :postId")

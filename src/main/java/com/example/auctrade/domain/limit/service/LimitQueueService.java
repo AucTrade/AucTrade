@@ -8,5 +8,5 @@ public interface LimitQueueService {
 	void addToQueue(Long userId);
 
 	// 대기열에서 Limit 거래 요청 처리
-	boolean processLimitPurchase(LimitDTO.Purchase purchaseDto, Long limitId, String buyer);
+//	boolean processLimitPurchase(LimitDTO.Purchase purchaseDto, Long limitId, String buyer);
 }

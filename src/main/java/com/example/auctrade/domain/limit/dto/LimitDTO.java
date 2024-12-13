@@ -35,10 +35,10 @@ public class LimitDTO {
 		private LocalDateTime saleDate;
 
 		@Min(value = 1, message = "상품 수량은 최소 1개 이상이어야 합니다.", groups = LimitValidationGroups.LimitMinGroup.class)
-		private int amount;
+		private Integer amount;
 
 		@Min(value = 1, message = "인당 제한 수량은 최소 1개 이상이어야 합니다.", groups = LimitValidationGroups.LimitMinGroup.class)
-		private int personalLimit;
+		private Integer personalLimit;
 
 		@NotBlank(message = "경매 상품명을 입력해 주세요.", groups = LimitValidationGroups.ProductNameBlankGroup.class)
 		private String productName;
@@ -46,7 +46,7 @@ public class LimitDTO {
 		private String productDetail;
 
 		@NotBlank(message = "상품의 카테고리를 입력해 주세요.", groups = ProductValidationGroups.CategoryBlankGroup.class)
-		private long productCategoryId;
+		private Long productCategoryId;
 
 		@NotBlank(message = "판매자의 이메일을 입력해 주세요.", groups = LimitValidationGroups.SaleUserEmailBlankGroup.class)
 		private String seller;
@@ -60,37 +60,39 @@ public class LimitDTO {
 		private String introduce;
 		private Long price;
 		private LocalDateTime saleDate;
-		private int personalLimit;
+		private Integer personalLimit;
+		private Integer amount;
 		private String productName;
 		private String productDetail;
 		private String productCategory;
+		private Long sellerId;
 		private String seller;
 		private LocalDateTime created;
 	}
-
-	@Getter
-	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class Purchase {
-		private int quantity; // 거래 수량
-	}
-
-	@Getter
-	@Builder
-	@AllArgsConstructor
-	public static class LimitTradeRequest {
-		private int quantity; // 거래 수량
-		private String buyer; // 구매 회원 ID
-		private String seller; //판매자 ID
-		private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
-		private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
-	}
+	//
+	// @Getter
+	// @Builder
+	// @AllArgsConstructor
+	// @NoArgsConstructor
+	// public static class Purchase {
+	// 	private Integer quantity; // 거래 수량
+	// }
+	//
+	// @Getter
+	// @Builder
+	// @AllArgsConstructor
+	// public static class LimitTradeRequest {
+	// 	private Integer quantity; // 거래 수량
+	// 	private Long buyerId; // 구매 회원 ID
+	// 	private Long sellerId; //판매자 ID
+	// 	private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)
+	// 	private Boolean isAuction; // 게시글 타입 (Auction이면 true, Limit이면 false)
+	// }
 
 	@Getter
 	@AllArgsConstructor
 	public static class GetPage {
-		private final List<LimitDTO.Get> limits;
+		private final List<Get> limits;
 		private final Long maxPage;
 	}
 }

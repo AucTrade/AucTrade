@@ -1,4 +1,4 @@
-// package com.example.auctrade.domain.trade.service;
+package com.example.auctrade.domain.trade.service;// package com.example.auctrade.domain.trade.service;
 //
 // import java.time.LocalDateTime;
 // import java.util.List;

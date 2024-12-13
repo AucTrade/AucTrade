@@ -112,5 +112,11 @@ public class UserServiceImpl implements UserService {
             .map(User::getId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+    @Override
+    public UserDTO.Info getUserInfoById(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return UserMapper.EntityToInfoDTO(user);
+    }
 
 }
