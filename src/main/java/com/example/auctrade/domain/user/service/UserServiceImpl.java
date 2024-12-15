@@ -51,6 +51,10 @@ public class UserServiceImpl implements UserService {
         return UserMapper.EntityToInfoDTO(findUserByEmail(email));
     }
 
+    private User findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
     /**
      * 로그아웃 요청
      * @param email 대상 이메일
@@ -81,16 +85,38 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updatePoint(Long point, String email) {
-        return findUserByEmail(email).addPoint(point);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.addPoint(point);
+
     }
 
+    @Override
+    public int getUserPoint(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.getPoint();
+    }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));
     }
 
-    private User findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    @Override
+    public boolean updatePointById(Long point, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.addPoint(point);
     }
+    @Override
+    public Long getUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .map(User::getId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+    @Override
+    public UserDTO.Info getUserInfoById(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return UserMapper.EntityToInfoDTO(user);
+    }
+
 }

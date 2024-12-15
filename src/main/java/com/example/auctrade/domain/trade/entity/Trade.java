@@ -41,7 +41,7 @@ public class Trade {
 	private Boolean isFinished; // 거래 완료 여부
 
 	@Column(name = "buyer", nullable = false)
-	private Long buyer; // 구매 회원
+	private String buyer; // 구매 회원
 
 	@Column(name = "post_id", nullable = false)
 	private Long postId; // 게시글 ID (Auction 또는 Limit의 ID)

@@ -19,6 +19,8 @@ public enum ErrorCode {
     WRONG_PLAN_DATE(BAD_REQUEST, "과거날짜로 플랜을 작성할 수는 없습니다"),
     WRONG_DEPOSIT(BAD_REQUEST, "최소 예치금 보다 낮을 수 없습니다."),
     TRADE_PROCESS_FAILED(BAD_REQUEST, "거래 처리에 실패했습니다."),
+    PURCHASE_FAILED(BAD_REQUEST, "구매 처리에 실패했습니다."),
+    POINT_UPDATE_FAILED(BAD_REQUEST, "포인트 업데이트에 실패했습니다."),
 
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
@@ -53,6 +55,7 @@ public enum ErrorCode {
     INSUFFICIENT_STOCK(CONFLICT, "재고가 부족합니다."),
     USER_LIMIT_EXCEEDED(CONFLICT, "구매 한도를 초과했습니다."),
     AUCTION_NOT_ENDED(CONFLICT, "경매가 아직 종료되지 않았습니다."),
+    INSUFFICIENT_POINTS(CONFLICT, "포인트가 부족합니다."),
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");
