@@ -3,6 +3,7 @@ package com.example.auctrade.domain.bid.service;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
 import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.bid.vo.BidUserInfoVo;
 import com.example.auctrade.domain.bid.vo.BidVo;
 import com.example.auctrade.domain.deposit.service.DepositService;
 import com.example.auctrade.domain.deposit.vo.DepositVo;
@@ -215,10 +216,9 @@ class BidServiceImplTest {
         Auction auction = auctionRepository.save(generateAuction(user.getId()));
 
         //When
-        BidInfoVo result = bidService.getBidInfo(auction.getId());
+        BidUserInfoVo result = bidService.getBidUserInfo(auction.getId());
 
         //Then
-        assertEquals(auction.getId(), result.getAuctionId(), "경매 ID가 일치하지 않습니다.");
         assertEquals("NONE", result.getEmail(), "이메일이 NONE이 아닙니다.");
         assertEquals(-1, result.getAmount(), "조회된 금액이 -1이 아닙니다.");
     }
@@ -236,10 +236,9 @@ class BidServiceImplTest {
         bidService.placeBid(generateBid(auction, user, 6000));
 
         //When
-        BidInfoVo result = bidService.getBidInfo(auction.getId());
+        BidUserInfoVo result = bidService.getBidUserInfo(auction.getId());
 
         //Then
-        assertEquals(auction.getId(), result.getAuctionId(), "경매 ID가 일치하지 않습니다.");
         assertEquals(user.getEmail(), result.getEmail(), "이메일이 일치하지 않습니다.");
         assertEquals(6000, result.getAmount(), "조회된 금액이 일치하지 않습니다.");
 

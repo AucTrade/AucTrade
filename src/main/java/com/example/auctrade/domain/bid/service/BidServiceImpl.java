@@ -1,20 +1,26 @@
 package com.example.auctrade.domain.bid.service;
 
-
-import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.bid.mapper.BidMapper;
-import com.example.auctrade.domain.bid.repository.BidLogRepository;
 import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.bid.vo.BidStatus;
+import com.example.auctrade.domain.bid.vo.BidUserInfoVo;
 import com.example.auctrade.domain.bid.vo.BidVo;
 import com.example.auctrade.domain.deposit.service.DepositService;
+import com.example.auctrade.domain.user.dto.UserDto;
+import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.example.auctrade.global.constant.Constants.REDIS_BID_KEY;
 import static com.example.auctrade.global.constant.Constants.BID_USER_KEY;
@@ -28,14 +34,15 @@ import static com.example.auctrade.global.constant.Constants.BID_PRICE_KEY;
 public class BidServiceImpl implements BidService {
     private final RedissonClient redissonClient;
     private final DepositService depositService;
-    private final BidLogRepository bidLogRepository;
-
+    private final BidLogService bidLogService;
+    private final UserService userService;
     private static final String LOCK_KEY = "bidLock:";
 
-    public BidServiceImpl(RedissonClient redissonClient, DepositService depositService, BidLogRepository bidLogRepository){
+    public BidServiceImpl(RedissonClient redissonClient, DepositService depositService, BidLogService bidLogService, UserService userService){
         this.redissonClient = redissonClient;
         this.depositService = depositService;
-        this.bidLogRepository = bidLogRepository;
+        this.bidLogService = bidLogService;
+        this.userService = userService;
     }
 
     /**
@@ -53,13 +60,13 @@ public class BidServiceImpl implements BidService {
 
             String bid = bidMap.get(BID_PRICE_KEY);
             if(bid != null && bidVo.getAmount() <= Integer.parseInt(bid)){
-                bidLogRepository.save(BidMapper.toEntity(bidVo, false));
+                bidLogService.createBidLog(bidVo,BidStatus.FAIL);
                 return false;
             }
 
             bidMap.put(BID_USER_KEY, bidVo.getEmail());
             bidMap.put(BID_PRICE_KEY, String.valueOf(bidVo.getAmount()));
-            bidLogRepository.save(BidMapper.toEntity(bidVo, true));
+            bidLogService.createBidLog(bidVo,BidStatus.CREATE);
             return true;
 
         } finally {
@@ -70,12 +77,58 @@ public class BidServiceImpl implements BidService {
     /**
      * 특정 경매방의 현재 입찰 정보 조회
      * @param auctionId 대상이 될 경매 ID
-     * @return 현재 입찰 정보 조회
+     * @return 현재 입찰 정보
      */
     @Override
-    public BidInfoVo getBidInfo(Long auctionId) {
+    public BidUserInfoVo getBidUserInfo(Long auctionId) {
         RMap<String, String> bidMap = redissonClient.getMap(REDIS_BID_KEY + auctionId);
-        return AuctionMapper.toBidInfoVo(auctionId, bidMap.get(BID_USER_KEY), bidMap.get(BID_PRICE_KEY));
+        return BidMapper.toBidUserInfoVo(bidMap.get(BID_USER_KEY), Integer.valueOf(bidMap.get(BID_PRICE_KEY)));
+    }
+
+    /**
+     * 특정 유저의 입찰 정보 조회
+     * @param page 페이지 정보
+     * @param size 데이터 수
+     * @param email 대상이 될 회원 Email
+     * @return 입찰 정보 리스트
+     */
+    @Override
+    public List<BidInfoVo> getAllMyBid(int page, int size, String email) {
+        UserDto.Info userInfo = userService.getUserInfo(email);
+        return bidLogService.getAllMyBidLog(toPageable(page,size,"createdAt"), userInfo.getUserId());
+    }
+
+    /**
+     * 특정 경매의 입찰 정보 조회
+     * @param page 페이지 정보
+     * @param size 데이터 수
+     * @param auctionId 대상이 될 경매 ID
+     * @return 입찰 정보 리스트
+     */
+    @Override
+    public List<BidInfoVo> getAllByAuctionId(int page, int size, Long auctionId) {
+        return bidLogService.getAllBidLog(toPageable(page, size, "createdAt"), auctionId);
+    }
+
+    /**
+     * 특정 경매의 입찰 완료 처리
+     * @param auctionId 대상이 될 경매 ID
+     * @return 입찰 완료 성공 여부
+     */
+    @Override
+    public Boolean completeBid(Long auctionId) {
+        String key = REDIS_BID_KEY + auctionId;
+        RMap<String, String> bidMap = redissonClient.getMap(key);
+        String email = bidMap.get(BID_USER_KEY);
+        String amount = bidMap.get(BID_PRICE_KEY);
+
+        if(email == null || amount== null) return false;
+        UserDto.Info userInfo = userService.getUserInfo(email);
+        userService.subPoint(userInfo.getUserId(), Integer.valueOf(amount));
+        bidLogService.updateLogStatus(auctionId, userInfo.getUserId(), BidStatus.COMPLETE);
+
+        bidMap.remove(key);
+        return true;
     }
 
     /**
@@ -95,5 +148,9 @@ public class BidServiceImpl implements BidService {
 
         bidMap.remove(key);
         return true;
+    }
+
+    private Pageable toPageable(int page, int size, String target){
+        return PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, target));
     }
 }

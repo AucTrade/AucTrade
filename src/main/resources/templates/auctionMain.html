@@ -29,7 +29,7 @@
                     <form method="post" action="/api/auctions">
                         <div class="modal-body">
                             <input type="hidden" class="form-control dongle-regular fs-4" id="auctionId" name="auctionId">
-                            <input type="hidden" class="form-control dongle-regular fs-4" id="minPrice" name="auctionId">
+                            <input type="hidden" class="form-control dongle-regular fs-4" id="minPrice" name="minPrice">
                             <div class="mb-3">
                                 <label for="deposit" class="col-form-label">예치금</label>
                                 <div class="input-group">
@@ -155,14 +155,14 @@
     $("#btn-create").on("click", function (e){
         e.preventDefault();
 
-        const minPrice = document.querySelector("#minPrice").value;
+        const minPrice = Number(document.querySelector("#minPrice").value);
         const auctionId = document.querySelector('#auctionId').value;
 
         var obj = new Object();
         obj.amount = document.querySelector('#deposit').value;
 
         if(obj.amount < minPrice)
-            alert("The maximum number of participants must be more than ${minPrice}.");
+            alert(`The maximum number of participants must be more than ${minPrice}.`);
         else
             registDeposit(obj, auctionId);
     });

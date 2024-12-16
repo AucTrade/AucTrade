@@ -45,6 +45,7 @@ public enum ErrorCode {
     AUCTION_NOT_FOUND(NOT_FOUND, "해당 경매를 찾을 수 없습니다."),
     POINT_NOT_FOUND(NOT_FOUND, "해당 포인트 내역을 찾을 수 없습니다."),
     DEPOSIT_LOG_NOT_FOUND(NOT_FOUND, "해당 예치금 내역을 찾을 수 없습니다."),
+    BID_LOG_NOT_FOUND(NOT_FOUND, "해당 입찰 내역을 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(NOT_FOUND, "해당 물품을 찾을 수 없습니다."),
     PRODUCT_CATEGORY_NOT_FOUND(NOT_FOUND, "해당 물품 카테고리를 찾을 수 없습니다."),
     PRODUCT_IMAGE_NOT_FOUND(NOT_FOUND, "해당 물품의 이미지를 찾을 수 없습니다."),

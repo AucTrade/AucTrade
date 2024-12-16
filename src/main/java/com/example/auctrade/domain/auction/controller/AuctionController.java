@@ -2,8 +2,8 @@ package com.example.auctrade.domain.auction.controller;
 
 import com.example.auctrade.domain.auction.dto.AuctionDto;
 import com.example.auctrade.domain.auction.service.AuctionService;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
 import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +54,7 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions/{auctionId}/deposits")
-    public ResponseEntity<List<DepositInfoVo>> getDepositAuctions(@PathVariable Long auctionId) {
+    public ResponseEntity<List<DepositInfoVo>> getAllAuctionDeposit(@PathVariable Long auctionId) {
         return ResponseEntity.ok(auctionService.getAllDeposit(auctionId));
     }
 
@@ -68,6 +68,18 @@ public class AuctionController {
         return ResponseEntity.ok(auctionService.placeBid(requestDto,auctionId,userDetails.getUsername()));
     }
 
+    @PostMapping("/auctions/{auctionId}/complete")
+    public ResponseEntity<AuctionDto.Result> completeAuction(@PathVariable Long auctionId) {
+        return ResponseEntity.ok(auctionService.completeAuction(auctionId));
+    }
+
+    @GetMapping("/auctions/{auctionId}/bids")
+    public ResponseEntity<List<BidInfoVo>> getAllAuctionBid(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size,
+            @PathVariable Long auctionId) {
+        return ResponseEntity.ok(auctionService.getAllBid(page, size, auctionId));
+    }
     @DeleteMapping("/auctions/{auctionId}/bids")
     public ResponseEntity<AuctionDto.Result> cancelBid(@PathVariable Long auctionId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(auctionService.cancelBid(auctionId, userDetails.getUsername()));

@@ -3,6 +3,7 @@ package com.example.auctrade.domain.auction.mapper;
 import com.example.auctrade.domain.auction.dto.AuctionDto;
 import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.bid.vo.BidUserInfoVo;
 import com.example.auctrade.domain.bid.vo.BidVo;
 import com.example.auctrade.domain.deposit.vo.DepositVo;
 import com.example.auctrade.domain.product.dto.ProductDto;
@@ -26,7 +27,7 @@ public class AuctionMapper {
                 .build();
     }
 
-    public static AuctionDto.Enter toEnterDto(Auction auction, String email, ProductDto.Get product, List<String> files, BidInfoVo bidInfoVo) {
+    public static AuctionDto.Enter toEnterDto(Auction auction, String email, ProductDto.Get product, List<String> files, BidUserInfoVo bidUserInfoVo) {
         return (auction == null) ? null : AuctionDto.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
@@ -38,8 +39,8 @@ public class AuctionMapper {
                 .endAt(auction.getEndAt())
                 .minimumPrice(auction.getMinimumPrice())
                 .files(files)
-                .bidUser(bidInfoVo.getEmail())
-                .bidAmount(bidInfoVo.getAmount())
+                .bidUser(bidUserInfoVo.getEmail())
+                .bidAmount(bidUserInfoVo.getAmount())
                 .build();
     }
 
@@ -113,14 +114,6 @@ public class AuctionMapper {
                 .userId(userId)
                 .email(email)
                 .amount(requestDto.getAmount())
-                .build();
-    }
-
-    public static BidInfoVo toBidInfoVo(Long auctionId, String email, String amount){
-        return BidInfoVo.builder()
-                .auctionId(auctionId)
-                .email(email == null ? "NONE" : email)
-                .amount(amount == null ? -1 : Integer.parseInt(amount))
                 .build();
     }
 

@@ -21,12 +21,12 @@ public interface DepositLogRepository extends JpaRepository<DepositLog, Long> {
     @Query("SELECT d FROM DepositLog d " +
             "WHERE d.auctionId = :auctionId AND d.status = :status " +
             "ORDER BY d.amount ASC, d.createdAt DESC")
-    List<DepositLog> findDepositLogByAuctionIdAndStatus(@Param("auctionId") Long auctionId, @Param("status") DepositStatus status);
+    List<DepositLog> findAllByAuctionIdAndStatus(@Param("auctionId") Long auctionId, @Param("status") DepositStatus status);
 
     @Query("SELECT d FROM DepositLog d " +
             "WHERE d.auctionId = :auctionId AND d.userId = :userId AND d.status = :status " +
             "ORDER BY d.amount ASC, d.createdAt DESC")
-    List<DepositLog> findDepositLogByAuctionIdAndUserIdAndStatus(@Param("auctionId") Long auctionId, @Param("userId") Long userId, @Param("status") DepositStatus status);
+    List<DepositLog> findAllByAuctionIdAndUserIdAndStatus(@Param("auctionId") Long auctionId, @Param("userId") Long userId, @Param("status") DepositStatus status);
 
     Page<DepositLog> findAllByUserId(Pageable pageable, Long userId);
 }

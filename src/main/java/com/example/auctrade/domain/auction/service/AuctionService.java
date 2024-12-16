@@ -1,6 +1,7 @@
 package com.example.auctrade.domain.auction.service;
 
 import com.example.auctrade.domain.auction.dto.AuctionDto;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
 import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +25,11 @@ public interface AuctionService {
 
     AuctionDto.BidResult placeBid(AuctionDto.Bid request, Long auctionId, String email);
 
+    List<BidInfoVo> getAllBid(Integer page ,Integer size, Long auctionId);
+
     AuctionDto.Result cancelBid(Long auctionId, String email);
+
+    AuctionDto.Result completeAuction(Long auctionId);
 
     int getMaxParticipation(Long id);
 

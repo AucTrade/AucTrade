@@ -5,6 +5,7 @@ import com.example.auctrade.domain.auction.entity.Auction;
 import com.example.auctrade.domain.auction.mapper.AuctionMapper;
 import com.example.auctrade.domain.auction.repository.AuctionRepository;
 import com.example.auctrade.domain.bid.service.BidService;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
 import com.example.auctrade.domain.deposit.service.DepositService;
 import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
 import com.example.auctrade.domain.product.entity.ProductFile;
@@ -87,9 +88,8 @@ public class AuctionServiceImpl implements AuctionService {
     public AuctionDto.Enter getAuctionById(long auctionId) {
         Auction auction = findAuction(auctionId);
         UserDto.Info userInfo = userService.getUserInfo(auction.getUserId());
-        return AuctionMapper.toEnterDto(auction, userInfo.getEmail(), productService.getProduct(auction.getProductId()), productFileService.getFiles(auctionId), bidService.getBidInfo(auctionId));
+        return AuctionMapper.toEnterDto(auction, userInfo.getEmail(), productService.getProduct(auction.getProductId()), productFileService.getFiles(auctionId), bidService.getBidUserInfo(auctionId));
     }
-
 
     /**
      * 아직 시작하지 않은 경매 리스트를 반환
@@ -207,7 +207,18 @@ public class AuctionServiceImpl implements AuctionService {
         Boolean result = bidService.placeBid(AuctionMapper.toBidVo(request, auctionId,userInfo.getUserId(), email));
         return AuctionMapper.toBidResultDto(auctionId, request.getAmount(), result);
     }
-    
+    /**
+     * 입찰 정보 리스트 조회
+     * @param page 페이지 정보
+     * @param size 데이터 수
+     * @param auctionId 대상 경매 ID
+     * @return 입찰 정보 리스트
+     */
+    @Override
+    public List<BidInfoVo> getAllBid(Integer page, Integer size, Long auctionId) {
+        return bidService.getAllByAuctionId(page, size, auctionId);
+    }
+
     /**
      * 경매 입찰 취소
      * @param auctionId 대상 경매 ID
@@ -218,6 +229,17 @@ public class AuctionServiceImpl implements AuctionService {
     public AuctionDto.Result cancelBid(Long auctionId, String email) {
         Auction auction = findAuction(auctionId);
         return AuctionMapper.toResultDto(auction.getId(), bidService.cancelBid(auctionId, email));
+    }
+
+    /**
+     * 경매 종료
+     * @param auctionId 대상 경매 ID
+     * @return 경매 종료 성공 여부
+     */
+    @Override
+    public AuctionDto.Result completeAuction(Long auctionId) {
+        Auction auction = findAuction(auctionId);
+        return AuctionMapper.toResultDto(auction.getId(), bidService.completeBid(auctionId));
     }
 
 

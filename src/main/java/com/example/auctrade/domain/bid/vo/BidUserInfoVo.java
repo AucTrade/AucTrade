@@ -7,9 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class BidInfoVo {
-    private Long auctionId;
-    private Long userId;
+public class BidUserInfoVo {
+    private String email;
     private Integer amount;
-    private BidStatus status;
 }

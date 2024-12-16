@@ -56,7 +56,7 @@ public class DepositLogServiceImpl implements DepositLogService {
      */
     @Override
     public DepositInfoVo getMinDepositLog(Long auctionId){
-        List<DepositLog> depositLogs = depositLogRepository.findDepositLogByAuctionIdAndStatus(auctionId, DepositStatus.CREATE);
+        List<DepositLog> depositLogs = depositLogRepository.findAllByAuctionIdAndStatus(auctionId, DepositStatus.CREATE);
         return depositLogs.isEmpty() ? null : DepositMapper.toDepositInfoVo(depositLogs.get(0));
     }
     /**
@@ -67,7 +67,7 @@ public class DepositLogServiceImpl implements DepositLogService {
      */
     @Override
     public DepositInfoVo getDepositLog(Long auctionId, Long userId) {
-        List<DepositLog> depositLogList = depositLogRepository.findDepositLogByAuctionIdAndUserIdAndStatus(auctionId, userId, DepositStatus.CREATE);
+        List<DepositLog> depositLogList = depositLogRepository.findAllByAuctionIdAndUserIdAndStatus(auctionId, userId, DepositStatus.CREATE);
         if(depositLogList.isEmpty())
             throw new CustomException(ErrorCode.DEPOSIT_LOG_NOT_FOUND);
         return DepositMapper.toDepositInfoVo(depositLogList.get(0));
@@ -91,7 +91,7 @@ public class DepositLogServiceImpl implements DepositLogService {
      */
     @Override
     public List<DepositInfoVo> getAllDepositLog(Long auctionId, DepositStatus status) {
-        return depositLogRepository.findDepositLogByAuctionIdAndStatus(auctionId, status).stream().map(DepositMapper::toDepositInfoVo).toList();
+        return depositLogRepository.findAllByAuctionIdAndStatus(auctionId, status).stream().map(DepositMapper::toDepositInfoVo).toList();
     }
     
     /**

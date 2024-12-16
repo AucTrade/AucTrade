@@ -1,13 +1,15 @@
 package com.example.auctrade.domain.bid.entity;
 
+import com.example.auctrade.domain.bid.vo.BidStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-
+@Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,17 +30,22 @@ public class BidLog {
     @Column(name = "amount", nullable = false)
     private Integer amount;
 
-    @Column(name = "result", nullable = false)
-    private Boolean isSuccess;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private BidStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder
-    public BidLog(Long auctionId, Long userId, Integer amount, Boolean isSuccess){
+    public BidLog(Long auctionId, Long userId, Integer amount, BidStatus status){
         this.auctionId = auctionId;
         this.userId = userId;
         this.amount = amount;
-        this.isSuccess = isSuccess;
+        this.status = status;
+    }
+
+    public void updateStatus(BidStatus status){
+        this.status = status;
     }
 }
