@@ -26,6 +26,8 @@ public enum ErrorCode {
     WRONG_BID_CREATE(BAD_REQUEST, " 경매 최소 입찰금보다 낮을 수 없습니다."),
     WRONG_BID_DATE(BAD_REQUEST, "진행 중 경매에만 입찰을 등록할 수 있습니다"),
     TRADE_PROCESS_FAILED(BAD_REQUEST, "거래 처리에 실패했습니다."),
+    PURCHASE_FAILED(BAD_REQUEST, "구매 처리에 실패했습니다."),
+    POINT_UPDATE_FAILED(BAD_REQUEST, "포인트 업데이트에 실패했습니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
@@ -64,6 +66,7 @@ public enum ErrorCode {
     POINT_USER_NOT_EQUAL(CONFLICT, "포인트 내역의 유저와 일치하지 않습니다."),
     POINT_STATUS_NOT_CREATE(CONFLICT, "포인트가 이미 취소 되었습니다."),
     AUCTION_NOT_ENDED(CONFLICT, "경매가 아직 종료되지 않았습니다."),
+    INSUFFICIENT_POINTS(CONFLICT, "포인트가 부족합니다."),
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다."),

@@ -330,12 +330,14 @@ class DepositServiceImplTest {
     @Test
     @DisplayName("예치금 입력이 없는 경매에 최소 예치금 정보 조회시 email = NONE, amount -1 반환")
     void getMinDepositInfoWithoutAuctionDeposit() {
+
         //Given
         User user = generateUser();
         user.addPoint(50000);
         user = userRepository.save(user);
         Auction auction = auctionRepository.save(generateAuction(user.getId(),3,3000));
 
+        redissonClient.getKeys().delete(REDIS_DEPOSIT_KEY + auction.getId());
         //When
         Integer result = depositService.getMinDepositAmount(auction.getId());
 
@@ -406,6 +408,7 @@ class DepositServiceImplTest {
         user = userRepository.save(user);
 
         Auction auction = auctionRepository.save(generateAuction(user.getId(),3,3000));
+        redissonClient.getKeys().delete(REDIS_DEPOSIT_KEY + auction.getId());
         for(User u :theOthers){ depositService.placeDeposit(generateDeposit(auction, u, 5000)); }
 
         //When

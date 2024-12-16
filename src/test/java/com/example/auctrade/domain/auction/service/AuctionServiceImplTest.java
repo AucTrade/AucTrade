@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.example.auctrade.global.constant.Constants.REDIS_DEPOSIT_KEY;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
