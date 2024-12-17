@@ -19,10 +19,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final ProductFileService productFileService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository){
+    public ProductServiceImpl(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, ProductFileService productFileService){
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.productFileService = productFileService;
     }
     
     /**
@@ -32,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
      * @return 파일 업로드 성공 여부
      */
     public ProductDto.Get createProduct(ProductDto.Create productDto, Long userId){
-        return ProductMapper.toGetDto(productRepository.save(ProductMapper.toEntity(productDto, userId, findCategory(productDto.getProductCategoryId()))));
+        return getProduct(productRepository.save(ProductMapper.toEntity(productDto, userId, findCategory(productDto.getProductCategoryId()))).getId());
     }
 
     /**
@@ -41,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
      * @return 상품 정보
      */
     public ProductDto.Get getProduct(Long productId){
-        return ProductMapper.toGetDto(findProduct(productId));
+        return ProductMapper.toGetDto(findProduct(productId), productFileService.getFiles(productId));
     }
 
     private Product findProduct(long id){

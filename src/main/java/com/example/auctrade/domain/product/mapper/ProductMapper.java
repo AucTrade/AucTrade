@@ -5,6 +5,8 @@ import com.example.auctrade.domain.product.entity.Product;
 import com.example.auctrade.domain.product.entity.ProductCategory;
 import com.example.auctrade.domain.product.dto.ProductDto;
 
+import java.util.List;
+
 public class ProductMapper {
     private ProductMapper(){}
 
@@ -16,12 +18,13 @@ public class ProductMapper {
                 .build();
     }
 
-    public static ProductDto.Get toGetDto(Product product) {
+    public static ProductDto.Get toGetDto(Product product, List<String> files) {
         return (product == null) ? null : ProductDto.Get.builder()
                 .productId(product.getId())
                 .name(product.getName())
                 .detail(product.getDetail())
                 .categoryName(product.getCategory().getCategoryName())
+                .files(files)
                 .build();
     }
 
@@ -30,6 +33,7 @@ public class ProductMapper {
                 .name(productDTO.getName())
                 .detail(productDTO.getDetail())
                 .category(category)
+
                 .userId(userId)
                 .build();
     }

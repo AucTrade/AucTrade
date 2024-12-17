@@ -116,12 +116,12 @@
         var inner = '';
         result.forEach((element,index) => {
           inner += `<div class="col">
-                        <div class="card" style="width: 14rem; height: 358px; background-color:#F5F5F5;">
+                        <div class="card" style="width: 14rem; height: 400px; background-color:#F5F5F5;">
                             <a href='/limits/details?limitId=${element.id}' class="card-link room-card">
-                                <img class="card-img-top" src="/img/default.jpg" alt="..."/>
-                                <div class="card-body px-3" height: 210px;">
+                                <img class="card-img-top" src="${element.thumbnail}" style="height: 180px; object-fit: cover;" alt="..."/>
+                                <div class="card-body px-3" height: 260px;">
                                     <div style="height: 30px; border-bottom:1px solid #bbbbbb;">
-                                    <p class="fs-5">${(element.title.length < 10) ? element.title : element.title.substr(0,12)}</p></div>
+                                    <p class="dongle-regular fs-4">${(element.title.length < 15) ? element.title : element.title.substr(0,15)}</p></div>
                                     <div class="ellipsis dongle-regular fs-5 px-3 py-1 mb-1" style="height: 100px; border-bottom:1px solid #bbbbbb;"> ${element.introduce}</div>
                                     <div class="row" style="height: 30px;">
                                         <div class="col-6">
@@ -129,7 +129,7 @@
                                         </div>
                                         <div class="col-6">
                                             <div class="row dongle-regular fs-5">
-                                                <p>수량 : ${element.limit}</p>
+                                                <p>수량 : ${element.amount}</p>
                                             </div>
                                         </div>
                                     </div>

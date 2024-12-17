@@ -35,6 +35,9 @@ public class LimitMapper {
 			.productCategory(product.getCategoryName())
 			.sellerId(limits.getSellerId())
 			.seller(seller)
+			.amount(limits.getAmount())
+			.files(product.getFiles())
+			.thumbnail(product.getFiles().get(0))
 			.created(limits.getCreated())
 			.build();
 	}

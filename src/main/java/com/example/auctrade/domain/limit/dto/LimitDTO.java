@@ -67,6 +67,8 @@ public class LimitDTO {
 		private Long sellerId;
 		private String seller;
 		private LocalDateTime created;
+		private String thumbnail;
+		private List<String> files;
 	}
 	//
 	// @Getter
