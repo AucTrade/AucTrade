@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
+</head>
+<body>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<div id="header"></div>
+<div class="container" style="height: 30px;"></div>
+<div class="container">
+    <div class="row">
+        <div class="row border-bottom jua-regular" id="title"></div>
+    </div>
+    <div class="row">
+        <div class="col-7 pe-5" >
+            <div class = "row justify-content-between">
+                <div class="col-7 ps-4 fs-2 dongle-regular" id="period"></div>
+                <div class="col-5 pt-2" id="timer"></div>
+            </div>
+            <div class="container" style="height: 30px;"></div>
+            <div class="row">
+                <div class ="row" id="img-view">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img id="img-one" src="/img/default.jpg" class="d-block w-200" alt="...">
+                        </div>
+                    </div>
+                </div>
+                <div class="container" style="height: 30px;"></div>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="container" style="height: 10px;"></div>
+            <div class="row mb-1" id="productName"></div>
+            <div class="row mb-1 text-primary" id="price"></div>
+            <div class="row mb-1 dongle-regular" id="limit"></div>
+            <div class="row mb-1" >
+                <div class="dongle-regular" id="saleInfo"></div>
+            </div>
+            <div class="row mb-1" >
+                <div class="col-8">
+                    <div class="input-group">
+                        <label for="count" class="col-form-label">수량 : &nbsp;&nbsp;</label>
+                        <input type="number" class="form-control dongle-regular fs-4 form-control-sm" id="count" name="count" value="1" min="1">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-outline-success" type="button" id="btn-buy">구매하기</button>
+                </div>
+            </div>
+            <div class="container border-bottom mb-3" style="height: 10px;"></div>
+            <div class="row">
+                <div class="container" style="height: 10px;"></div>
+                <div class="col-6 dongle-regular"><h3>제품 상세정보</h3></div>
+                <div class="col-6 pt-1 pe-3 text-end" id="productCategory" ></div>
+            </div>
+            <div class="container" style="height: 10px;"></div>
+            <div class="row px-3">
+                <div class="container rounded dongle-regular" id="productDetail" style="background-color: #f2f5f7"></div>
+            </div>
+            <div class="container" style="height: 10px;"></div>
+        </div>
+    </div>
+</div>
+<div id="footer"></div>
+</body>
+<script>
+    var finishTime;
+
+    $(document).ready(function(){
+         const limitId = getUrlParams()["limitId"];
+
+         getAjaxRequest(`/api/limits/${limitId}`).then(result => {
+                makeLimitedSale(result);
+                loadImg(result.files);
+                //finishTime = result.finishDate;
+         }).catch(error => {console.error('오류 발생:', error);});
+    });
+
+    function makeLimitedSale(result){
+        document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
+        document.querySelector('#productName').innerHTML =`<p class="text-start fs-4 do-hyeon-regular">${result.productName.slice(0, 20)}</p>`;
+        document.querySelector('#price').innerHTML = `<h3>￦ ${result.price}</h3>`;
+        document.querySelector('#limit').innerHTML = `<h3>남은 수량 : ${result.amount}</h3>`;
+        document.querySelector('#saleInfo').innerHTML = `<h3>판매자 : &nbsp; ${result.seller}</h3>`;
+        document.querySelector('#productDetail').innerHTML =`<p class="fs-2">${result.productDetail}</p>`;
+
+        document.querySelector('#productCategory').innerHTML =`<button class="btn btn-primary category-btn category-button-text" disabled>${result.productCategory}</button>`;
+        var start = result.saleDate.split('T');
+        //var end = result.finishDate.split('T');
+        document.querySelector('#period').innerHTML = ` ${start[0]} ${start[1].slice(0, -3)} `;
+    }
+
+    function loadImg(urls) {
+      if(urls==null) return;
+
+      var htm = '<div class="carousel-inner"><div class="carousel-item active">';
+      var htm2 = '';
+      if(urls.length == 0){
+          htm += '<img id="img-one" src="/img/default.jpg" class="d-block w-200" alt="..."></div></div>';
+
+      }else if(urls.length == 1){
+          htm += `<img id="img-one" src="${urls[0]}" class="d-block w-200" alt="..."></div></div>`;
+
+      }else{
+          htm = '<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">';
+          urls.forEach((f, i) => {
+                var str = '';
+                var str2 = '';
+                if(i == 0){
+                    str = 'class="active" aria-current="true"';
+                    str2 = 'active';
+                }
+
+                htm += `<button type="button" ${str} data-bs-target="#carouselExampleIndicators" data-bs-slide-to="${i}" aria-label="Slide ${i+1}"></button>`;
+                htm2 += `<div class="carousel-item ${str2}"><img src="${f}" class="d-block w-100" alt="..."></div>`;
+          });
+
+         htm += '</div><div class="carousel-inner">' + htm2 + '</div>';
+         htm += '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button><button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>';
+     }
+       document.querySelector('#img-view').innerHTML = htm;
+    }
+
+    $("#btn-buy").on("click", function(e){
+       const quantity = document.getElementById("count").value;
+       const limitId = getUrlParams()["limitId"];
+
+       $.ajax({
+            url : `/api/purchases/${limitId}`,
+            type : 'post',
+            data: JSON.stringify({limitId: limitId, quantity: quantity}),
+            contentType: "application/json; charset=UTF-8",
+            success : function (result) {
+                location.href = "/users/purchases/my-list";
+            },
+            error : function (request, status, error) {
+                console.log(error);
+            }
+       });
+    });
+
+</script>
+</html>

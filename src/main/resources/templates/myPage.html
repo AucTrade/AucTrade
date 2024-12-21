@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auctrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+
+<div id="header"></div>
+<div class="modal fade" id="chargePoint" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary" data-bs-theme="dark">
+                <h5 class="modal-title text-white">포인트 충전</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="chargeFrom">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="charge" class="col-form-label">충전 금액</label>
+                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="charge" name="charge" placeholder="충전할 금액">
+                        <input type="hidden" id="charge-account" name="charge-account" value="00-0000-0000">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" id = "btn-charge">충전하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exchangePoint" tabindex="-1" aria-labelledby="exchangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark" data-bs-theme="dark">
+                <h5 class="modal-title text-white">포인트 환전</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="exchangeForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="exchange" class="col-form-label">환전 금액</label>
+                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="exchange" name="exchange" placeholder="환전할 금액">
+                        <input type="hidden" id="exchange-account" name="exchange-account" value="00-0000-0000">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-success" id="btn-exchange">환전하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container" id="container">
+    <div class="container" style="height: 30px;"></div>
+    <div class="row text-center"><h2>MY PAGE</h2></div>
+    <div class="container" style="height: 30px;"></div>
+    <div class="row">
+
+        <div class="col-md-3">
+            <img style="height: 200px; width:100%;" src="/icon/bootstrap-icons-1.11.3/incognito.svg" class="img-fluid rounded-start ">
+        </div>
+        <div class="col-md-6" style="background-color:#F5F5F5;" >
+            <div class="card-title pt-1 fs-4 bold">Nickname</div>
+            <div class="px-2 fs-6 mb-3" id="my-page-username"></div>
+            <div class="px-2 fs-6">총 판매 횟수 : 33 </div>
+            <div class="px-2 fs-6">총 구매 횟수 : 10 </div>
+        </div>
+        <div class="container" style="height: 30px;"></div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6 fs-5">현재 포인트 :</div>
+                <div class="col-6 text-primary fs-6 pt-1" id="point"> 0 ⓟ</div>
+            </div>
+        </div>
+        <div class="col-9">
+            <button class="btn btn-outline-primary" data-bs-target="#chargePoint" data-bs-toggle="modal" type="button"><i class="bi bi-cash-coin"></i> 충전</button>
+        </div>
+    </div>
+    <div class="row" style="height: 10px;"></div>
+    <div class="row">
+        <div class="col-3">
+            <div class="row mb-3">
+                <div class="col-6 pt-1 fs-5" >환전 하기 :</div>
+                <div class="col-6 text-primary fs-6 pt-1">
+                    <button class="btn btn-outline-success" data-bs-target="#exchangePoint" data-bs-toggle="modal" type="button"><i class="bi bi-coin"></i> 환전</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container" style="height: 30px;"></div>
+<div id="footer"></div>
+</body>
+<script>
+    $(document).ready(function(){
+        document.querySelector('#my-page-username').innerHTML = getUsernameFromCookie('Authorization');
+        getAjaxRequest(`/api/users/my/point`).then(result => {
+                document.querySelector('#point').innerHTML = result.point + ' ⓟ';
+         }).catch(error => {console.error('오류 발생:', error);});
+    });
+
+    $("#btn-charge").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.amount = document.querySelector('#charge').value;
+        obj.account = document.querySelector('#charge-account').value;
+
+        postAjaxRequest('/api/points/charge', obj)
+        .then(result => {
+               $('#chargePoint').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
+    });
+
+
+    $("#btn-exchange").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.amount = document.querySelector('#exchange').value;
+        obj.account = document.querySelector('#exchange-account').value;
+
+        postAjaxRequest('/api/points/exchange', obj)
+        .then(result => {
+               $('#exchangePoint').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
+    });
+
+</script>
+</html>

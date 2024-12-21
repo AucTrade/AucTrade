@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auctrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
+    <script src="/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
+    <script src="/js/bootstrap-datepicker.ko.min.js"></script>
+    <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* modal 케러셀 조정 */
+        .pics {
+                width: 600px;
+                float: left;
+                position: relative;
+                left: 50%;
+                object-fit: cover;
+            }
+
+        .carousel-inner {
+                    width: auto;
+                    height: 200px; /* 이미지 높이 변경 */
+                }
+
+        .carousel-item {
+                    width: auto;
+                    height: 100%;
+                }
+
+        .d-block {
+                    display: block;
+                    width: auto;
+                    height: 100%;
+                }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/jquery-timepicker.min.js"></script>
+<div id="header"></div>
+<div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark" data-bs-theme="dark">
+                <h5 class="modal-title text-white">경매 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/api/auctions" id="createForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="col-form-label">제목</label>
+                        <input type="text" class="form-control dongle-regular fs-4" id="title" name="title" placeholder="방 제목">
+                    </div>
+                    <div class="mb-4">
+                        <label for="introduce" class="col-form-label">상세정보</label>
+                        <textarea type="text" class="form-control dongle-regular fs-4" id="introduce" name="introduce" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">상품선택</label>
+                        <div class="row justify-content-center">
+                            <div class="col-8 ">
+                                <div class="card" id="productCard">
+                                    <div id="img-preview">
+                                        <div class="carousel-inner">
+                                            <div class="carousel-item active">
+                                                <img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="file" class="form-control" id="imgFiles" name="imgFiles" multiple>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-4 dongle-regular fs-4 mb-2">상품명 :</div>
+                                            <div class="col-8 dongle-regular"><input type="text" class="form-control" id="productName" name="productName" placeholder="상품명" ></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 dongle-regular fs-4 mb-2">카테고리 :</div>
+                                            <div class="col-8 dongle-regular"><select class="form-select" id="productCategory" name="productCategory">
+                                                <option value="잡화" selected>잡화</option>
+                                                <option value="1">One</option>
+                                                <option value="2">Two</option>
+                                                <option value="3">Three</option>
+                                            </select></div>
+                                        </div>
+                                        <label for="productDetail" class="col-form-label dongle-regular fs-5">상세정보</label>
+                                        <textarea class="form-control dongle-regular fs-4" id="productDetail" name="productDetail" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="minimumPrice" class="col-form-label">최저입찰가</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="minimumPrice" name="minimumPrice" value="1000" step="100"><span class="input-group-text">￦</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="maxParticipants" class="col-form-label">인원 설정</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="maxParticipants" name="maxParticipants" value="50">
+                                    <span class="input-group-text">명</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="col-form-label">시작일</div>
+                        <input type="hidden" name="startAt" id="startAt">
+                        <input type="hidden" name="endAt" id="endAt">
+                        <div class="input-group">
+                            <span class="input-group-text">📅</span>
+                            <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDate" placeholder="시작 날짜 입력">
+                            <span class="input-group-text">⏰</span>
+                            <input type="text" class="form-control time-picker dongle-regular fs-4" id="startTime" placeholder="시작 시간 입력">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="col-form-label">종료일</div>
+                        <div class="input-group">
+                            <span class="input-group-text">📅</span>
+                            <input type="text" class="form-control date-picker dongle-regular fs-4" id="endDate" placeholder="종료 날짜 입력">
+                            <span class="input-group-text">⏰</span>
+                            <input type="text" class="form-control time-picker dongle-regular fs-4" id="endTime" placeholder="종료 시간 입력">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" id = "btn-create">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="container" style="height: 30px"></div>
+    <div class="container">
+        <div class="row text-center"><h2>생성한 경매방</h2></div>
+    </div>
+    <div class="container px-4 pt-3" id="custom-cards">
+        <div class="container" style="height: 10px"></div>
+        <div class="row justify-content-between">
+            <div class="col-4 ps-4" id="pageButton" style="height: 50px"></div>
+            <div class="col-2 text-end pe-4" style="height: 50px">
+                <button class="btn btn-primary" data-bs-target="#roomModal" data-bs-toggle="modal" type="button"><i class="bi bi-plus-lg"></i> 경매</button>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-2" id="auctionList"></div>
+        <div class="container" style="height: 10px"></div>
+        <div id="pagination"></div>
+    </div>
+</div>
+<div id="footer"></div>
+</body>
+</html>
+<script>
+    let params = getUrlParams();
+    let page = Number((params["page"] == null) ? 1 : params["page"]);
+    const size = Number((params["size"] == null) ? 4 : params["size"]);
+
+    $(document).ready(function(){
+        loadAuctions();
+
+        $(".date-picker").datepicker({
+            startDt: new Date(),
+            startDate: "0d",
+            format: "yyyy-mm-dd",
+            todayHighlight: true,
+            language: "ko",
+            autoclose: true
+        });
+
+        $(".time-picker").timepicker({
+            timeFormat: 'HH:mm:ss',
+            interval: 30,
+            minTime: '0',
+            maxTime: '23:30',
+            defaultTime: '10',
+            startTime: '00:00',
+            dynamic: false,
+            dropdown: true,
+            scrollbar: true
+        });
+    });
+
+    function loadAuctions(){
+        getAjaxRequest(`/api/my/auctions?page=${page}&size=${size}&status=all`)
+        .then(result => {
+            console.log(result);
+            if(result == null) return;
+
+            if(result.maxPage == 0){
+            document.querySelector('#auctionList').innerHTML = "생성한 경매가 없습니다.";
+            return;
+            }
+
+            if (result.maxPage < page) return;
+
+            document.querySelector('#pageButton').innerHTML = makePageButtonHTML(page, result.maxPage);
+            document.querySelector('#auctionList').innerHTML += makeAuctionListHTML(result.auctions);
+            document.querySelector('#pagination').innerHTML = makePaginationHTML(page, result.maxPage);
+        }).catch(error => {console.error('오류 발생:', error);});
+    } //loadAuctions
+
+    function makePageButtonHTML(pageNum, maxPage){
+        return `<div class="col-4" style="height: 50px">
+                    <button class="btn btn-outline-primary" onclick="window.location.href='/users/auctions/my-list?page=${page-1}&size=${size}&status=open';"
+                        ${(pageNum == 1) ? "disabled" : ""}> < </button>
+                    <button class="btn btn-outline-primary" onclick="window.location.href='/users/auctions/my-list?page=${page+1}&size=${size}&status=open';"
+                        ${(pageNum == maxPage) ? "disabled" : ""}> > </button>
+                </div>`;
+    }
+
+    function makeAuctionListHTML(data){
+        var newHtml = '';
+        var nowDate = new Date();
+        data.forEach((element, index) => {
+             newHtml += makeAuctionCard(element, index, (new Date(element.startDate) - nowDate));
+        });
+        return newHtml;
+    }
+
+    function makeAuctionCard(element, index, isAvailable){
+        return `<div class="col-6">
+                <div class="card m-2">
+                    <div class="row g-0">
+                        <div style="height: 120px;" class="col-md-3">
+                            <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body px-3" style="background-color: #E3E0E0; height: 120px;">
+                                <div class="row" style="height: 30px; ">
+                                    <div class="col-8 fs-5 bold ps-2 text-truncate">${element.title}</div>
+                                    <div class="col-4">
+                                        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="window.location.href='/auctions/enter?auctionId=${element.id}';"><i class="bi bi-box-arrow-in-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                    <div class="col-6">
+                                    <div class="row text-primary">
+                                    <b>인원 : ${element.nowParticipants} / ${element.maxParticipants}</b></div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startAt}</button></div>
+                                     <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>`;
+    }
+
+    function makePaginationHTML(page, maxPage){
+        var newHtml = `<nav aria-label="...">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item ${(page == 1) ? "disabled" : ""}">
+                                <a class="page-link" href="/users/auctions/my-list?page=${page-1}&size=${size}&status=open" tabindex="-1">Previous</a>
+                            </li>`;
+
+        for (i = 1; i <= maxPage; i++) {
+            newHtml += `<li class="page-item ${(page == i) ? 'active' : ''}">
+            <a class="page-link" href="/users/auctions/my-list?page=${i}&size=${size}&status=open">${i}</a></li>`;
+        }
+
+        newHtml += `<li class="page-item ${(page == maxPage) ? "disabled" : ""}">
+                        <a class="page-link" href="/users/auctions/my-list?page=${page+1}&size=${size}&status=open">Next</a>
+                    </li></ul></nav>`;
+        return newHtml;
+    }
+
+    $("#btn-create").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.title = document.querySelector('#title').value;
+        obj.introduce = document.querySelector('#introduce').value;
+        obj.startAt = document.querySelector('#startDate').value + "T" + document.querySelector('#startTime').value;
+        obj.endAt = document.querySelector('#endDate').value + "T" + document.querySelector('#endTime').value;
+        obj.maxParticipants = parseInt(document.querySelector('#maxParticipants').value);
+        obj.minimumPrice = parseInt(document.querySelector('#minimumPrice').value);
+        obj.productName = document.querySelector('#productName').value;
+        obj.productDetail = document.querySelector('#productDetail').value;
+        obj.productCategoryId = 1;
+
+        document.querySelector('#startAt').value =  obj.startAt;
+        document.querySelector('#endAt').value = obj.endAt;
+
+        var start = new Date(obj.startAt)
+        var end = new Date(obj.endAt)
+        const pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+
+        if(obj.title == "")
+            alert("Please write the title.");
+        else if(obj.maxNum < 2)
+            alert("The maximum number of participants must be at least 2.");
+        else if(obj.productName == "")
+            alert("Please write the productName.");
+        else if(obj.productDetail== "")
+            alert("Please write the productContent.");
+        else if(!pattern.test(obj.startAt))
+            alert("Please check the start date or time.");
+        else if(!pattern.test(obj.endAt))
+            alert("Please check the end date or time.");
+        else if(start >= end)
+            alert("The start time cannot be later than the end time.");
+        else
+            createRoom(obj);
+    });
+
+    $("#imgFiles").on("change", function() {
+      var files = Array.from(this.files);
+      var filesArr = Array.prototype.slice.call(files);
+      var htm = '<div class="carousel-inner"><div class="carousel-item active">';
+      var htm2 = '';
+      if(files.length == 0){
+          htm += '<img id="img-one" src="/img/default.jpg" class="d-block w-100" alt="..."></div></div>';
+
+      }else if(files.length == 1){
+          htm += `<img id="img-one" src="${URL.createObjectURL(filesArr[0])}" class="d-block w-100" alt="..."></div></div>`;
+
+      }else{
+          htm = '<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">';
+          filesArr.forEach(function(f, i) {
+                var str = '';
+                var str2 = '';
+
+                if(i == 0){
+                    str = 'class="active" aria-current="true"';
+                    str2 = 'active';
+                }
+
+                htm += `<button type="button" ${str} data-bs-target="#carouselExampleIndicators" data-bs-slide-to="${i}" aria-label="Slide ${i+1}"></button>`;
+                htm2 += `<div class="carousel-item ${str2}"><img src="${URL.createObjectURL(f)}" class="d-block w-100" alt="..."></div>`;
+          });
+
+         htm += '</div><div class="carousel-inner">' + htm2 + '</div>';
+         htm += '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button><button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>';
+     }
+       document.querySelector('#img-preview').innerHTML = htm;
+    });
+
+    function createRoom(roomInfo){
+        let formData = new FormData();
+
+        formData.append("request", new Blob([JSON.stringify(roomInfo)], {type: "application/json"}));
+        Array.from($('#imgFiles')[0].files).forEach(file => formData.append("imgFiles", file));
+
+        formAjaxRequest('/api/auctions', formData).then(result => {
+            $('#roomModal').modal('hide');
+            location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
+    }
+</script>
