@@ -2,7 +2,7 @@ package com.example.auctrade.domain.limit.mapper;
 
 import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.limit.entity.Limits;
-import com.example.auctrade.domain.product.dto.ProductDTO;
+import com.example.auctrade.domain.product.dto.ProductDto;
 
 public class LimitMapper {
 
@@ -22,7 +22,7 @@ public class LimitMapper {
 	}
 
 	// Entity -> DTO (Get)
-	public static LimitDTO.Get toDto(Limits limits, ProductDTO.Get product, String seller) {
+	public static LimitDTO.Get toDto(Limits limits, ProductDto.Get product, String seller) {
 		return (limits == null || product == null || seller == null) ? null : LimitDTO.Get.builder()
 			.id(limits.getId())
 			.title(limits.getTitle())
@@ -35,6 +35,9 @@ public class LimitMapper {
 			.productCategory(product.getCategoryName())
 			.sellerId(limits.getSellerId())
 			.seller(seller)
+			.amount(limits.getAmount())
+			.files(product.getFiles())
+			.thumbnail(product.getFiles().get(0))
 			.created(limits.getCreated())
 			.build();
 	}

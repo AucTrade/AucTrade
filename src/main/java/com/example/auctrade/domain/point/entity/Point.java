@@ -10,9 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Entity
-@Table(name = "pointLog")
+@Table(name = "point")
 @EntityListeners(AuditingEntityListener.class)
 public class Point {
 
@@ -22,25 +21,44 @@ public class Point {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private String userId; // 포인트를 가지고 있는 유저 email
+    private Long userId;
 
-    @Column(name = "amount")
-    private Long amount; // 포인트 변동사항
+    @Column(name = "amount", nullable = false)
+    private Integer amount;
+
+    @Column(name = "balance")
+    private Integer balance;
+
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PointType type;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PointStatus status;
 
     @Column(name = "account")
-    private String account; // 포인트 환전 계좌
+    private String account;
 
     @CreatedDate
-    @Column(name = "created", updatable = false)
+    @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt; // 포인트 거래일
+    private LocalDateTime createdAt;
     
     @Builder
-    public static Point createPointLog(String userId, long amount, String account) {
-        Point point = new Point();
-        point.userId = userId;
-        point.amount = amount;
-        point.account = account;
-        return point;
+    public Point(Long userId,Integer amount, Integer balance, PointType type, PointStatus status, String account) {
+        this.userId = userId;
+        this.amount = amount;
+        this.balance = balance;
+        this.status = status;
+        this.type = type;
+        this.account = account;
+    }
+
+    public void updateStatus(PointStatus status){
+        this.status = status;
+    }
+    public void updateBalance(Integer balance){
+        this.balance = balance;
     }
 }

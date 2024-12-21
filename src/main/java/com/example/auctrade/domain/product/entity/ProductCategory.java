@@ -1,12 +1,11 @@
 package com.example.auctrade.domain.product.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_category")
 public class ProductCategory {
@@ -18,6 +17,7 @@ public class ProductCategory {
     @Column(name = "category_name")
     private String categoryName;
 
+    @Builder
     public ProductCategory(String categoryName) {
         this.categoryName = categoryName;
     }

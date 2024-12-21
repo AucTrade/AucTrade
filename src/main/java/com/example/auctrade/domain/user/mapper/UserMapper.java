@@ -1,31 +1,36 @@
 package com.example.auctrade.domain.user.mapper;
 
-import com.example.auctrade.domain.user.dto.UserDTO;
+import com.example.auctrade.domain.user.dto.UserDto;
 import com.example.auctrade.domain.user.entity.User;
 
 public class UserMapper {
     private  UserMapper(){}
-    public static User CreateDTOToEntity(UserDTO.Create dto, String password) {
-        return (dto == null) ? null : new User(
-                dto.getEmail(),
-                password,
-                dto.getPhone(),
-                dto.getAddress(),
-                dto.getBirth(),
-                dto.getRole(),
-                dto.getPostcode()
-        );
+    public static User toEntity(UserDto.Create createDto, String password) {
+        return (createDto == null) ? null :
+                User.builder()
+                        .email(createDto.getEmail())
+                        .password(password)
+                        .phone(createDto.getPhone())
+                        .address(createDto.getAddress())
+                        .birth(createDto.getBirth())
+                        .role(createDto.getRole())
+                        .postcode(createDto.getPostcode())
+                        .build();
     }
 
-    public static UserDTO.Login EntityToLoginDTO(User user) {
-        return (user == null) ? null : new UserDTO.Login(user.getEmail(), user.getPassword(), user.getRole());
+    public static UserDto.Login toLoginDto(User user) {
+        return (user == null) ? null : new UserDto.Login(user.getEmail(), user.getPassword(), user.getRole());
     }
 
-    public static UserDTO.Info EntityToInfoDTO(User user){
-        return (user == null) ? null : new UserDTO.Info(user.getEmail(), user.getRole());
+    public static UserDto.Info toInfoDto(User user){
+        return (user == null) ? null : new UserDto.Info(user.getId(), user.getEmail(), user.getRole());
     }
 
-    public static UserDTO.Result CreateResultDTO(boolean isSuccess){
-        return new UserDTO.Result(isSuccess);
+    public static UserDto.Point toPointDto(User user){
+        return (user == null) ? null : new UserDto.Point(user.getId(),user.getPoint());
+    }
+
+    public static UserDto.Result toResultDto(Long userId, Boolean isSuccess){
+        return new UserDto.Result(userId, isSuccess);
     }
 }

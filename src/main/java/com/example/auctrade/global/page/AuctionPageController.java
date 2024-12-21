@@ -13,12 +13,12 @@ public class AuctionPageController {
     // 그리고 여긴가
     @GetMapping("")
     public String roomList() {
-        return "auctionBeforeStartList";
+        return "auctionMain";
     }
 
     @GetMapping("/deposits")
     public String depositList() {
-        return "auctionBeforeStartList";
+        return "auctionMain";
     }
 
     @GetMapping("/enter")

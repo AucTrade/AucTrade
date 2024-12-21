@@ -49,7 +49,6 @@ public class JwtUtil {
      * @param token 대상 토큰 값
      * @return 만료 여부
      */
-    // 토큰이 만료되었는지 확인하는 메서드
     public boolean isTokenExpired(String token) {
         return getClaims(token).getExpiration().before(new Date());
     }
@@ -60,7 +59,6 @@ public class JwtUtil {
      * @return 유저 정보
      */
     public String getUsernameFromToken(String token) {
-        // 만료된 토큰에서 클레임을 파싱하되 서명 검증은 생략
         return  getClaims(token).getSubject();
     }
 
@@ -78,11 +76,9 @@ public class JwtUtil {
             tokenValue = URLDecoder.decode(tokenValue, StandardCharsets.UTF_8).trim();
         }
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
-//            log.info("추출 최종 확인");
             return tokenValue.substring(7);
         }
 
-//        log.error("예외 발생 최종 확인");
         throw new JwtException(ErrorCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
@@ -104,14 +100,12 @@ public class JwtUtil {
         try {
             return !getClaims(token).isEmpty();
         }catch (JwtException e){
-            log.error("Invalid JWT token: {}", e.getMessage()); // 예외 메시지 로그 출력
-            return false; // 예외 발생 시 false 반환
+            log.error("Invalid JWT token: {}", e.getMessage());
+            return false;
         }
     }
 
     private Claims getClaims(String token){
-//        log.info("클레임 파싱 확인: {}", token);
-
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()

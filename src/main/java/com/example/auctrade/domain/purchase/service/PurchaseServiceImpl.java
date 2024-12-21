@@ -33,7 +33,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 	@Override
 	public boolean processPurchase(PurchaseDTO.Purchase purchase, Long limitId, String buyerEmail) {
-		Long buyerId = userService.getUserIdByEmail(buyerEmail);
+		Long buyerId = userService.getUserInfo(buyerEmail).getUserId();
 		// Limit 정보를 가져와 PurchaseEntity 생성
 		LimitDTO.Get limitDTO = limitService.getByLimitId(limitId);
 		Boolean isAuction = false;  // Limit 거래이므로 false로 설정
@@ -166,6 +166,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}
 
 	private long getUserPoints(Long buyerId) {
-		return userService.getUserPoint(buyerId);
+		return userService.getPoint(userService.getUserInfo(buyerId).getEmail()).getPoint();
 	}
 }

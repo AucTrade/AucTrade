@@ -1,14 +1,12 @@
 package com.example.auctrade.domain.user.service;
 
-import com.example.auctrade.domain.user.dto.UserDTO;
+import com.example.auctrade.domain.user.dto.UserDto;
 import com.example.auctrade.domain.user.entity.User;
 import com.example.auctrade.domain.user.entity.UserDetailsImpl;
 import com.example.auctrade.domain.user.mapper.UserMapper;
 import com.example.auctrade.domain.user.repository.UserRepository;
 import com.example.auctrade.global.exception.CustomException;
 import com.example.auctrade.global.exception.ErrorCode;
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -17,17 +15,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.example.auctrade.global.constant.Constants.REDIS_REFRESH_KEY;
 
 @Slf4j
 @Service
-@Transactional
-@AllArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedissonClient redissonClient;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedissonClient redissonClient){
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.redissonClient = redissonClient;
+    }
 
     /**
      * 회원가입
@@ -35,10 +39,10 @@ public class UserServiceImpl implements UserService {
      * @return 회원 가입 성공 여부
      */
     @Override
-    public UserDTO.Result createUser(UserDTO.Create userDto) {
+    @Transactional
+    public UserDto.Info createUser(UserDto.Create userDto) {
         if (existUserEmail(userDto.getEmail())) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-        userRepository.save(UserMapper.CreateDTOToEntity(userDto, passwordEncoder.encode(userDto.getPassword())));
-        return UserMapper.CreateResultDTO(true);
+        return UserMapper.toInfoDto(userRepository.save(UserMapper.toEntity(userDto, passwordEncoder.encode(userDto.getPassword()))));
     }
 
     /**
@@ -47,12 +51,18 @@ public class UserServiceImpl implements UserService {
      * @return 조회된 회원 정보
      */
     @Override
-    public UserDTO.Info getUserInfo(String email) {
-        return UserMapper.EntityToInfoDTO(findUserByEmail(email));
+    public UserDto.Info getUserInfo(String email) {
+        return UserMapper.toInfoDto(findUserByEmail(email));
     }
 
-    private User findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+    /**
+     * DB 내부 유저 정보 반환
+     * @param userId 대상 유저 ID
+     * @return 조회된 회원 정보
+     */
+    @Override
+    public UserDto.Info getUserInfo(Long userId) {
+        return UserMapper.toInfoDto(findUserById(userId));
     }
 
     /**
@@ -61,8 +71,7 @@ public class UserServiceImpl implements UserService {
      * @return 로그아웃 성공 여부
      */
     @Override
-    public UserDTO.Result logoutUser(String email) {
-        // RBucket 사용하여 Redis에서 데이터 삭제
+    public UserDto.Result logoutUser(String email) {
         RBucket<String> refreshTokenBucket = redissonClient.getBucket(REDIS_REFRESH_KEY + email);
         boolean isDeleted = refreshTokenBucket.delete();
 
@@ -70,7 +79,7 @@ public class UserServiceImpl implements UserService {
             throw new InternalAuthenticationServiceException(ErrorCode.REDIS_INTERNAL_ERROR.getMessage());
         }
 
-        return new UserDTO.Result(true);
+        return new UserDto.Result(findUserByEmail(email).getId(), true);
     }
 
     /**
@@ -79,44 +88,57 @@ public class UserServiceImpl implements UserService {
      * @return 해당 이메일 존재 여부
      */
     @Override
-    public boolean existUserEmail(String email) {
+    public Boolean existUserEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
-
+    
+    /**
+     * 유저 포인트 추가 요청
+     * @param userId 대상 유저 ID
+     * @param amount 추가할 포인트 량
+     */
     @Override
-    public boolean updatePoint(Long point, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return user.addPoint(point);
-
+    @Transactional
+    public Boolean addPoint(Long userId, Integer amount) {
+        findUserById(userId).addPoint(amount);
+        return true;
     }
 
+    /**
+     * 유저 포인트 감소 요청
+     * @param userId 대상 유저 ID
+     * @param amount 감소할 포인트 량
+     */
     @Override
-    public int getUserPoint(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return user.getPoint();
+    @Transactional
+    public Boolean subPoint(Long userId, Integer amount) {
+        User user = findUserById(userId);
+        if(user.getPoint() < amount) throw new CustomException(ErrorCode.EXCEEDED_POINT_REQUEST);
+        user.subPoint(amount);
+        return true;
     }
+    
+    /**
+     * 유저 포인트 정보 조회
+     * @param email 대상 유저 Email
+     * @return 포인트 정보
+     */
+    @Override
+    public UserDto.Point getPoint(String email) {
+        return UserMapper.toPointDto(findUserByEmail(email));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new UserDetailsImpl(userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage())));
     }
 
-    @Override
-    public boolean updatePointById(Long point, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return user.addPoint(point);
-    }
-    @Override
-    public Long getUserIdByEmail(String email) {
-        return userRepository.findByEmail(email)
-            .map(User::getId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-    @Override
-    public UserDTO.Info getUserInfoById(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return UserMapper.EntityToInfoDTO(user);
+    private User findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }

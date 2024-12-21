@@ -1,7 +1,6 @@
 package com.example.auctrade.domain.chat.dto;
 
-import com.example.auctrade.domain.chat.document.ChatMessage;
-import com.example.auctrade.domain.chat.document.DirectChatMessage;
+import com.example.auctrade.domain.chat.entity.DirectChatMessage;
 
 import lombok.*;
 
@@ -26,9 +25,9 @@ public class DirectChatMessageDTO {
 
 		public Get(DirectChatMessage chatMessage) {
 			this.chatRoomId = Long.parseLong(chatMessage.getDirectChatId());
-			this.username = chatMessage.getUsername(); // 메시지를 보낸 사람
+			this.username = chatMessage.getEmail(); // 메시지를 보낸 사람
 			this.message = chatMessage.getMessage();
-			this.createAt = chatMessage.getCreatedAt();
+			this.createAt = chatMessage.getCreatedAt().toString();
 		}
 	}
 }

@@ -10,106 +10,61 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Entity
-@Table(name = "auctions")
+@Table(name = "auction")
 @EntityListeners(AuditingEntityListener.class)
 public class Auction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id; // 경매장 id
+    private Long id;
 
     @Column(name = "title", nullable = false)
-    private String title; // 경매 제목
+    private String title;
 
     @Column(name = "introduce")
-    private String introduce; // 경매 설명
+    private String introduce;
 
-    @Column(name = "personnel", nullable = false)
-    private int personnel; // 경매 참여인(최대)
+    @Column(name = "max_participants", nullable = false)
+    private Integer maxParticipants;
 
     @Column(name = "product_id", nullable = false)
-    private long productId;
+    private Long productId;
 
-    @Column(name = "sale_username", nullable = false)
-    private String saleUsername;
-
-    @Column(name = "started", nullable = false)
-    private boolean started; // 경매 시작여부
-
-    @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate; // 경매 시작예고시간, 시간 포맷팅 고려 필요
-
-    @CreatedDate
-    @Column(name = "created", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt; // 경매 채팅방 생성일자
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "minimum_price", nullable = false)
-    private int minimumPrice; // 최소입찰금액
+    private Integer minimumPrice;
 
-    @Column(name = "price", nullable = false)
-    private int price; // 최종낙찰가
+    @Column(name = "final_price")
+    private Integer finalPrice;
 
-    @Column(name = "ended", nullable = false)
-    private boolean ended;
+    @Column(name = "start_at", nullable = false)
+    private LocalDateTime startAt;
 
-    @Column(name = "finish_date", nullable = false)
-    private LocalDateTime finishDate;
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endAt;
+
+    @Column(name = "is_ended", nullable = false)
+    private Boolean isEnded;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
 
     @Builder
-    public static Auction createAuction(
-            String title,
-            String introduce,
-            int personnel,
-            long productId,
-            String saleUsername,
-            LocalDateTime startDate,
-            int minimumPrice,
-            int price,
-            LocalDateTime finishDate
-    ) {
-        Auction auction = new Auction();
-        auction.title = title;
-        auction.introduce = introduce;
-        auction.personnel = personnel;
-        auction.productId = productId;
-        auction.saleUsername = saleUsername;
-        auction.started = false;
-        auction.startDate = startDate;
-        auction.minimumPrice = minimumPrice;
-        auction.price = price;
-        auction.ended = false;
-        auction.finishDate = finishDate;
-        return auction;
-    }
-
-    public void start() {
-        this.started = true;
-    }
-
-    // 날짜 지났으면 강제 시작 처리
-    public boolean checkAndStartAuction(LocalDateTime now) {
-        if (now.isAfter(this.startDate)) {
-            this.start();
-            return true;
-        }
-        return false;
-    }
-
-    public void end() {
-        this.ended = true;
-    }
-
-    // 날짜 지났으면 강제 종료 처리
-    public boolean checkAndEndAuction(LocalDateTime now) {
-        if (now.isAfter(this.finishDate)) {
-            this.end();
-            return true;
-        }
-
-        return false;
+    public Auction(String title, String introduce, Integer maxParticipants, Long productId, Long userId, Integer minimumPrice, LocalDateTime startAt, LocalDateTime endAt,Boolean isEnded){
+        this.title = title;
+        this.introduce = introduce;
+        this.maxParticipants = maxParticipants;
+        this.productId = productId;
+        this.userId = userId;
+        this.minimumPrice = minimumPrice;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.isEnded = isEnded;
     }
 }

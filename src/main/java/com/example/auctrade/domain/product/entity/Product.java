@@ -1,8 +1,9 @@
 package com.example.auctrade.domain.product.entity;
 
-import com.example.auctrade.domain.product.dto.ProductDTO;
+import com.example.auctrade.domain.product.dto.ProductDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,13 +27,14 @@ public class Product {
     @JoinColumn(name = "category", nullable = false)
     private ProductCategory category;
 
-    @JoinColumn(name = "sale_username", nullable = false)
-    private String saleUsername;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    public Product(ProductDTO.Create requestDto, ProductCategory category) {
-        this.name = requestDto.getName();
-        this.detail = requestDto.getDetail();
+    @Builder
+    public Product(String name, String detail, Long userId, ProductCategory category) {
+        this.name = name;
+        this.detail = detail;
         this.category = category;
-        this.saleUsername = requestDto.getSaleUsername();
+        this.userId = userId;
     }
 }

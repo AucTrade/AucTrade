@@ -13,23 +13,24 @@
 <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
 
 <div id="header"></div>
-<div class="modal fade" id="rechargePoint" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
+<div class="modal fade" id="chargePoint" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary" data-bs-theme="dark">
                 <h5 class="modal-title text-white">포인트 충전</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="/api/points/recharge" id="rechargeFrom">
+            <form method="post" id="chargeFrom">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="recharge" class="col-form-label">충전 금액</label>
-                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="recharge" name="recharge" placeholder="충전할 금액">
+                        <label for="charge" class="col-form-label">충전 금액</label>
+                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="charge" name="charge" placeholder="충전할 금액">
+                        <input type="hidden" id="charge-account" name="charge-account" value="00-0000-0000">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button class="btn btn-primary" id = "btn-recharge">충전하기</button>
+                    <button class="btn btn-primary" id = "btn-charge">충전하기</button>
                 </div>
             </form>
         </div>
@@ -42,11 +43,12 @@
                 <h5 class="modal-title text-white">포인트 환전</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="/api/points/refund" id="exchangeForm">
+            <form method="post" id="exchangeForm">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="refund" class="col-form-label">환전 금액</label>
-                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="refund" name="refund" placeholder="환전할 금액">
+                        <label for="exchange" class="col-form-label">환전 금액</label>
+                        <input type="number" min="0" class="form-control dongle-regular fs-4" value="1000" step="100" id="exchange" name="exchange" placeholder="환전할 금액">
+                        <input type="hidden" id="exchange-account" name="exchange-account" value="00-0000-0000">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -78,11 +80,11 @@
         <div class="col-3">
             <div class="row">
                 <div class="col-6 fs-5">현재 포인트 :</div>
-                <div class="col-6 text-primary fs-6 pt-1">10000000000 ⓟ</div>
+                <div class="col-6 text-primary fs-6 pt-1" id="point"> 0 ⓟ</div>
             </div>
         </div>
         <div class="col-9">
-            <button class="btn btn-outline-primary" data-bs-target="#rechargePoint" data-bs-toggle="modal" type="button"><i class="bi bi-cash-coin"></i> 충전</button>
+            <button class="btn btn-outline-primary" data-bs-target="#chargePoint" data-bs-toggle="modal" type="button"><i class="bi bi-cash-coin"></i> 충전</button>
         </div>
     </div>
     <div class="row" style="height: 10px;"></div>
@@ -103,6 +105,42 @@
 <script>
     $(document).ready(function(){
         document.querySelector('#my-page-username').innerHTML = getUsernameFromCookie('Authorization');
+        getAjaxRequest(`/api/users/my/point`).then(result => {
+                document.querySelector('#point').innerHTML = result.point + ' ⓟ';
+         }).catch(error => {console.error('오류 발생:', error);});
+    });
+
+    $("#btn-charge").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.amount = document.querySelector('#charge').value;
+        obj.account = document.querySelector('#charge-account').value;
+
+        postAjaxRequest('/api/points/charge', obj)
+        .then(result => {
+               $('#chargePoint').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
+    });
+
+
+    $("#btn-exchange").on("click", function (e){
+        e.preventDefault();
+
+        var obj = new Object();
+        obj.amount = document.querySelector('#exchange').value;
+        obj.account = document.querySelector('#exchange-account').value;
+
+        postAjaxRequest('/api/points/exchange', obj)
+        .then(result => {
+               $('#exchangePoint').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
     });
 
 </script>

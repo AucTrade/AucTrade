@@ -65,7 +65,7 @@ public class Limits {
 	private Integer personalLimit;	//인당 구매 제한
 
 	@Column(name = "status", nullable = false)
-	private Integer status = 0;	//판매 상태 : 판매 예정 0, 판매 중 1, 판매완료 2
+	private Integer status;	//판매 상태 : 판매 예정 0, 판매 중 1, 판매완료 2
 
 	@Column(name = "productId", nullable = false)
 	private Long productId;

@@ -23,10 +23,10 @@ public class LimitController {
 
 
 	// Limit 생성
-	@PostMapping
+	@PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<LimitDTO.Get> createLimit(
-		@RequestPart("data") LimitDTO.Create limitDTO,
-		@RequestPart("files") MultipartFile[] imgFiles,
+		@RequestPart("request") LimitDTO.Create limitDTO,
+		@RequestPart(value = "imgFiles", required = false) MultipartFile[] imgFiles,
 		@AuthenticationPrincipal UserDetails userDetails) throws IOException {
 		String sellerEmail = userDetails.getUsername(); // sellerId를 UserDetails에서 가져옴
 		LimitDTO.Get result = limitService.createLimit(limitDTO, imgFiles, sellerEmail);

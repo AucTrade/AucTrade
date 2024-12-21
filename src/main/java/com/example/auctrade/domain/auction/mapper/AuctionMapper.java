@@ -1,95 +1,135 @@
 package com.example.auctrade.domain.auction.mapper;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import com.example.auctrade.domain.auction.dto.DepositDTO;
+import com.example.auctrade.domain.auction.dto.AuctionDto;
 import com.example.auctrade.domain.auction.entity.Auction;
-import com.example.auctrade.domain.product.dto.ProductDTO;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.bid.vo.BidUserInfoVo;
+import com.example.auctrade.domain.bid.vo.BidVo;
+import com.example.auctrade.domain.deposit.vo.DepositVo;
+import com.example.auctrade.domain.product.dto.ProductDto;
 
 import java.util.List;
 
 public class AuctionMapper {
     private AuctionMapper(){}
 
-    public static AuctionDTO.Get toGetDto(Auction auction) {
-        return (auction == null) ? null : AuctionDTO.Get.builder()
+    public static AuctionDto.Get toGetDto(Auction auction, String email) {
+        return (auction == null) ? null : AuctionDto.Get.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
-                .maxPersonnel(auction.getPersonnel())
-                .saleUserEmail(auction.getSaleUsername())
-                .startDate(auction.getStartDate())
+                .maxParticipants(auction.getMaxParticipants())
+                .email(email)
+                .startAt(auction.getStartAt())
                 .minimumPrice(auction.getMinimumPrice())
-                .minimumPrice(auction.getPrice())
-                .finishDate(auction.getFinishDate())
+                .endAt(auction.getEndAt())
                 .productId(auction.getProductId())
                 .build();
     }
 
-    public static AuctionDTO.Enter toEnterDto(AuctionDTO.Get auction, ProductDTO.Get product, List<String> files) {
-        return (auction == null) ? null : AuctionDTO.Enter.builder()
+    public static AuctionDto.Enter toEnterDto(Auction auction, String email, ProductDto.Get product, List<String> files, BidUserInfoVo bidUserInfoVo) {
+        return (auction == null) ? null : AuctionDto.Enter.builder()
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
                 .productName(product.getName())
                 .productDetail(product.getDetail())
                 .productCategory(product.getCategoryName())
-                .saleUserEmail(auction.getSaleUserEmail())
-                .startDate(auction.getStartDate())
-                .finishDate(auction.getFinishDate())
+                .email(email)
+                .startAt(auction.getStartAt())
+                .endAt(auction.getEndAt())
+                .minimumPrice(auction.getMinimumPrice())
                 .files(files)
+                .bidUser(bidUserInfoVo.getEmail())
+                .bidAmount(bidUserInfoVo.getAmount())
                 .build();
     }
 
-    public static Auction toEntity(AuctionDTO.Create auctionDTO, long productId, String saleUsername) {
-        return (auctionDTO == null) ? null :Auction.builder()
-                .title(auctionDTO.getTitle())
-                .introduce(auctionDTO.getIntroduce())
-                .personnel(auctionDTO.getMaxPersonnel())
+    public static Auction toEntity(AuctionDto.Create auctionDto, long productId, Long userId) {
+        return (auctionDto == null) ? null :Auction.builder()
+                .title(auctionDto.getTitle())
+                .introduce(auctionDto.getIntroduce())
+                .maxParticipants(auctionDto.getMaxParticipants())
                 .productId(productId)
-                .saleUsername(saleUsername)
-                .startDate(auctionDTO.getStartDate())
-                .minimumPrice(auctionDTO.getMinimumPrice())
-                .price(auctionDTO.getMinimumPrice())
-                .finishDate(auctionDTO.getFinishDate())
+                .userId(userId)
+                .startAt(auctionDto.getStartAt())
+                .minimumPrice(auctionDto.getMinimumPrice())
+                .endAt(auctionDto.getEndAt())
+                .isEnded(false)
                 .build();
     }
 
-    public static AuctionDTO.GetPage toMyAuctionPage(List<AuctionDTO.GetList> auctions, int lastPage) {
-        return new AuctionDTO.GetPage(auctions, lastPage);
+    public static AuctionDto.GetPage toMyAuctionPage(List<AuctionDto.GetList> auctions, int lastPage) {
+        return new AuctionDto.GetPage(auctions, lastPage);
     }
 
-    public static AuctionDTO.GetList toGetListDto(Auction auction) {
-        return (auction == null) ? null : AuctionDTO.GetList.builder()
+    public static AuctionDto.GetList toGetListDto(Auction auction, int nowParticipants, String categoryName, String thumbnail) {
+        return (auction == null) ? null : AuctionDto.GetList.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
-                .startDate(auction.getStartDate())
-                .maxPersonnel(auction.getPersonnel())
+                .startAt(auction.getStartAt())
+                .endAt(auction.getEndAt())
+                .maxParticipants(auction.getMaxParticipants())
                 .productId(auction.getProductId())
-                .price((long) auction.getMinimumPrice())
-                .isStarted(auction.isStarted())
-                .isEnded(auction.isEnded())
-                .minimumPrice((long) auction.getMinimumPrice())
+                .minimumPrice(auction.getMinimumPrice())
+                .nowParticipants(nowParticipants)
+                .productCategory(categoryName)
+                .thumbnail(thumbnail)
                 .build();
     }
 
-    public static AuctionDTO.BeforeStart toBeforeStartDto(AuctionDTO.GetList auction, DepositDTO.List deposit, String categoryName, String thumbnail) {
-        return (auction == null) ? null : AuctionDTO.BeforeStart.builder()
+    public static AuctionDto.BeforeStart toBeforeStartDto(Auction auction, Integer minDeposit, Integer nowParticipants, String categoryName, String thumbnail) {
+        return (auction == null) ? null : AuctionDto.BeforeStart.builder()
                 .id(auction.getId())
                 .title(auction.getTitle())
                 .introduce(auction.getIntroduce())
-                .startDate(auction.getStartDate())
-                .minDeposit(deposit.getDeposit())
-                .currentPersonnel(deposit.getCurrentPersonnel())
+                .startAt(auction.getStartAt())
+                .endAt(auction.getEndAt())
+                .minDeposit(minDeposit)
+                .nowParticipants(nowParticipants)
                 .thumbnail(thumbnail)
-                .maxPersonnel(auction.getMaxPersonnel())
-                .price((long) auction.getMinimumPrice())
-                .minimumPrice((long) auction.getMinimumPrice())
+                .maxParticipants(auction.getMaxParticipants())
+                .minimumPrice(auction.getMinimumPrice())
                 .productCategory(categoryName)
                 .build();
     }
 
-    public static AuctionDTO.Result toResultDto(Boolean isSuccess) {
-        return (isSuccess == null) ? null : new AuctionDTO.Result(isSuccess);
+    public static AuctionDto.GetPage toGetPageDto(List<AuctionDto.GetList> auctions, int lastPage) {
+        return new AuctionDto.GetPage(auctions, lastPage);
+    }
+
+
+    public static DepositVo toDepositVo(AuctionDto.Deposit requestDto, Integer maxParticipants, Long auctionId, Long userId){
+        return (requestDto == null) ? null : DepositVo.builder()
+                .auctionId(auctionId)
+                .userId(userId)
+                .amount(requestDto.getAmount())
+                .maxParticipants(maxParticipants)
+                .build();
+    }
+
+    public static BidVo toBidVo(AuctionDto.Bid requestDto, Long auctionId, Long userId, String email){
+        return (requestDto == null) ? null : BidVo.builder()
+                .auctionId(auctionId)
+                .userId(userId)
+                .email(email)
+                .amount(requestDto.getAmount())
+                .build();
+    }
+
+    public static ProductDto.Create toProductDto(AuctionDto.Create auctionDto) {
+        return (auctionDto == null) ? null : ProductDto.Create.builder()
+                .name(auctionDto.getProductName())
+                .detail(auctionDto.getProductDetail())
+                .productCategoryId(auctionDto.getProductCategoryId())
+                .build();
+    }
+
+    public static AuctionDto.Result toResultDto(Long auctionId, Boolean isSuccess) {
+        return (isSuccess == null) ? null : new AuctionDto.Result(auctionId, isSuccess);
+    }
+    public static AuctionDto.BidResult toBidResultDto(Long auctionId, Integer amount, Boolean isSuccess) {
+        return (isSuccess == null) ? null : new AuctionDto.BidResult(auctionId, amount, isSuccess);
     }
 }
 

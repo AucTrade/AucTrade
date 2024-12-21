@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auctrade</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/bootstrap-datepicker.min.js"></script>
+    <script src="/js/auctrade-basic.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
+    <script src="/js/bootstrap-datepicker.ko.min.js"></script>
+    <link rel="stylesheet" href="/css/jquery-timepicker.min.css">
+    <link rel="stylesheet" href="/icon/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <script src="/js/jquery-timepicker.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+
+    <div id="header"></div>
+    <div class="container">
+        <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark" data-bs-theme="dark">
+                        <h5 class="modal-title text-white">예치금 등록</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="/api/auctions">
+                        <div class="modal-body">
+                            <input type="hidden" class="form-control dongle-regular fs-4" id="auctionId" name="auctionId">
+                            <input type="hidden" class="form-control dongle-regular fs-4" id="minPrice" name="minPrice">
+                            <div class="mb-3">
+                                <label for="deposit" class="col-form-label">예치금</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="deposit" name="deposit" value="0" step="100"><span class="input-group-text">￦</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-primary" id = "btn-create">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="container" style="height: 30px"></div>
+            <div class="row text-center"><h2>경매 리스트</h2></div>
+        </div>
+        <div class="container px-4 py-5" id="custom-cards">
+            <div class="container mt-2 mb-4 d-flex justify-content-center">
+                <input type="text" class="form-control me-2 search-input-box" id="searchKeyword" placeholder=" 무슨 물건을 찾으시나요"
+                       style="width: 500px; display: inline-block;">
+                <button class="btn btn-outline-primary btn-sm" onclick="search()">검색</button>
+            </div>
+            <div class="container" style="height: 20px"></div>
+            <div id="auctionList"></div>
+            <div class="container" style="height: 10px"></div>
+        </div>
+    </div>
+    <div class="item-container" id="item-container">
+
+    </div>
+    <div id="footer"></div>
+</body>
+</html>
+<script>
+
+    let page = 1;
+    const size = 10;
+
+    let lastItem;
+    let lastObservedItem;
+    let isLastPage = false;
+
+    $(document).ready(function(){
+        loadAuctions();
+    });
+
+    const observerOptions = { root: null, threshold: 0.1};
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                observer.unobserve(entry.target);
+                lastObservedItem = $("#auctionList .auction-item:last")[0];
+                loadAuctions();
+            }
+        });
+    }, observerOptions);
+
+    function loadAuctions(){
+        if(isLastPage) return;
+
+        getAjaxRequest(`/api/auctions?page=${page}&size=${size}`)
+        .then(result => {
+            if(result == null) return;
+
+            if (result.length === 0) {
+                isLastPage = true;
+                return;
+            }
+
+            document.querySelector('#auctionList').innerHTML += makeAuctionListHTML(result);
+
+            page++;
+            lastItem = $("#auctionList .auction-item:last")[0];
+            if (lastItem !== lastObservedItem) {
+                observer.observe(lastItem);
+                lastObservedItem = lastItem;
+            }
+        }).catch(error => {console.error('오류 발생:', error);});
+    } //loadAuctions
+
+    function makeAuctionListHTML(data){
+
+        var newHtml = '';
+        data.forEach((element, index) => {
+
+            newHtml += `<div class="auction-item card m-2">
+                <a href="javascript:void(0);" onclick="depositAuction('${element.id}','deposit${index}');" attr-a="onclick : attr-a" class="card-link room-card">
+                    <div class="row g-0">
+                        <div style="height: 240px;" class="col-md-3">
+                            <img style="height: 100%; width:100%; object-fit:cover;" src="${element.thumbnail}" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body px-3" style="background-color:#F5F5F5; height: 240px;">
+                                <div style="height: 40px; border-bottom:1px solid #bbbbbb;">
+                                    <p class="card-title fs-3 bold">${element.title}</p></div>
+                                <div class="ellipsis dongle-regular fs-4 px-3 py-1 mb-1" style="height: 115px; border-bottom:1px solid #bbbbbb;">${element.introduce}</div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
+                                    <div class="col-6">
+                                        <div class="row">
+                                            <input type="hidden" id="deposit${index}" value="${element.minimumPrice}">
+                                                <div class="col-6 text-primary"><b>최소 입찰가 : ${element.minimumPrice}</b></div>
+                                                <div class="col-6 text-primary"><b>인원 : ${element.nowParticipants} / ${element.maxParticipants}</b></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: 30px;">
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startAt}</button></div>
+                                    <div class="col-6"><p>현재 최저 예치금 : ${element.minDeposit}</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>`;
+        }); //for-each
+        return newHtml;
+    }
+
+    $("#btn-create").on("click", function (e){
+        e.preventDefault();
+
+        const minPrice = Number(document.querySelector("#minPrice").value);
+        const auctionId = document.querySelector('#auctionId').value;
+
+        var obj = new Object();
+        obj.amount = document.querySelector('#deposit').value;
+
+        if(obj.amount < minPrice)
+            alert(`The maximum number of participants must be more than ${minPrice}.`);
+        else
+            registDeposit(obj, auctionId);
+    });
+
+    function registDeposit(obj, auctionId){
+        postAjaxRequest(`/api/auctions/${auctionId}/deposits`, obj)
+        .then(result => {
+               $('#depositModal').modal('hide');
+               location.reload(true);
+        }).catch(error => {
+            console.error('오류 발생:', error);
+        });
+    }
+
+    function depositAuction(id, target){
+        const val = document.querySelector(`#${target}`).value;
+        document.querySelector("#auctionId").value = id;
+        document.querySelector("#minPrice").value = val;
+        document.querySelector("#deposit").value = val;
+        $('#depositModal').modal('show')
+    }
+
+</script>

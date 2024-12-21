@@ -82,26 +82,24 @@
 </body>
 <script>
     var finishTime;
+    var username;
 
     $(document).ready(function(){
          const auctionId = getUrlParams()["auctionId"];
-
-         getAjaxRequest(`/api/auctions/enter/${auctionId}`).then(result => {
+         username = getUsernameFromCookie('Authorization');
+         getAjaxRequest(`/api/auctions/${auctionId}/enter`).then(result => {
                 makeRoom(result);
                 loadImg(result.files);
-                finishTime = result.finishDate;
-                socket(auctionId, username);
-                $('#button-send').attr('disabled', true);
-         }).catch(error => {console.error('오류 발생:', error);});
-
-         getAjaxRequest(`/api/auctions/bids/${auctionId}`).then(result => {
+                finishTime = result.endAt;
                 makeBidInfo(result);
+                socket(auctionId);
+                $('#button-send').attr('disabled', true);
          }).catch(error => {console.error('오류 발생:', error);});
     });
 
     function makeBidInfo(result){
-        document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${result.username}</h5>`;
-        document.querySelector('#price').innerHTML =`<p class="text-end fs-5 text-primary">${result.price} ￦</p>`;
+        document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${result.bidUser}</h5>`;
+        document.querySelector('#price').innerHTML =`<p class="text-end fs-5 text-primary">${result.bidAmount} ￦</p>`;
     }
 
     function makeRoom(result){
@@ -110,8 +108,8 @@
         document.querySelector('#productDetail').innerHTML =`<p class="fs-2">${result.productDetail}</p>`;
 
         document.querySelector('#productCategory').innerHTML =`<button class="btn btn-primary category-btn category-button-text" disabled>${result.productCategory}</button>`;
-        var start = result.startDate.split('T');
-        var end = result.finishDate.split('T');
+        var start = result.startAt.split('T');
+        var end = result.endAt.split('T');
         document.querySelector('#period').innerHTML = `${start[0]} ${start[1].slice(0, -3)} ~ ${end[0]} ${end[1].slice(0, -3)}`;
     }
 
@@ -119,7 +117,7 @@
         const timeRemaining = new Date(finishTime) - new Date();
 
         if (timeRemaining <= 0) {
-            document.getElementById('timer').textContent = '시간 초과';
+            document.getElementById('timer').textContent = '경매 종료';
             return;
         }
 
@@ -171,16 +169,15 @@
     function createMsg(content){
          var message = content.message;
          if(message =='') return;
-
          if(/^@[0-9]+/.test(message)){
            document.querySelector('#price').innerHTML = `<h3>${message.substring(1)}</h3>`;
-           document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${content.username}</h5>`;
+           document.querySelector('#bidNickname').innerHTML = `<h5 class="card-title">${content.email}</h5>`;
            document.querySelector('#msgArea').innerHTML +=
-           `<div class='row h-auto'><div class='alert alert-success h-auto'><b>${content.username} : ${message}</b></div></div>`;
+           `<div class='row h-auto'><div class='alert alert-success h-auto'><b>${content.email} : ${message}</b></div></div>`;
          }else{
-           var color = (username == content.username) ? "text-primary fs-5" : "text-body dongle-regular fs-3";
+           var color = (username == content.email) ? "text-primary fs-5" : "text-body dongle-regular fs-3";
            document.querySelector('#msgArea').innerHTML +=
-           `<div class='h-auto text-break'><p class="${color} text-wrap">${content.username} : ${message}</p></div>`;
+           `<div class='h-auto text-break'><p class="${color} text-wrap">${content.email} : ${message}</p></div>`;
          }
          $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
     }
@@ -196,10 +193,8 @@
         else $('#button-send').attr('disabled', false);
     });
 
-    function socket(auctionId, username){
-        console.log("쿠키 확인: " + document.cookie);
-
-        let parts = document.cookie.split("Bearer%20"); // "Bearer%20"을 기준으로 분리
+    function socket(auctionId){
+        let parts = document.cookie.split("Bearer%20");
         let accessToken = parts[1];
 
         var sockJs = new SockJS("/stomp/chat");
@@ -210,7 +205,7 @@
                 "/sub/chat/auctions/" + auctionId,
                 (chat) => createMsg(JSON.parse(chat.body))
             );
-            stomp.send('/send/chat/enter', {}, JSON.stringify({auctionId: auctionId, username: username, message: username + " 님이 채팅방에 입장하였습니다."}));
+            stomp.send(`/send/chat/message/enter`, {},JSON.stringify({auctionId: auctionId}));
      });
 
      $("#button-send").on("click", function(e){
@@ -220,10 +215,9 @@
        if (message.value.match(/^@\d+$/)){
            const auctionId = getUrlParams()["auctionId"];
             $.ajax({
-                url : `/api/auctions/bids`,
+                url : `/api/auctions/${auctionId}/bids`,
                 type : 'post',
-                data: JSON.stringify({
-                        auctionId: auctionId, price: parseInt(message.value.substr(1)), username: username}),
+                data: JSON.stringify({amount: parseInt(message.value.substr(1))}),
                 contentType: "application/json; charset=UTF-8",
                 success : function (result) {
                     if(!result.isSuccess) {
@@ -232,11 +226,12 @@
                            $("#msgArea").scrollTop($("#msgArea")[0].scrollHeight);
                     }else{
                         stomp.send('/send/chat/message', {}, JSON.stringify({
-                        auctionId: result.auctionId, message: "@"+ result.price, username: result.username}));
+                        auctionId: result.auctionId, message: "@"+ result.amount}));
                     }
                 },
                 error : function (request, status, error) {
-                    console.log(error);
+                  document.querySelector('#msgArea').innerHTML +=
+                    `<div class='h-auto text-break'><p class="text-danger fs-5 text-wrap">${request.responseJSON.message}</p></div>`;
                 }
             });
        } else {

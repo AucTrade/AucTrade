@@ -3,9 +3,8 @@ package com.example.auctrade.domain.limit.service;
 import java.io.IOException;
 import java.util.List;
 
-import com.example.auctrade.domain.user.dto.UserDTO;
-import org.redisson.api.RBucket;
-import org.redisson.api.RScript;
+import com.example.auctrade.domain.product.dto.ProductDto;
+import com.example.auctrade.domain.product.service.ProductFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +17,6 @@ import com.example.auctrade.domain.limit.dto.LimitDTO;
 import com.example.auctrade.domain.limit.entity.Limits;
 import com.example.auctrade.domain.limit.mapper.LimitMapper;
 import com.example.auctrade.domain.limit.repository.LimitRepository;
-import com.example.auctrade.domain.product.dto.ProductDTO;
-import com.example.auctrade.domain.product.service.FileService;
 import com.example.auctrade.domain.product.service.ProductService;
 // com.example.auctrade.domain.trade.service.TradeService;
 import com.example.auctrade.domain.user.service.UserService;
@@ -35,11 +32,11 @@ public class LimitServiceImpl implements LimitService{
 	private final UserService userService;
 	private final ProductService productService;
 	private final LimitRepository limitRepository;
-	private final FileService fileService;
+	private final ProductFileService fileService;
 //	private final TradeService tradeService;
 @Override
 public LimitDTO.Get createLimit(LimitDTO.Create limitDTO, MultipartFile[] imgFiles, String sellerEmail) throws IOException {
-	Long sellerId = userService.getUserIdByEmail(sellerEmail);
+	Long sellerId = userService.getUserInfo(sellerEmail).getUserId();
 
 	validateInput(limitDTO, imgFiles, sellerId);
 
@@ -47,7 +44,7 @@ public LimitDTO.Get createLimit(LimitDTO.Create limitDTO, MultipartFile[] imgFil
 
 	Limits limits = registerLimit(limitDTO, productId, sellerId);
 
-	ProductDTO.Get product = productService.get(productId);
+	ProductDto.Get product = productService.getProduct(productId);
 
 	return LimitMapper.toDto(limits, product, getUserEmailById(sellerId));
 }
@@ -59,18 +56,17 @@ public LimitDTO.Get createLimit(LimitDTO.Create limitDTO, MultipartFile[] imgFil
 	}
 
 	private Long createProductAndUploadFiles(LimitDTO.Create limitDTO, MultipartFile[] imgFiles, Long sellerId) throws IOException {
-		Long productId = productService.create(ProductDTO.Create.builder()
-			.saleUsername(sellerId.toString()) // sellerId를 String으로 변환
-			.productCategoryId(limitDTO.getProductCategoryId())
-			.name(limitDTO.getProductName())
-			.detail(limitDTO.getProductDetail())
-			.build());
+		ProductDto.Get product = productService.createProduct(ProductDto.Create.builder()
+				.name(limitDTO.getProductName())
+				.detail(limitDTO.getProductDetail())
+				.productCategoryId(limitDTO.getProductCategoryId())
+				.build(), sellerId);
 
-		if (!fileService.uploadFile(imgFiles, productId)) {
+		if (!fileService.uploadFile(imgFiles, product.getProductId())) {
 			throw new CustomException(ErrorCode.WRONG_MULTIPARTFILE);
 		}
 
-		return productId;
+		return product.getProductId();
 	}
 
 	private Limits registerLimit(LimitDTO.Create limitDTO, Long productId, Long sellerId) {
@@ -84,21 +80,21 @@ public LimitDTO.Get createLimit(LimitDTO.Create limitDTO, MultipartFile[] imgFil
 
 		return limitsList.stream()
 			.map(limit -> {
-				ProductDTO.Get product = getProduct(limit.getProductId());
+				ProductDto.Get product = getProduct(limit.getProductId());
 				return LimitMapper.toDto(limit, product, getUserEmailById(limit.getSellerId()));
 			})
 			.toList();
 	}
 
-	private ProductDTO.Get getProduct(Long productId) {
-		return productService.get(productId);
+	private ProductDto.Get getProduct(Long productId) {
+		return productService.getProduct(productId);
 	}
 
 	@Override
 	public LimitDTO.Get getByLimitId(Long limitId) {
 		Limits limit = limitRepository.findById(limitId)
 			.orElseThrow(() -> new CustomException(ErrorCode.LIMIT_NOT_FOUND));
-		ProductDTO.Get product = getProduct(limit.getProductId());
+		ProductDto.Get product = getProduct(limit.getProductId());
 		return LimitMapper.toDto(limit, product, getUserEmailById(limit.getSellerId()));
 	}
 
@@ -119,10 +115,10 @@ public LimitDTO.Get createLimit(LimitDTO.Create limitDTO, MultipartFile[] imgFil
 	}
 
 	private String getUserEmailById(Long userId) {
-		return userService.getUserInfoById(userId).getEmail();
+		return userService.getUserInfo(userId).getEmail();
 	}
 
-	private Long getUserIdByEmail(String email) {return userService.getUserIdByEmail(email);}
+	private Long getUserIdByEmail(String email) {return userService.getUserInfo(email).getUserId();}
 
 
 	@Override

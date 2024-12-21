@@ -1,41 +1,40 @@
 package com.example.auctrade.domain.auction.service;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.example.auctrade.domain.auction.dto.AuctionDto;
+import com.example.auctrade.domain.bid.vo.BidInfoVo;
+import com.example.auctrade.domain.deposit.vo.DepositInfoVo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface AuctionService {
 
-    Long createAuction(AuctionDTO.Create request, long productId, String saleUsername);
+    AuctionDto.Result createAuction(AuctionDto.Create request, MultipartFile[] files, String email);
 
-    List<AuctionDTO.GetList> findAll(Pageable pageable);
+    AuctionDto.Enter getAuctionById(long id);
 
-    AuctionDTO.Get findById(long id);
+    List<AuctionDto.BeforeStart> getAllBeforeStartAuction(int page, int size);
 
-    List<AuctionDTO.GetList> getMyAuctions(Pageable pageable, String email);
+    AuctionDto.GetPage getAllMyAuctions(int page, int size, String email, String status);
 
-    List<AuctionDTO.GetList> getMyAuctions(List<Long> ids);
+    AuctionDto.Result placeDeposit(AuctionDto.Deposit request, Long auctionId, String email);
 
-    AuctionDTO.GetPage getMyOpeningAuctions(Pageable pageable, String email);
+    List<DepositInfoVo> getAllDeposit(Long auctionId);
 
-    AuctionDTO.GetPage getMyEndedAuctions(Pageable pageable, String email);
+    AuctionDto.Result cancelDeposit(Long auctionId, String email);
 
+    AuctionDto.BidResult placeBid(AuctionDto.Bid request, Long auctionId, String email);
 
-    List<AuctionDTO.GetList> getDepositList(Pageable pageable);
+    List<BidInfoVo> getAllBid(Integer page ,Integer size, Long auctionId);
 
-    List<Long> findAllActiveAuctionIds();
+    AuctionDto.Result cancelBid(Long auctionId, String email);
 
-    void startAuction(Long id);
+    AuctionDto.Result completeAuction(Long auctionId);
 
-    void endAuction(Long id);
-
-    int getMaxPersonnel(Long id);
+    int getMaxParticipation(Long id);
 
     int getMinimumPrice(Long id);
 
-    int getLastPageNum(String email, int size);
-
     String getStartAt(Long id);
+
 }

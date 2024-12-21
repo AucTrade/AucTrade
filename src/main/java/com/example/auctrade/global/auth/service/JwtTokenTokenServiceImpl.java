@@ -1,6 +1,6 @@
 package com.example.auctrade.global.auth.service;
 
-import com.example.auctrade.domain.user.dto.UserDTO;
+import com.example.auctrade.domain.user.dto.UserDto;
 import com.example.auctrade.domain.user.entity.UserRoleEnum;
 import com.example.auctrade.domain.user.service.UserService;
 import com.example.auctrade.global.auth.util.JwtUtil;
@@ -110,7 +110,7 @@ public class JwtTokenTokenServiceImpl implements JwtTokenService {
      * @param token 대상 토큰 값
      * @return 유저 정보
      */
-    public UserDTO.Info getUserFromToken(String token) {
+    public UserDto.Info getUserFromToken(String token) {
         return userService.getUserInfo(jwtUtil.getUsernameFromToken(token));
     }
     /**

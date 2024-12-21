@@ -103,9 +103,9 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label for="maxPersonnel" class="col-form-label">인원 설정</label>
+                                <label for="maxParticipants" class="col-form-label">인원 설정</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control dongle-regular fs-4" id="maxPersonnel" name="maxPersonnel" value="50">
+                                    <input type="number" class="form-control dongle-regular fs-4" id="maxParticipants" name="maxParticipants" value="50">
                                     <span class="input-group-text">명</span>
                                 </div>
                             </div>
@@ -113,12 +113,11 @@
                     </div>
                     <div class="mb-3">
                         <div class="col-form-label">시작일</div>
-                        <input type="hidden" name="startDate" id="startDate">
-                        <input type="hidden" name="finishDate" id="finishDate">
-                        <input type="hidden" name="saleUserEmail" id="saleUserEmail" value="java@test.com">
+                        <input type="hidden" name="startAt" id="startAt">
+                        <input type="hidden" name="endAt" id="endAt">
                         <div class="input-group">
                             <span class="input-group-text">📅</span>
-                            <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDay" placeholder="시작 날짜 입력">
+                            <input type="text" class="form-control date-picker dongle-regular fs-4" id="startDate" placeholder="시작 날짜 입력">
                             <span class="input-group-text">⏰</span>
                             <input type="text" class="form-control time-picker dongle-regular fs-4" id="startTime" placeholder="시작 시간 입력">
                         </div>
@@ -193,8 +192,9 @@
     });
 
     function loadAuctions(){
-        getAjaxRequest(`/api/my/auctions?page=${page}&size=${size}&status=open`)
+        getAjaxRequest(`/api/my/auctions?page=${page}&size=${size}&status=all`)
         .then(result => {
+            console.log(result);
             if(result == null) return;
 
             if(result.maxPage == 0){
@@ -229,22 +229,6 @@
     }
 
     function makeAuctionCard(element, index, isAvailable){
-        console.log(element.isEnded);
-        var startButton = "";
-
-        if(element.isStarted){
-            startButton = `<button type="button" class="btn btn-outline-success btn-sm me-1 active" aria-pressed="true"><i class="bi bi-caret-right-fill"></i></button>`;
-        }else{
-            startButton = `<button type="button" class="btn btn-outline-success btn-sm me-1" onclick="startAuction(${element.id});"><i class="bi bi-caret-right-fill"></i></button>`;
-        }
-
-        var stopButton = "";
-        if(!element.isStarted){
-            stopButton = `<button type="button" class="btn btn-outline-danger btn-sm me-1" disabled><i class="bi bi-skip-end-fill"></i></button>`;
-        }else{
-            stopButton = `<button type="button" class="btn btn-outline-danger btn-sm me-1" onclick="endAuction(${element.id});"><i class="bi bi-skip-end-fill"></i></button>`
-        }
-
         return `<div class="col-6">
                 <div class="card m-2">
                     <div class="row g-0">
@@ -257,9 +241,8 @@
                                     <div class="col-8 fs-5 bold ps-2 text-truncate">${element.title}</div>
                                     <div class="col-4">
                                         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                                            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="window.location.href='/auctions/enter?auctionId=${element.id}';"><i class="bi bi-box-arrow-in-right"></i></button>`
-                                            + startButton + stopButton +
-                                        `</div>
+                                            <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="window.location.href='/auctions/enter?auctionId=${element.id}';"><i class="bi bi-box-arrow-in-right"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="container my-1" style="height: 5px; border-bottom:1px solid #bbbbbb;"></div>
@@ -267,11 +250,11 @@
                                     <div class="col-6"><button class="btn btn-primary btn-sm rounded-pill fill-button-text">${element.productCategory}</button></div>
                                     <div class="col-6">
                                     <div class="row text-primary">
-                                    <b>인원 : ${element.curPersonnel} / ${element.maxPersonnel}</b></div>
+                                    <b>인원 : ${element.nowParticipants} / ${element.maxParticipants}</b></div>
                                     </div>
                                 </div>
                                 <div class="row" style="height: 30px;">
-                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startDate}</button></div>
+                                    <div class="col-6"><button class="btn btn-secondary text-white bold fill-button-text" disabled>🕓 ${element.startAt}</button></div>
                                      <div class="col-6"><p>현재 입찰가 : ${element.price}</p></div>
                                 </div>
                             </div>
@@ -305,19 +288,19 @@
         var obj = new Object();
         obj.title = document.querySelector('#title').value;
         obj.introduce = document.querySelector('#introduce').value;
-        obj.startDate = document.querySelector('#startDay').value + "T" + document.querySelector('#startTime').value;
-        obj.finishDate = document.querySelector('#endDate').value + "T" + document.querySelector('#endTime').value;
-        obj.maxPersonnel = parseInt(document.querySelector('#maxPersonnel').value);
+        obj.startAt = document.querySelector('#startDate').value + "T" + document.querySelector('#startTime').value;
+        obj.endAt = document.querySelector('#endDate').value + "T" + document.querySelector('#endTime').value;
+        obj.maxParticipants = parseInt(document.querySelector('#maxParticipants').value);
         obj.minimumPrice = parseInt(document.querySelector('#minimumPrice').value);
         obj.productName = document.querySelector('#productName').value;
         obj.productDetail = document.querySelector('#productDetail').value;
         obj.productCategoryId = 1;
 
-        document.querySelector('#startDate').value =  obj.startDate;
-        document.querySelector('#finishDate').value = obj.finishDate;
+        document.querySelector('#startAt').value =  obj.startAt;
+        document.querySelector('#endAt').value = obj.endAt;
 
-        var start = new Date(obj.startDate)
-        var end = new Date(obj.finishDate)
+        var start = new Date(obj.startAt)
+        var end = new Date(obj.endAt)
         const pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
 
         if(obj.title == "")
@@ -326,11 +309,11 @@
             alert("The maximum number of participants must be at least 2.");
         else if(obj.productName == "")
             alert("Please write the productName.");
-        else if(obj.productContent== "")
+        else if(obj.productDetail== "")
             alert("Please write the productContent.");
-        else if(!pattern.test(obj.startDate))
+        else if(!pattern.test(obj.startAt))
             alert("Please check the start date or time.");
-        else if(!pattern.test(obj.finishDate))
+        else if(!pattern.test(obj.endAt))
             alert("Please check the end date or time.");
         else if(start >= end)
             alert("The start time cannot be later than the end time.");
@@ -378,22 +361,6 @@
 
         formAjaxRequest('/api/auctions', formData).then(result => {
             $('#roomModal').modal('hide');
-            location.reload(true);
-        }).catch(error => {
-            console.error('오류 발생:', error);
-        });
-    }
-
-    function startAuction(id){
-        postPathAjaxRequest(`/api/auctions/${id}/start`).then(result => {
-            location.reload(true);
-        }).catch(error => {
-            console.error('오류 발생:', error);
-        });
-    }
-
-    function endAuction(id){
-        postPathAjaxRequest(`/api/auctions/${id}/end`).then(result => {
             location.reload(true);
         }).catch(error => {
             console.error('오류 발생:', error);

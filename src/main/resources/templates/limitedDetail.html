@@ -85,8 +85,8 @@
         document.querySelector('#title').innerHTML = `<h1>${result.title}</h1>`;
         document.querySelector('#productName').innerHTML =`<p class="text-start fs-4 do-hyeon-regular">${result.productName.slice(0, 20)}</p>`;
         document.querySelector('#price').innerHTML = `<h3>￦ ${result.price}</h3>`;
-        document.querySelector('#limit').innerHTML = `<h3>남은 수량 : ${result.limit}</h3>`;
-        document.querySelector('#saleInfo').innerHTML = `<h3>판매자 : &nbsp; ${result.saleUserEmail}</h3>`;
+        document.querySelector('#limit').innerHTML = `<h3>남은 수량 : ${result.amount}</h3>`;
+        document.querySelector('#saleInfo').innerHTML = `<h3>판매자 : &nbsp; ${result.seller}</h3>`;
         document.querySelector('#productDetail').innerHTML =`<p class="fs-2">${result.productDetail}</p>`;
 
         document.querySelector('#productCategory').innerHTML =`<button class="btn btn-primary category-btn category-button-text" disabled>${result.productCategory}</button>`;

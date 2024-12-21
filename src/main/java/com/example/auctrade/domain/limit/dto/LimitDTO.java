@@ -3,7 +3,6 @@ package com.example.auctrade.domain.limit.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.auctrade.domain.auction.dto.AuctionDTO;
 import com.example.auctrade.global.valid.LimitValidationGroups;
 import com.example.auctrade.global.valid.ProductValidationGroups;
 import com.example.auctrade.global.valid.PurchaseValidationGroups;
@@ -68,6 +67,8 @@ public class LimitDTO {
 		private Long sellerId;
 		private String seller;
 		private LocalDateTime created;
+		private String thumbnail;
+		private List<String> files;
 	}
 	//
 	// @Getter
